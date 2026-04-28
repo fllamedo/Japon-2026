@@ -80,9 +80,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .section-title-r{font-size:11px;letter-spacing:.6px;color:var(--text-muted);text-transform:none;font-family:var(--font-body);font-weight:500}
 
 /* CITY SEGMENT (header por ciudad) */
-.city-segment{position:sticky;top:115px;z-index:42;background:linear-gradient(180deg,var(--bg) 60%,transparent 100%);padding:14px 18px 10px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--border-soft)}
-.city-segment::before{content:'';width:20px;height:1px;background:var(--accent)}
+.city-segment{position:sticky;top:115px;z-index:42;background:linear-gradient(180deg,var(--bg) 60%,transparent 100%);padding:14px 18px 10px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--border-soft);width:100%;border:none;text-align:left;cursor:pointer;font-family:var(--font-display);transition:background .15s}
+.city-segment::before{content:none}
+.city-segment-toggle{font-size:10px;color:var(--accent);transition:transform .2s;flex-shrink:0;width:14px;text-align:center;display:inline-block}
+.city-segment:hover{background:linear-gradient(180deg,rgba(217,119,87,.08) 60%,transparent 100%)}
+.city-segment:active{transform:scale(.99)}
 .city-segment-days{margin-left:auto;font-size:11px;color:var(--text-muted);letter-spacing:.5px;font-family:var(--font-body);font-weight:500;text-transform:none}
+.region-group{display:block;overflow:hidden;transition:max-height .3s ease,opacity .2s ease;max-height:50000px;opacity:1}
+.region-group.collapsed{max-height:0;opacity:0;pointer-events:none}
 
 /* DAY */
 .day{border-bottom:1px solid var(--border-soft);background:var(--bg);position:relative}
@@ -343,6 +348,18 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-saldo.accent{background:rgba(217,119,87,.12);color:var(--accent);border:1px solid rgba(217,119,87,.3)}
 .exp-saldo-val{font-family:var(--font-display);font-variant-numeric:tabular-nums}
 .exp-saldo-detail{font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5;padding:0 4px}
+
+/* Saldo final BIG */
+.exp-saldo-final-big{padding:22px 18px;border-radius:14px;text-align:center;margin-bottom:14px;border:2px solid var(--accent);background:linear-gradient(135deg,rgba(217,119,87,.15),rgba(217,119,87,.05));box-shadow:0 4px 16px rgba(217,119,87,.15)}
+.exp-saldo-final-big.good{border-color:var(--good);background:linear-gradient(135deg,rgba(110,192,138,.15),rgba(110,192,138,.04));box-shadow:0 4px 16px rgba(110,192,138,.12)}
+.esfb-line1{font-size:15px;color:var(--text);margin-bottom:6px;font-weight:500}
+.esfb-line1 strong{color:var(--accent);font-weight:800}
+.exp-saldo-final-big.good .esfb-line1{color:var(--good);font-weight:700}
+.esfb-amount{font-size:32px;font-weight:900;color:var(--accent);font-family:var(--font-display);font-variant-numeric:tabular-nums;margin:6px 0;letter-spacing:-1px}
+.esfb-line2{font-size:12px;color:var(--text-muted);margin-bottom:8px;font-variant-numeric:tabular-nums}
+.esfb-hint{font-size:11px;color:var(--text-muted);font-style:italic}
+
+.exp-detail-hint{font-size:11.5px;color:var(--text-muted);font-style:italic;margin-bottom:10px;padding:0 4px}
 .exp-fx-row{display:grid;grid-template-columns:60px 1fr 50px;gap:8px;align-items:center;margin-bottom:6px;font-size:12.5px;color:var(--text-dim)}
 .exp-fx-row input{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:12.5px;font-variant-numeric:tabular-nums;font-family:var(--font-body)}
 .exp-fx-actions{display:flex;gap:8px;margin-top:8px}
@@ -359,6 +376,10 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-card-cat{font-size:18px;flex-shrink:0}
 .exp-card-desc{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .exp-card-amount{font-family:var(--font-display);font-weight:700;color:var(--good);font-variant-numeric:tabular-nums;flex-shrink:0}
+.exp-card-currbadge{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:.5px;flex-shrink:0;font-family:var(--font-display)}
+.exp-card-currbadge.curr-JPY{background:rgba(217,119,87,.18);color:var(--accent)}
+.exp-card-currbadge.curr-USD{background:rgba(110,192,138,.18);color:var(--good)}
+.exp-card-currbadge.curr-ARS{background:rgba(168,136,216,.18);color:var(--purple)}
 .exp-card-meta{display:flex;flex-wrap:wrap;gap:5px;font-size:11.5px;color:var(--text-muted);margin-bottom:3px}
 .exp-card-eq{color:var(--text-dim);font-variant-numeric:tabular-nums}
 .exp-card-notes{font-size:11.5px;color:var(--text-dim);font-style:italic;margin:4px 0;padding-left:6px;border-left:2px solid var(--border)}
@@ -374,6 +395,49 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .form-helper{font-size:11.5px;color:var(--text-muted);font-style:italic}
 .btn-danger{background:rgba(224,107,94,.12);color:var(--bad);border:1px solid rgba(224,107,94,.3)}
 .btn-danger:hover{background:rgba(224,107,94,.2)}
+
+/* === Deudas por moneda === */
+.exp-debt-row{display:flex;gap:12px;padding:12px;background:var(--surface-2);border-radius:8px;margin-bottom:8px;border:1px solid var(--border-soft)}
+.exp-debt-row.accent{border-color:rgba(217,119,87,.4);background:rgba(217,119,87,.06)}
+.exp-debt-row.good{border-color:rgba(110,192,138,.3);background:rgba(110,192,138,.06)}
+.exp-debt-curr{font-size:24px;font-weight:800;color:var(--accent);font-family:var(--font-display);min-width:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.exp-debt-row.good .exp-debt-curr{color:var(--good)}
+.exp-debt-body{flex:1;min-width:0}
+.exp-debt-title{font-weight:700;color:var(--text);font-size:14.5px;margin-bottom:4px;font-family:var(--font-display)}
+.exp-debt-detail{font-size:11.5px;color:var(--text-dim);margin-bottom:3px}
+.exp-debt-eq{margin-left:6px;color:var(--text-muted);font-style:italic}
+.exp-debt-paid{font-size:11px;color:var(--text-muted)}
+.exp-net-summary{margin-top:12px;padding:11px;background:var(--bg);border-radius:7px;border:1px dashed var(--accent)}
+.exp-net-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:5px}
+.exp-net-val{font-size:14px;font-weight:700;color:var(--accent);font-family:var(--font-display)}
+.exp-net-val.good-fav{color:var(--good)}
+.exp-net-hint{font-size:10.5px;color:var(--text-muted);margin-top:4px;font-style:italic}
+
+/* Personales */
+.exp-personal-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-soft);font-size:13px}
+.exp-personal-row:last-child{border-bottom:none}
+.exp-personal-curr{font-family:var(--font-display);font-weight:700;color:var(--accent);min-width:34px;font-size:13px}
+.exp-personal-cell{color:var(--text-dim)}
+
+/* Presupuesto */
+.exp-budget-card{background:linear-gradient(135deg,rgba(74,144,226,.05),rgba(110,192,138,.05));border:1px solid var(--border)}
+.exp-budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.exp-budget-item{padding:10px;background:var(--surface-2);border-radius:7px}
+.exp-budget-label{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:4px}
+.exp-budget-val{font-size:16px;font-weight:800;color:var(--text);font-family:var(--font-display);font-variant-numeric:tabular-nums}
+.exp-budget-sub{font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums;margin-top:2px}
+.exp-budget-bar-wrap{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.exp-budget-bar{height:100%;background:linear-gradient(90deg,var(--good),var(--accent));border-radius:99px;transition:width .3s}
+.exp-budget-pct{font-size:11px;color:var(--text-muted);text-align:center}
+.exp-budget-detail{margin-top:8px}
+.exp-budget-detail summary{font-size:12px;color:var(--accent-soft);cursor:pointer;padding:4px 0;font-weight:600}
+.exp-budget-categories{padding-top:8px;display:flex;flex-direction:column;gap:5px}
+.exp-budget-catrow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 6px;background:var(--surface-2);border-radius:5px}
+
+/* Weather estimado */
+.weather-estimated{position:relative}
+.weather-estimated::after{content:'estimación';position:absolute;top:6px;right:6px;background:rgba(241,196,15,.15);color:#f5c443;font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display)}
+.weather-source{font-size:10.5px;color:var(--text-muted);margin-top:4px}
 
 /* FAB */
 .fab{position:fixed;bottom:18px;right:18px;width:52px;height:52px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(217,119,87,.4);z-index:100;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;transition:transform .15s}
@@ -3737,19 +3801,35 @@ function renderAll(){
     const r = DAYS_DATA[id].region || DAYS_DATA[id].city || '?';
     (regionDays[r] = regionDays[r] || []).push(id);
   });
+  if(!state._collapsedRegions) state._collapsedRegions = {};
+  let currentRegionGroup = null; // div contenedor de los days de la región actual
   for(const id of ids){
     const day = DAYS_DATA[id];
     const region = day.region || day.city;
     if(region !== lastRegion){
       const rdays = regionDays[region];
-      const seg = document.createElement('div');
+      const seg = document.createElement('button');
       seg.className = 'city-segment';
+      seg.type = 'button';
       const dayLabel = rdays.length===1 ? `D${rdays[0]}` : `D${rdays[0]}–D${rdays[rdays.length-1]}`;
-      seg.innerHTML = `<span>${escapeHtml(region)}</span><span class="city-segment-days">${dayLabel}</span>`;
+      const isCollapsed = !!state._collapsedRegions[region];
+      seg.dataset.region = region;
+      seg.innerHTML = `<span class="city-segment-toggle">${isCollapsed?'▶':'▼'}</span><span>${escapeHtml(region)}</span><span class="city-segment-days">${dayLabel} · ${rdays.length}d</span>`;
+      seg.addEventListener('click',()=>{
+        state._collapsedRegions[region] = !state._collapsedRegions[region];
+        renderAll();
+      });
       container.appendChild(seg);
+      // Crear grupo contenedor
+      currentRegionGroup = document.createElement('div');
+      currentRegionGroup.className = 'region-group';
+      if(isCollapsed) currentRegionGroup.classList.add('collapsed');
+      currentRegionGroup.dataset.region = region;
+      container.appendChild(currentRegionGroup);
       lastRegion = region;
     }
-    container.appendChild(renderDayCard(day));
+    if(currentRegionGroup) currentRegionGroup.appendChild(renderDayCard(day));
+    else container.appendChild(renderDayCard(day));
   }
   openIds.forEach(id=>{
     const d = container.querySelector(`.day[data-day="${id}"]`);
@@ -3758,6 +3838,12 @@ function renderAll(){
       d.querySelector('.day-body').classList.add('open');
     }
   });
+  // Actualizar estimado de gastos si la pestaña existe y está activa
+  if(typeof renderExpenses === 'function' && document.getElementById('expensesList')){
+    // Solo re-render si la pestaña está visible (sino se regenera al cambiar de tab)
+    const expView = document.getElementById('view-expenses');
+    if(expView && expView.classList.contains('active')) renderExpenses();
+  }
 }
 
 function renderDayCard(day){
@@ -4337,9 +4423,10 @@ async function fetchOpenMeteo(lat,lon,date){
     const r = await fetch(url, {signal: AbortSignal.timeout(6000)});
     if(r.ok){
       const d = await r.json();
-      return {tmax: Math.round(d.daily.temperature_2m_max[0]), tmin: Math.round(d.daily.temperature_2m_min[0]), rain: d.daily.precipitation_sum[0]||0, code: d.daily.weather_code[0], source:'pronóstico'};
+      return {tmax: Math.round(d.daily.temperature_2m_max[0]), tmin: Math.round(d.daily.temperature_2m_min[0]), rain: d.daily.precipitation_sum[0]||0, code: d.daily.weather_code[0], source:'real', sourceLabel:'🟢 Pronóstico real · Open-Meteo', isReal:true};
     }
   }
+  // Si está a más de 16 días, usamos histórico del año pasado
   const y = target.getFullYear() - 1;
   const md = date.slice(5);
   const prevDate = `${y}-${md}`;
@@ -4347,7 +4434,9 @@ async function fetchOpenMeteo(lat,lon,date){
   const r2 = await fetch(url2, {signal: AbortSignal.timeout(6000)});
   if(r2.ok){
     const d = await r2.json();
-    return {tmax: Math.round(d.daily.temperature_2m_max[0]), tmin: Math.round(d.daily.temperature_2m_min[0]), rain: d.daily.precipitation_sum[0]||0, source:'histórico año anterior'};
+    const realDays = Math.max(0, daysAhead - 16);
+    const labelDate = `${prevDate.slice(8,10)}/${prevDate.slice(5,7)}/${y}`;
+    return {tmax: Math.round(d.daily.temperature_2m_max[0]), tmin: Math.round(d.daily.temperature_2m_min[0]), rain: d.daily.precipitation_sum[0]||0, source:'historic', sourceLabel:`🟡 Estimación · año anterior (${labelDate}) · pronóstico real disponible en ${realDays}d`, isReal:false};
   }
   throw new Error('open-meteo fail');
 }
@@ -4356,7 +4445,7 @@ function fetchHist(city,date){
   const period = histPeriod(date);
   const hist = (WEATHER_HIST[city] && WEATHER_HIST[city][period]);
   if(!hist) return null;
-  return {tmax: hist.tmax, tmin: hist.tmin, rain: hist.rain, source:'promedio climatológico local'};
+  return {tmax: hist.tmax, tmin: hist.tmin, rain: hist.rain, source:'avg', sourceLabel:'🟡 Promedio climatológico (sin internet)', isReal:false};
 }
 
 async function fetchWeatherForDay(day){
@@ -4408,7 +4497,9 @@ async function loadWeatherAll(){
         box.querySelector('.weather-icon').textContent = ic;
         box.querySelector('.weather-temp').textContent = `${w.tmax}° / ${w.tmin}° · ${w.rain>0 ? (+w.rain).toFixed(0)+'mm lluvia' : 'sin lluvia'}`;
         box.querySelector('.weather-desc').textContent = w.city;
-        box.querySelector('.weather-source').innerHTML = w.source;
+        box.querySelector('.weather-source').innerHTML = w.sourceLabel || w.source;
+        if(box && w.isReal === false) box.classList.add('weather-estimated');
+        else if(box) box.classList.remove('weather-estimated');
         if(chip) chip.textContent = `${ic} ${w.tmax}°/${w.tmin}°`;
         const alert = weatherAlert(w);
         if(alert && alertEl){ alertEl.style.display='block'; alertEl.innerHTML = alert; }
@@ -4419,7 +4510,8 @@ async function loadWeatherAll(){
         activeWeather[dayId] = wh;
         box.querySelector('.weather-temp').textContent = `${wh.tmax}° / ${wh.tmin}°`;
         box.querySelector('.weather-desc').textContent = wh.city;
-        box.querySelector('.weather-source').textContent = wh.source;
+        box.querySelector('.weather-source').textContent = wh.sourceLabel || wh.source;
+        if(box) box.classList.add('weather-estimated');
         if(chip) chip.textContent = `🌤️ ${wh.tmax}°/${wh.tmin}°`;
       } else {
         box.querySelector('.weather-desc').textContent = 'Clima no disponible';
@@ -4482,14 +4574,22 @@ function getSpanishVoices(){
   });
 }
 function getBestSpanishVoice(){
+  const all = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  // Si hay voiceName guardado, buscarlo en TODAS las voces (no solo españolas)
+  if(state.voiceName){
+    const saved = all.find(v=>v.name===state.voiceName);
+    if(saved){
+      console.log('[TTS] Usando voz guardada:', saved.name, saved.lang);
+      return saved;
+    } else {
+      console.log('[TTS] Voz guardada no disponible:', state.voiceName);
+    }
+  }
   const voices = getSpanishVoices();
   if(!voices.length) return null;
-  if(state.voiceName){
-    const saved = voices.find(v=>v.name===state.voiceName);
-    if(saved) return saved;
-  }
   const google = voices.find(v=>/google/i.test(v.name) && /(estados unidos|united states|us)/i.test(v.name));
-  if(google) return google;
+  if(google){ console.log('[TTS] Usando Google ES-US default'); return google; }
+  console.log('[TTS] Usando primera ES disponible:', voices[0].name);
   return voices[0];
 }
 
@@ -4612,11 +4712,18 @@ function openGuide(guideId){
     showModal(`<h3>Guía en preparación</h3><div class="modal-sub">"${escapeHtml(guideId)}" estará en versión final.</div>`);
     return;
   }
-  const voices = getSpanishVoices();
+  const allVoices = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  const spanishVoices = getSpanishVoices();
+  const otherVoices = allVoices.filter(v=>!spanishVoices.includes(v));
   const best = getBestSpanishVoice();
-  const voiceOptions = voices.map(v =>
-    `<option value="${escapeHtml(v.name)}" ${(state.voiceName?state.voiceName===v.name:(best&&v===best))?'selected':''}>${escapeHtml(v.name)} (${v.lang})</option>`
-  ).join('');
+  function voiceOpt(v){
+    const sel = state.voiceName ? state.voiceName===v.name : (best && v===best);
+    return `<option value="${escapeHtml(v.name)}" ${sel?'selected':''}>${escapeHtml(v.name)} (${v.lang})</option>`;
+  }
+  const voiceOptions = `
+    <optgroup label="Español (recomendado)">${spanishVoices.map(voiceOpt).join('')}</optgroup>
+    ${otherVoices.length ? `<optgroup label="Otros idiomas">${otherVoices.map(voiceOpt).join('')}</optgroup>` : ''}
+  `;
   showModal(`
     <h3>${escapeHtml(g.title)}</h3>
     <div class="modal-sub">${escapeHtml(g.subtitle||'')}</div>
@@ -5067,43 +5174,47 @@ function renderExpenses(){
   if(f.cat !== 'all') filtered = filtered.filter(e => e.category === f.cat);
   if(f.day !== 'all') filtered = filtered.filter(e => e.dayId == f.day);
   
-  // Cálculos en JPY (canónico)
-  let sharedTotal = 0;        // total compartido
-  let facuPersonal = 0;       // personal Facu
-  let martiPersonal = 0;      // personal Marti
-  let facuPaidShared = 0;     // Facu pagó de compartido
-  let martiPaidShared = 0;    // Marti pagó de compartido
+  // === CÁLCULOS POR MONEDA (sin convertir) ===
+  // Estructura: { JPY: { sharedTotal, facuPaidShared, martiPaidShared, facuPersonal, martiPersonal }, USD: {...}, ARS: {...} }
+  const CURRENCIES = ['JPY','USD','ARS'];
+  const byCurr = {};
+  CURRENCIES.forEach(c => byCurr[c] = {sharedTotal:0, facuPaidShared:0, martiPaidShared:0, facuPersonal:0, martiPersonal:0});
   
   state.expenses.forEach(e=>{
-    const amountJpy = convertCurrency(e.amount, e.currency, 'JPY');
+    const c = e.currency;
+    if(!byCurr[c]) return;
     if(e.type === 'shared'){
-      sharedTotal += amountJpy;
-      if(e.payer === 'F') facuPaidShared += amountJpy;
-      else if(e.payer === 'M') martiPaidShared += amountJpy;
+      byCurr[c].sharedTotal += e.amount;
+      if(e.payer === 'F') byCurr[c].facuPaidShared += e.amount;
+      else if(e.payer === 'M') byCurr[c].martiPaidShared += e.amount;
     } else if(e.type === 'facu'){
-      facuPersonal += amountJpy;
+      byCurr[c].facuPersonal += e.amount;
     } else if(e.type === 'marti'){
-      martiPersonal += amountJpy;
+      byCurr[c].martiPersonal += e.amount;
     }
   });
   
-  const eachOwes = sharedTotal / 2;
-  // Marti debe (a Facu) si Facu pagó más de su parte
-  const martiOwesFacu = facuPaidShared - eachOwes;
-  // Facu debe (a Marti) si Marti pagó más
-  const facuOwesMarti = martiPaidShared - eachOwes;
+  // === DEUDAS POR MONEDA ===
+  // Para cada moneda: cada uno debe pagar la mitad del total compartido en esa moneda.
+  // Si Facu pagó más de la mitad → Marti le debe la diferencia
+  const debts = {}; // { JPY: { martiOwesFacu: 0 }, USD: ..., ARS: ... } negativos = facu debe a marti
+  CURRENCIES.forEach(c=>{
+    const v = byCurr[c];
+    const eachOwes = v.sharedTotal / 2;
+    debts[c] = v.facuPaidShared - eachOwes; // positivo = marti le debe a facu
+  });
   
-  let saldoText = '✓ Parejos';
-  let saldoClass = 'good';
-  if(Math.round(martiOwesFacu) > 100){
-    saldoText = `Marti → Facu: ${fmtCurrency(martiOwesFacu, 'JPY')}`;
-    saldoClass = 'accent';
-  } else if(Math.round(facuOwesMarti) > 100){
-    saldoText = `Facu → Marti: ${fmtCurrency(facuOwesMarti, 'JPY')}`;
-    saldoClass = 'accent';
-  }
+  // Total NETO consolidado en USD (más práctico para "saldar" entre los dos)
+  let netUsd = 0;
+  CURRENCIES.forEach(c=>{
+    netUsd += convertCurrency(debts[c], c, 'USD');
+  });
   
-  document.getElementById('expSummary').textContent = `${fmtCurrency(sharedTotal, 'JPY')} compartido`;
+  // total en cada moneda original
+  const grandTotalJpy = state.expenses.reduce((s,e)=>s+convertCurrency(e.amount,e.currency,'JPY'),0);
+  const sharedTotalJpy = state.expenses.filter(e=>e.type==='shared').reduce((s,e)=>s+convertCurrency(e.amount,e.currency,'JPY'),0);
+  
+  document.getElementById('expSummary').textContent = `${fmtCurrency(grandTotalJpy, 'JPY')} total`;
   
   // Sort filtered by createdAt desc
   filtered.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
@@ -5117,37 +5228,120 @@ function renderExpenses(){
   
   const fxDate = state.fxRates.lastUpdated ? 
     new Date(state.fxRates.lastUpdated).toLocaleDateString('es-AR') : 'manual';
-  const fxSource = state.fxRates.source === 'online' ? '🌐' : '✏️';
+  const fxSource = state.fxRates.source === 'online' ? '🌐 Online' : '✏️ Manual';
+  
+  // === ESTIMACIÓN DESDE ITINERARIO ===
+  const planEstimate = computePlanEstimate();
+  
+  // === SALDO FINAL — Mensaje grande y claro ===
+  const hasShared = CURRENCIES.some(c => byCurr[c].sharedTotal > 0);
+  let saldoFinalHtml = '';
+  if(hasShared){
+    const absUsd = Math.abs(netUsd);
+    if(absUsd < 0.5){
+      saldoFinalHtml = `
+        <div class="exp-saldo-final-big good">
+          <div class="esfb-line1">✓ Cuentas parejas</div>
+          <div class="esfb-line2">Ningún saldo pendiente entre ustedes</div>
+        </div>`;
+    } else {
+      const debtor = netUsd > 0 ? 'Marti' : 'Facu';
+      const creditor = netUsd > 0 ? 'Facu' : 'Marti';
+      saldoFinalHtml = `
+        <div class="exp-saldo-final-big accent">
+          <div class="esfb-line1"><strong>${debtor}</strong> le debe a <strong>${creditor}</strong></div>
+          <div class="esfb-amount">${fmtCurrency(absUsd,'USD')}</div>
+          <div class="esfb-line2">≈ ${fmtCurrency(convertCurrency(absUsd,'USD','JPY'),'JPY')} · ${fmtCurrency(convertCurrency(absUsd,'USD','ARS'),'ARS')}</div>
+          <div class="esfb-hint">Para saldar todo en una sola transferencia</div>
+        </div>`;
+    }
+  }
+  
+  // Renderizar deudas por moneda solo si hay cosas
+  const debtRows = CURRENCIES.filter(c => byCurr[c].sharedTotal > 0).map(c=>{
+    const d = debts[c];
+    const v = byCurr[c];
+    const each = v.sharedTotal / 2;
+    let saldoText, saldoClass;
+    if(Math.abs(d) < 1){
+      saldoText = '✓ Parejos';
+      saldoClass = 'good';
+    } else if(d > 0){
+      saldoText = `<strong>Marti</strong> debe a Facu: ${fmtCurrency(Math.abs(d), c)}`;
+      saldoClass = 'accent';
+    } else {
+      saldoText = `<strong>Facu</strong> debe a Marti: ${fmtCurrency(Math.abs(d), c)}`;
+      saldoClass = 'accent';
+    }
+    return `
+      <div class="exp-debt-row ${saldoClass}">
+        <div class="exp-debt-curr">${c==='JPY'?'¥':c==='USD'?'US$':'AR$'}</div>
+        <div class="exp-debt-body">
+          <div class="exp-debt-title">${saldoText}</div>
+          <div class="exp-debt-detail">
+            Total compartido en ${c}: ${fmtCurrency(v.sharedTotal, c)} · cada uno ${fmtCurrency(each, c)}
+          </div>
+          <div class="exp-debt-paid">
+            💙 Facu pagó ${fmtCurrency(v.facuPaidShared, c)} · 💜 Marti pagó ${fmtCurrency(v.martiPaidShared, c)}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  
+  const personalRows = CURRENCIES.filter(c=>byCurr[c].facuPersonal>0||byCurr[c].martiPersonal>0).map(c=>{
+    const v = byCurr[c];
+    return `<div class="exp-personal-row">
+      <span class="exp-personal-curr">${c}</span>
+      ${v.facuPersonal>0?`<span class="exp-personal-cell">💙 Facu: ${fmtCurrency(v.facuPersonal,c)}</span>`:''}
+      ${v.martiPersonal>0?`<span class="exp-personal-cell">💜 Marti: ${fmtCurrency(v.martiPersonal,c)}</span>`:''}
+    </div>`;
+  }).join('');
   
   list.innerHTML = `
-    <div class="note-card exp-summary-card">
-      <h3>📊 Resumen del viaje</h3>
-      <div class="exp-summary-grid">
-        <div class="exp-stat">
-          <div class="exp-stat-label">Compartido</div>
-          <div class="exp-stat-val">${fmtCurrency(sharedTotal, 'JPY')}</div>
-          <div class="exp-stat-sub">${fmtEquivalent(sharedTotal, 'JPY')}</div>
+    ${saldoFinalHtml}
+    
+    <div class="note-card exp-budget-card">
+      <h3>📊 Presupuesto del viaje</h3>
+      <div class="exp-budget-grid">
+        <div class="exp-budget-item">
+          <div class="exp-budget-label">Estimado del plan</div>
+          <div class="exp-budget-val">${fmtCurrency(planEstimate.total,'JPY')}</div>
+          <div class="exp-budget-sub">${fmtEquivalent(planEstimate.total,'JPY')}</div>
         </div>
-        <div class="exp-stat">
-          <div class="exp-stat-label">Facu personal</div>
-          <div class="exp-stat-val">${fmtCurrency(facuPersonal, 'JPY')}</div>
-          <div class="exp-stat-sub">${fmtEquivalent(facuPersonal, 'JPY')}</div>
-        </div>
-        <div class="exp-stat">
-          <div class="exp-stat-label">Marti personal</div>
-          <div class="exp-stat-val">${fmtCurrency(martiPersonal, 'JPY')}</div>
-          <div class="exp-stat-sub">${fmtEquivalent(martiPersonal, 'JPY')}</div>
+        <div class="exp-budget-item">
+          <div class="exp-budget-label">Real cargado</div>
+          <div class="exp-budget-val">${fmtCurrency(grandTotalJpy,'JPY')}</div>
+          <div class="exp-budget-sub">${fmtEquivalent(grandTotalJpy,'JPY')}</div>
         </div>
       </div>
-      <div class="exp-saldo ${saldoClass}">
-        <span>⚖️ Saldo del pool</span>
-        <span class="exp-saldo-val">${saldoText}</span>
+      <div class="exp-budget-bar-wrap">
+        <div class="exp-budget-bar" style="width:${Math.min(100, planEstimate.total ? (grandTotalJpy/planEstimate.total*100) : 0).toFixed(0)}%"></div>
       </div>
-      <div class="exp-saldo-detail">
-        <div>Pagó Facu: ${fmtCurrency(facuPaidShared, 'JPY')} · de su parte ${fmtCurrency(eachOwes, 'JPY')}</div>
-        <div>Pagó Marti: ${fmtCurrency(martiPaidShared, 'JPY')} · de su parte ${fmtCurrency(eachOwes, 'JPY')}</div>
-      </div>
+      <div class="exp-budget-pct">${planEstimate.total ? `${(grandTotalJpy/planEstimate.total*100).toFixed(0)}% del estimado` : 'Sin estimación'}</div>
+      <details class="exp-budget-detail">
+        <summary>Ver desglose del estimado por categoría</summary>
+        <div class="exp-budget-categories">
+          ${EXP_CATEGORIES.map(cat=>{
+            const v = planEstimate.byCat[cat.id] || 0;
+            if(!v) return '';
+            return `<div class="exp-budget-catrow">
+              <span>${cat.icon} ${cat.label}</span>
+              <span>${fmtCurrency(v,'JPY')}</span>
+            </div>`;
+          }).filter(Boolean).join('') || '<div class="muted" style="padding:6px 0;font-size:12px">Sin actividades con precio en el itinerario.</div>'}
+        </div>
+      </details>
     </div>
+    
+    ${hasShared ? `<div class="note-card">
+      <h3>⚖️ Detalle de deudas por moneda</h3>
+      <div class="exp-detail-hint">Cada moneda se calcula por separado para evitar confusión por tipo de cambio.</div>
+      ${debtRows}
+    </div>` : ''}
+    ${personalRows ? `<div class="note-card">
+      <h3>🧍 Personales (no se dividen)</h3>
+      ${personalRows}
+    </div>` : ''}
     
     <div class="note-card">
       <h3>💱 Tasas de cambio</h3>
@@ -5165,7 +5359,7 @@ function renderExpenses(){
         <button class="btn btn-ghost" id="exp-fx-fetch">🌐 Actualizar online</button>
         <button class="btn btn-ghost" id="exp-fx-save">💾 Guardar manual</button>
       </div>
-      <div class="exp-fx-meta">${fxSource} ${state.fxRates.source === 'online' ? 'Online' : 'Manual'} · ${fxDate}</div>
+      <div class="exp-fx-meta">${fxSource} · ${fxDate}</div>
     </div>
     
     <div class="note-card exp-add-card">
@@ -5212,9 +5406,14 @@ function renderExpenses(){
         const dn = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][dt.getDay()];
         return `D${dayKey} · ${dn} ${dt.getDate()}/${dt.getMonth()+1}`;
       })() : 'Sin día asignado';
-      const dayTotalJpy = items.reduce((s,e)=>s+convertCurrency(e.amount,e.currency,'JPY'),0);
+      // Total del día por moneda
+      const dayTotalsByCurr = {};
+      items.forEach(e=>{
+        dayTotalsByCurr[e.currency] = (dayTotalsByCurr[e.currency]||0) + e.amount;
+      });
+      const dayTotalsTxt = Object.entries(dayTotalsByCurr).map(([c,v])=>fmtCurrency(v,c)).join(' + ');
       return `<div class="note-card">
-        <h3>${dayLabel} <span style="font-size:11px;font-weight:500;color:var(--text-muted);margin-left:auto">${fmtCurrency(dayTotalJpy,'JPY')}</span></h3>
+        <h3>${dayLabel} <span style="font-size:11px;font-weight:500;color:var(--text-muted);margin-left:auto">${dayTotalsTxt}</span></h3>
         ${items.map(e=>{
           const cat = EXP_CATEGORIES.find(c=>c.id===e.category) || EXP_CATEGORIES[5];
           const typeIcon = e.type==='shared'?'🤝':e.type==='facu'?'💙':'💜';
@@ -5226,6 +5425,7 @@ function renderExpenses(){
             <div class="exp-card-head">
               <span class="exp-card-cat">${cat.icon}</span>
               <span class="exp-card-desc">${escapeHtml(e.desc||'(sin nombre)')}</span>
+              <span class="exp-card-currbadge curr-${e.currency}">${e.currency}</span>
               <span class="exp-card-amount">${fmtCurrency(e.amount, e.currency)}</span>
             </div>
             <div class="exp-card-meta">
@@ -5293,6 +5493,51 @@ function renderExpenses(){
   
   document.getElementById('exp-export-pdf').addEventListener('click',exportExpensesPDF);
   document.getElementById('exp-export-csv').addEventListener('click',exportExpensesCSV);
+}
+
+/* === Calcular estimado del plan desde itinerario === */
+function computePlanEstimate(){
+  const out = { total: 0, byCat: {} };
+  EXP_CATEGORIES.forEach(c=>{ out.byCat[c.id] = 0; });
+  Object.values(DAYS_DATA).forEach(day=>{
+    if(!day.activities) return;
+    day.activities.forEach(a=>{
+      const price = a.priceYen || 0;
+      if(!price) return;
+      // Suma siempre por dos personas (Facu + Marti)
+      const total = price * (a.kind === 'transit' ? 1 : 2); // tránsitos ya van por persona usualmente, pero acá es x2 por defecto
+      // Mejor: tránsitos los multiplicamos por 2 también (priceYen suele ser por persona)
+      // Por simplicidad sumo 2x para todo (es x2 viajeros)
+      const finalPrice = price * 2;
+      out.total += finalPrice;
+      // Mapear kind a categoría
+      const cat = mapKindToCategory(a);
+      out.byCat[cat] = (out.byCat[cat]||0) + finalPrice;
+    });
+  });
+  return out;
+}
+function mapKindToCategory(act){
+  if(act.kind === 'transit') return 'transport';
+  if(act.kind === 'meal') return 'food';
+  if(act.kind === 'logistic'){
+    const t = (act.title||'').toLowerCase();
+    if(t.includes('check') || t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment')) return 'lodging';
+    if(t.includes('takkyubin') || t.includes('lockers') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
+    return 'other';
+  }
+  if(act.kind === 'imperdible' || act.kind === 'recommended') return 'attractions';
+  if(act.kind === 'free'){
+    const t = (act.title||'').toLowerCase();
+    if(t.includes('shopping') || t.includes('compras') || t.includes('mall') || t.includes('tienda')) return 'shopping';
+    return 'other';
+  }
+  if(act.kind === 'anchor'){
+    const t = (act.title||'').toLowerCase();
+    if(t.includes('check') || t.includes('takkyubin')) return 'lodging';
+    return 'other';
+  }
+  return 'other';
 }
 
 function openExpenseModal(expenseId){
