@@ -331,6 +331,50 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-add-row input,.exp-add-row2 input,.exp-add-row2 select{background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:7px 10px;border-radius:6px;font-family:var(--font-body)}
 .exp-add-row2 button{background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
 
+/* ═══ EXPENSES SPLITWISE STYLE ═══ */
+.exp-summary-card{background:linear-gradient(135deg,rgba(217,119,87,.08),rgba(168,136,216,.05));border:1px solid var(--border)}
+.exp-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 12px}
+.exp-stat{padding:10px;background:var(--surface-2);border-radius:8px;text-align:center;min-width:0}
+.exp-stat-label{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:3px}
+.exp-stat-val{font-size:14.5px;font-weight:800;color:var(--text);font-family:var(--font-display);font-variant-numeric:tabular-nums}
+.exp-stat-sub{font-size:10.5px;color:var(--text-muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.exp-saldo{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:8px;font-weight:700;font-size:13.5px;margin-top:8px}
+.exp-saldo.good{background:rgba(110,192,138,.12);color:var(--good)}
+.exp-saldo.accent{background:rgba(217,119,87,.12);color:var(--accent);border:1px solid rgba(217,119,87,.3)}
+.exp-saldo-val{font-family:var(--font-display);font-variant-numeric:tabular-nums}
+.exp-saldo-detail{font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5;padding:0 4px}
+.exp-fx-row{display:grid;grid-template-columns:60px 1fr 50px;gap:8px;align-items:center;margin-bottom:6px;font-size:12.5px;color:var(--text-dim)}
+.exp-fx-row input{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:12.5px;font-variant-numeric:tabular-nums;font-family:var(--font-body)}
+.exp-fx-actions{display:flex;gap:8px;margin-top:8px}
+.exp-fx-actions .btn{flex:1;font-size:12px;padding:7px}
+.exp-fx-meta{font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center}
+.exp-add-card .btn-primary{background:var(--accent);color:#fff;border:none;padding:12px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.exp-add-card .btn-primary:hover{background:var(--accent-hover,#c66643)}
+.exp-filters{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.exp-filters select{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:7px 8px;border-radius:6px;font-size:12px;font-family:var(--font-body)}
+.exp-filters select:nth-child(3){grid-column:1/-1}
+.exp-filter-meta{font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center}
+.exp-card{background:var(--surface-2);border:1px solid var(--border-soft);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px}
+.exp-card-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.exp-card-cat{font-size:18px;flex-shrink:0}
+.exp-card-desc{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-card-amount{font-family:var(--font-display);font-weight:700;color:var(--good);font-variant-numeric:tabular-nums;flex-shrink:0}
+.exp-card-meta{display:flex;flex-wrap:wrap;gap:5px;font-size:11.5px;color:var(--text-muted);margin-bottom:3px}
+.exp-card-eq{color:var(--text-dim);font-variant-numeric:tabular-nums}
+.exp-card-notes{font-size:11.5px;color:var(--text-dim);font-style:italic;margin:4px 0;padding-left:6px;border-left:2px solid var(--border)}
+.exp-card-foot{display:flex;align-items:center;gap:6px;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border-soft)}
+.exp-card-author{flex:1;font-size:10.5px;color:var(--text-muted);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-card-edit,.exp-card-del{background:none;border:1px solid var(--border-soft);color:var(--text-muted);padding:3px 7px;border-radius:5px;cursor:pointer;font-size:12px}
+.exp-card-edit:hover{color:var(--accent);border-color:var(--accent)}
+.exp-card-del:hover{color:var(--bad);border-color:var(--bad)}
+.form-stack{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.form-stack label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.form-stack input[type="text"],.form-stack input[type="number"],.form-stack select{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:7px;font-size:14px;font-family:var(--font-body)}
+.form-stack input:focus,.form-stack select:focus{outline:none;border-color:var(--accent)}
+.form-helper{font-size:11.5px;color:var(--text-muted);font-style:italic}
+.btn-danger{background:rgba(224,107,94,.12);color:var(--bad);border:1px solid rgba(224,107,94,.3)}
+.btn-danger:hover{background:rgba(224,107,94,.2)}
+
 /* FAB */
 .fab{position:fixed;bottom:18px;right:18px;width:52px;height:52px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(217,119,87,.4);z-index:100;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;transition:transform .15s}
 .fab:hover{background:var(--accent-deep)}
@@ -891,9 +935,11 @@ let state = {
   voiceRate: 1,
   packing: null,
   expenses: [],
+  fxRates: null,
   customNotes: null,
   customFood: null,
-  customPhrases: null
+  customPhrases: null,
+  _expFilter: null
 };
 
 function uid(){ return Math.random().toString(36).slice(2,9); }
@@ -3527,6 +3573,28 @@ function loadState(){
     if(!state.customNotes) state.customNotes = structuredCloneSafe(NOTES_DEFAULT);
     if(!state.customFood) state.customFood = structuredCloneSafe(FOOD_PLACES_DEFAULT);
     if(!state.customPhrases) state.customPhrases = structuredCloneSafe(PHRASES_DEFAULT);
+    
+    // Migración de gastos formato viejo → nuevo
+    if(state.expenses && state.expenses.length){
+      state.expenses.forEach(e=>{
+        if(!e.currency){ e.currency = 'JPY'; } // viejos eran solo en yen
+        if(!e.type){
+          if(e.payer === 'F'){ e.type = 'shared'; e.payer = 'F'; }
+          else if(e.payer === 'M'){ e.type = 'shared'; e.payer = 'M'; }
+          else { e.type = 'shared'; e.payer = 'F'; } // 50/50 viejo lo asignamos a Facu como pagador
+        }
+        if(!e.category) e.category = 'other';
+        if(!e.createdAt && e.date){
+          e.createdAt = new Date(e.date+'T12:00:00').getTime();
+        }
+        if(!e.dayId && e.date){
+          // Buscar día que matchee
+          for(const id of Object.keys(DAYS_DATA)){
+            if(DAYS_DATA[id].date === e.date){ e.dayId = id; break; }
+          }
+        }
+      });
+    }
   }catch(e){console.warn('load failed',e); initDefaults();}
 }
 
@@ -4895,156 +4963,592 @@ function renderPacking(){
   });
 }
 
-/* ═══ EXPENSES ═══ */
+/* ═══ EXPENSES — sistema tipo Splitwise ═══ */
+const EXP_CATEGORIES = [
+  {id:'food',     icon:'🍣', label:'Comida'},
+  {id:'transport',icon:'🚇', label:'Transporte'},
+  {id:'lodging',  icon:'🏨', label:'Alojamiento'},
+  {id:'attractions',icon:'⛩️', label:'Atracciones'},
+  {id:'shopping', icon:'🛍️', label:'Compras'},
+  {id:'other',    icon:'💴', label:'Otros'}
+];
+
+// Conversión multimoneda (state.fxRates: {jpyToUsd, usdToArs})
+function ensureFxRates(){
+  if(!state.fxRates){
+    state.fxRates = {
+      jpyToUsd: 0.0067,    // 1 JPY = 0.0067 USD aprox
+      usdToArs: 1200,      // 1 USD = 1200 ARS aprox  
+      lastUpdated: null,
+      source: 'manual'
+    };
+  }
+}
+
+async function fetchFxRates(){
+  ensureFxRates();
+  // Usar API gratuita exchangerate.host (sin key requerida)
+  try{
+    // JPY → USD
+    const r1 = await fetch('https://api.exchangerate-api.com/v4/latest/JPY');
+    const d1 = await r1.json();
+    if(d1 && d1.rates && d1.rates.USD){
+      state.fxRates.jpyToUsd = d1.rates.USD;
+    }
+    // USD → ARS
+    const r2 = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const d2 = await r2.json();
+    if(d2 && d2.rates && d2.rates.ARS){
+      state.fxRates.usdToArs = d2.rates.ARS;
+    }
+    state.fxRates.lastUpdated = new Date().toISOString();
+    state.fxRates.source = 'online';
+    saveState();
+    return true;
+  }catch(e){
+    console.log('FX rates fetch falló:', e.message);
+    return false;
+  }
+}
+
+// Conversión: monto + moneda origen → otra moneda
+function convertCurrency(amount, fromCurr, toCurr){
+  ensureFxRates();
+  if(fromCurr === toCurr) return amount;
+  const j2u = state.fxRates.jpyToUsd;
+  const u2a = state.fxRates.usdToArs;
+  // a USD primero
+  let usd;
+  if(fromCurr === 'JPY') usd = amount * j2u;
+  else if(fromCurr === 'USD') usd = amount;
+  else if(fromCurr === 'ARS') usd = amount / u2a;
+  // de USD a destino
+  if(toCurr === 'USD') return usd;
+  if(toCurr === 'JPY') return usd / j2u;
+  if(toCurr === 'ARS') return usd * u2a;
+  return amount;
+}
+
+function fmtCurrency(amount, curr){
+  const n = Math.round(amount);
+  if(curr === 'JPY') return '¥' + n.toLocaleString('es-AR');
+  if(curr === 'USD') return 'US$' + n.toLocaleString('es-AR');
+  if(curr === 'ARS') return 'AR$' + n.toLocaleString('es-AR');
+  return n.toString();
+}
+
+// Equivalencia secundaria según tu pedido: JPY→USD, USD→ARS, ARS→USD
+function fmtEquivalent(amount, curr){
+  ensureFxRates();
+  if(curr === 'JPY'){
+    return '~' + fmtCurrency(convertCurrency(amount, 'JPY', 'USD'), 'USD');
+  }
+  if(curr === 'USD'){
+    return '~' + fmtCurrency(convertCurrency(amount, 'USD', 'ARS'), 'ARS');
+  }
+  if(curr === 'ARS'){
+    return '~' + fmtCurrency(convertCurrency(amount, 'ARS', 'USD'), 'USD');
+  }
+  return '';
+}
+
 function renderExpenses(){
   const list = document.getElementById('expensesList');
-  const byDay = {};
-  for(const e of state.expenses) (byDay[e.date] = byDay[e.date] || []).push(e);
-  let totalYen = 0, facuTotal = 0, martiTotal = 0;
+  if(!state.expenses) state.expenses = [];
+  ensureFxRates();
+  
+  // Filtros activos
+  if(!state._expFilter) state._expFilter = { type:'all', cat:'all', day:'all' };
+  const f = state._expFilter;
+  
+  // Aplicar filtros
+  let filtered = state.expenses.slice();
+  if(f.type !== 'all') filtered = filtered.filter(e => e.type === f.type);
+  if(f.cat !== 'all') filtered = filtered.filter(e => e.category === f.cat);
+  if(f.day !== 'all') filtered = filtered.filter(e => e.dayId == f.day);
+  
+  // Cálculos en JPY (canónico)
+  let sharedTotal = 0;        // total compartido
+  let facuPersonal = 0;       // personal Facu
+  let martiPersonal = 0;      // personal Marti
+  let facuPaidShared = 0;     // Facu pagó de compartido
+  let martiPaidShared = 0;    // Marti pagó de compartido
+  
   state.expenses.forEach(e=>{
-    totalYen += e.amount;
-    if(e.payer==='F') facuTotal += e.amount;
-    else if(e.payer==='M') martiTotal += e.amount;
-    else { facuTotal += e.amount/2; martiTotal += e.amount/2; }
+    const amountJpy = convertCurrency(e.amount, e.currency, 'JPY');
+    if(e.type === 'shared'){
+      sharedTotal += amountJpy;
+      if(e.payer === 'F') facuPaidShared += amountJpy;
+      else if(e.payer === 'M') martiPaidShared += amountJpy;
+    } else if(e.type === 'facu'){
+      facuPersonal += amountJpy;
+    } else if(e.type === 'marti'){
+      martiPersonal += amountJpy;
+    }
   });
-  const diff = Math.round(Math.abs(facuTotal - martiTotal));
-  const debtor = facuTotal > martiTotal ? 'Marti → Facu' : facuTotal < martiTotal ? 'Facu → Marti' : null;
-  document.getElementById('expSummary').textContent = `${fmtYen(totalYen)} · ${yenToUsd(totalYen)}`;
-
-  const today = todayLocalISO();
+  
+  const eachOwes = sharedTotal / 2;
+  // Marti debe (a Facu) si Facu pagó más de su parte
+  const martiOwesFacu = facuPaidShared - eachOwes;
+  // Facu debe (a Marti) si Marti pagó más
+  const facuOwesMarti = martiPaidShared - eachOwes;
+  
+  let saldoText = '✓ Parejos';
+  let saldoClass = 'good';
+  if(Math.round(martiOwesFacu) > 100){
+    saldoText = `Marti → Facu: ${fmtCurrency(martiOwesFacu, 'JPY')}`;
+    saldoClass = 'accent';
+  } else if(Math.round(facuOwesMarti) > 100){
+    saldoText = `Facu → Marti: ${fmtCurrency(facuOwesMarti, 'JPY')}`;
+    saldoClass = 'accent';
+  }
+  
+  document.getElementById('expSummary').textContent = `${fmtCurrency(sharedTotal, 'JPY')} compartido`;
+  
+  // Sort filtered by createdAt desc
+  filtered.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+  
+  // Group filtered by dayId (or 'sin-dia')
+  const byDay = {};
+  filtered.forEach(e=>{
+    const k = e.dayId || 'sin-dia';
+    (byDay[k] = byDay[k] || []).push(e);
+  });
+  
+  const fxDate = state.fxRates.lastUpdated ? 
+    new Date(state.fxRates.lastUpdated).toLocaleDateString('es-AR') : 'manual';
+  const fxSource = state.fxRates.source === 'online' ? '🌐' : '✏️';
+  
   list.innerHTML = `
-    <div class="note-card">
-      <h3>➕ Nuevo gasto</h3>
-      <div class="exp-add-row">
-        <input id="exp-desc" placeholder="Ej: Almuerzo Kakiya">
-        <input id="exp-amount" type="number" placeholder="¥">
+    <div class="note-card exp-summary-card">
+      <h3>📊 Resumen del viaje</h3>
+      <div class="exp-summary-grid">
+        <div class="exp-stat">
+          <div class="exp-stat-label">Compartido</div>
+          <div class="exp-stat-val">${fmtCurrency(sharedTotal, 'JPY')}</div>
+          <div class="exp-stat-sub">${fmtEquivalent(sharedTotal, 'JPY')}</div>
+        </div>
+        <div class="exp-stat">
+          <div class="exp-stat-label">Facu personal</div>
+          <div class="exp-stat-val">${fmtCurrency(facuPersonal, 'JPY')}</div>
+          <div class="exp-stat-sub">${fmtEquivalent(facuPersonal, 'JPY')}</div>
+        </div>
+        <div class="exp-stat">
+          <div class="exp-stat-label">Marti personal</div>
+          <div class="exp-stat-val">${fmtCurrency(martiPersonal, 'JPY')}</div>
+          <div class="exp-stat-sub">${fmtEquivalent(martiPersonal, 'JPY')}</div>
+        </div>
       </div>
-      <div class="exp-add-row2">
-        <select id="exp-payer">
-          <option value="5050">🤝 50/50</option>
-          <option value="F">💙 Pagó Facu</option>
-          <option value="M">💜 Pagó Marti</option>
-        </select>
-        <button id="exp-add">Agregar</button>
+      <div class="exp-saldo ${saldoClass}">
+        <span>⚖️ Saldo del pool</span>
+        <span class="exp-saldo-val">${saldoText}</span>
+      </div>
+      <div class="exp-saldo-detail">
+        <div>Pagó Facu: ${fmtCurrency(facuPaidShared, 'JPY')} · de su parte ${fmtCurrency(eachOwes, 'JPY')}</div>
+        <div>Pagó Marti: ${fmtCurrency(martiPaidShared, 'JPY')} · de su parte ${fmtCurrency(eachOwes, 'JPY')}</div>
       </div>
     </div>
+    
     <div class="note-card">
-      <h3>📊 Resumen total</h3>
-      <div class="exp-total-box">
-        <div class="exp-total-row main"><span>Total viaje</span><span>${fmtYen(totalYen)} · ${yenToUsd(totalYen)}</span></div>
-        <div class="exp-total-row"><span>💙 Pagó Facu</span><span>${fmtYen(Math.round(facuTotal))}</span></div>
-        <div class="exp-total-row"><span>💜 Pagó Marti</span><span>${fmtYen(Math.round(martiTotal))}</span></div>
-        ${debtor?`<div class="exp-total-row" style="color:var(--accent);font-weight:700"><span>⚖️ Saldar</span><span>${debtor}: ${fmtYen(diff)}</span></div>`:'<div class="exp-total-row" style="color:var(--good);font-weight:700"><span>⚖️ Parejos</span><span>✓</span></div>'}
+      <h3>💱 Tasas de cambio</h3>
+      <div class="exp-fx-row">
+        <span>1 USD =</span>
+        <input type="number" id="exp-fx-jpy" value="${(1/state.fxRates.jpyToUsd).toFixed(2)}" step="0.01">
+        <span>JPY</span>
       </div>
-      <div class="modal-actions" style="margin-top:12px">
+      <div class="exp-fx-row">
+        <span>1 USD =</span>
+        <input type="number" id="exp-fx-ars" value="${state.fxRates.usdToArs.toFixed(2)}" step="0.01">
+        <span>ARS</span>
+      </div>
+      <div class="exp-fx-actions">
+        <button class="btn btn-ghost" id="exp-fx-fetch">🌐 Actualizar online</button>
+        <button class="btn btn-ghost" id="exp-fx-save">💾 Guardar manual</button>
+      </div>
+      <div class="exp-fx-meta">${fxSource} ${state.fxRates.source === 'online' ? 'Online' : 'Manual'} · ${fxDate}</div>
+    </div>
+    
+    <div class="note-card exp-add-card">
+      <h3>➕ Nuevo gasto</h3>
+      <button class="btn btn-primary" id="exp-add-btn" style="width:100%">+ Agregar gasto</button>
+    </div>
+    
+    <div class="note-card">
+      <h3>🔍 Filtros</h3>
+      <div class="exp-filters">
+        <select id="exp-filter-type">
+          <option value="all" ${f.type==='all'?'selected':''}>Todos los tipos</option>
+          <option value="shared" ${f.type==='shared'?'selected':''}>🤝 Compartidos</option>
+          <option value="facu" ${f.type==='facu'?'selected':''}>💙 Facu personal</option>
+          <option value="marti" ${f.type==='marti'?'selected':''}>💜 Marti personal</option>
+        </select>
+        <select id="exp-filter-cat">
+          <option value="all" ${f.cat==='all'?'selected':''}>Todas categorías</option>
+          ${EXP_CATEGORIES.map(c=>`<option value="${c.id}" ${f.cat===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
+        </select>
+        <select id="exp-filter-day">
+          <option value="all" ${f.day==='all'?'selected':''}>Todos los días</option>
+          ${Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b)).map(id=>{
+            const d = DAYS_DATA[id];
+            const dt = new Date(d.date+'T00:00:00');
+            const dn = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][dt.getDay()];
+            return `<option value="${id}" ${f.day==id?'selected':''}>D${id} · ${dn} ${dt.getDate()}/${dt.getMonth()+1}</option>`;
+          }).join('')}
+        </select>
+      </div>
+      <div class="exp-filter-meta">${filtered.length} de ${state.expenses.length} gastos</div>
+    </div>
+    
+    ${Object.keys(byDay).length === 0 ? '<div class="emp">No hay gastos con estos filtros.</div>' : ''}
+    ${Object.keys(byDay).sort((a,b)=>{
+      if(a==='sin-dia') return 1;
+      if(b==='sin-dia') return -1;
+      return parseInt(a) - parseInt(b);
+    }).map(dayKey=>{
+      const items = byDay[dayKey];
+      const dayInfo = dayKey === 'sin-dia' ? null : DAYS_DATA[dayKey];
+      const dayLabel = dayInfo ? (()=>{
+        const dt = new Date(dayInfo.date+'T00:00:00');
+        const dn = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][dt.getDay()];
+        return `D${dayKey} · ${dn} ${dt.getDate()}/${dt.getMonth()+1}`;
+      })() : 'Sin día asignado';
+      const dayTotalJpy = items.reduce((s,e)=>s+convertCurrency(e.amount,e.currency,'JPY'),0);
+      return `<div class="note-card">
+        <h3>${dayLabel} <span style="font-size:11px;font-weight:500;color:var(--text-muted);margin-left:auto">${fmtCurrency(dayTotalJpy,'JPY')}</span></h3>
+        ${items.map(e=>{
+          const cat = EXP_CATEGORIES.find(c=>c.id===e.category) || EXP_CATEGORIES[5];
+          const typeIcon = e.type==='shared'?'🤝':e.type==='facu'?'💙':'💜';
+          const typeLabel = e.type==='shared'?'Compartido':e.type==='facu'?'Facu':'Marti';
+          const payerLabel = e.payer==='F'?'Facu':e.payer==='M'?'Marti':'';
+          const editedAuthor = e.createdByName || 'alguien';
+          const editedAt = e.createdAt ? new Date(e.createdAt).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+          return `<div class="exp-card" data-id="${e.id}">
+            <div class="exp-card-head">
+              <span class="exp-card-cat">${cat.icon}</span>
+              <span class="exp-card-desc">${escapeHtml(e.desc||'(sin nombre)')}</span>
+              <span class="exp-card-amount">${fmtCurrency(e.amount, e.currency)}</span>
+            </div>
+            <div class="exp-card-meta">
+              <span>${typeIcon} ${typeLabel}</span>
+              ${e.type==='shared' && payerLabel?`<span>·</span><span>Pagó ${payerLabel}</span>`:''}
+              <span>·</span>
+              <span class="exp-card-eq">${fmtEquivalent(e.amount, e.currency)}</span>
+            </div>
+            ${e.notes?`<div class="exp-card-notes">${escapeHtml(e.notes)}</div>`:''}
+            <div class="exp-card-foot">
+              <span class="exp-card-author">✏️ ${escapeHtml(editedAuthor)} · ${editedAt}</span>
+              <button class="exp-card-edit" data-edit="${e.id}">✏️</button>
+              <button class="exp-card-del" data-del="${e.id}">🗑️</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('')}
+    
+    <div class="note-card">
+      <div class="modal-actions">
         <button class="btn btn-ghost" id="exp-export-pdf">📄 Exportar PDF</button>
         <button class="btn btn-ghost" id="exp-export-csv">📊 CSV</button>
       </div>
     </div>
-    ${Object.keys(byDay).sort().reverse().map(date=>{
-      const items = byDay[date];
-      const total = items.reduce((s,e)=>s+e.amount,0);
-      const dateObj = new Date(date+'T00:00:00');
-      const dn = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][dateObj.getDay()];
-      return `<div class="note-card">
-        <h3>${dn} ${dateObj.getDate()}/${dateObj.getMonth()+1}</h3>
-        ${items.map(e=>`
-          <div class="exp-item">
-            <span class="exp-payer exp-payer-${e.payer}">${e.payer==='F'?'F':e.payer==='M'?'M':'50/50'}</span>
-            <span class="exp-desc">${escapeHtml(e.desc)}</span>
-            <span class="exp-amount">${fmtYen(e.amount)}</span>
-            <button class="exp-del" data-id="${e.id}">✕</button>
-          </div>
-        `).join('')}
-        <div class="exp-total-row" style="padding:8px 0 0;border-top:1px solid var(--border-soft);margin-top:6px;font-weight:700"><span>Total día</span><span>${fmtYen(total)}</span></div>
-      </div>`;
-    }).join('') || '<div class="emp">Sin gastos.</div>'}
   `;
-  document.getElementById('exp-add').addEventListener('click',()=>{
-    const desc = document.getElementById('exp-desc').value.trim();
-    const amount = parseFloat(document.getElementById('exp-amount').value);
-    const payer = document.getElementById('exp-payer').value;
-    if(!desc || !amount || isNaN(amount)){ alert('Descripción y monto'); return; }
-    state.expenses.push({id:uid(),date:today,desc,amount:Math.round(amount),payer});
-    document.getElementById('exp-desc').value='';
-    document.getElementById('exp-amount').value='';
-    saveState(); renderExpenses();
+  
+  // Listeners
+  document.getElementById('exp-add-btn').addEventListener('click', ()=>openExpenseModal(null));
+  document.getElementById('exp-filter-type').addEventListener('change',(e)=>{ state._expFilter.type = e.target.value; renderExpenses(); });
+  document.getElementById('exp-filter-cat').addEventListener('change',(e)=>{ state._expFilter.cat = e.target.value; renderExpenses(); });
+  document.getElementById('exp-filter-day').addEventListener('change',(e)=>{ state._expFilter.day = e.target.value; renderExpenses(); });
+  
+  document.getElementById('exp-fx-fetch').addEventListener('click', async ()=>{
+    showToast('Buscando tasas online...');
+    const ok = await fetchFxRates();
+    if(ok){ showToast('✓ Tasas actualizadas online'); renderExpenses(); }
+    else showToast('⚠️ Sin internet — guardá manual', 'warn');
   });
-  list.querySelectorAll('.exp-del').forEach(b=>{
+  document.getElementById('exp-fx-save').addEventListener('click',()=>{
+    const jpyPerUsd = parseFloat(document.getElementById('exp-fx-jpy').value);
+    const arsPerUsd = parseFloat(document.getElementById('exp-fx-ars').value);
+    if(!jpyPerUsd || !arsPerUsd || jpyPerUsd<=0 || arsPerUsd<=0){ alert('Tasas inválidas'); return; }
+    state.fxRates.jpyToUsd = 1/jpyPerUsd;
+    state.fxRates.usdToArs = arsPerUsd;
+    state.fxRates.lastUpdated = new Date().toISOString();
+    state.fxRates.source = 'manual';
+    saveState();
+    renderExpenses();
+    showToast('✓ Tasas guardadas');
+  });
+  
+  list.querySelectorAll('[data-edit]').forEach(b=>{
+    b.addEventListener('click',()=>openExpenseModal(b.dataset.edit));
+  });
+  list.querySelectorAll('[data-del]').forEach(b=>{
     b.addEventListener('click',()=>{
-      state.expenses = state.expenses.filter(e=>e.id!==b.dataset.id);
-      saveState(); renderExpenses();
+      if(!confirm('¿Eliminar este gasto?')) return;
+      state.expenses = state.expenses.filter(e=>e.id !== b.dataset.del);
+      saveState();
+      renderExpenses();
+      showToast('Gasto eliminado');
     });
   });
+  
   document.getElementById('exp-export-pdf').addEventListener('click',exportExpensesPDF);
   document.getElementById('exp-export-csv').addEventListener('click',exportExpensesCSV);
 }
 
-function exportExpensesPDF(){
-  const byDay = {};
-  for(const e of state.expenses) (byDay[e.date] = byDay[e.date] || []).push(e);
-  let totalYen = 0, facuTotal = 0, martiTotal = 0;
-  state.expenses.forEach(e=>{
-    totalYen += e.amount;
-    if(e.payer==='F') facuTotal += e.amount;
-    else if(e.payer==='M') martiTotal += e.amount;
-    else { facuTotal += e.amount/2; martiTotal += e.amount/2; }
+function openExpenseModal(expenseId){
+  const isEdit = !!expenseId;
+  const exp = isEdit ? state.expenses.find(e=>e.id===expenseId) : null;
+  
+  // Default day = primer día del viaje futuro o último día con gastos
+  const todayD = todayLocalISO();
+  let defaultDay = '';
+  for(const id of Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b))){
+    if(DAYS_DATA[id].date >= todayD){ defaultDay = id; break; }
+  }
+  if(!defaultDay) defaultDay = Object.keys(DAYS_DATA)[0];
+  
+  showModal(`<h3>${isEdit?'Editar':'Nuevo'} gasto</h3>
+    <div class="form-stack">
+      <label>Concepto
+        <input type="text" id="em-desc" value="${escapeHtml(exp?.desc||'')}" placeholder="Ej: Almuerzo Kakiya">
+      </label>
+      <label>Categoría
+        <select id="em-cat">
+          ${EXP_CATEGORIES.map(c=>`<option value="${c.id}" ${exp?.category===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
+        </select>
+      </label>
+      <div style="display:grid;grid-template-columns:1fr 90px;gap:8px">
+        <label>Monto
+          <input type="number" id="em-amount" value="${exp?.amount||''}" step="0.01" placeholder="0">
+        </label>
+        <label>Moneda
+          <select id="em-curr">
+            <option value="JPY" ${(exp?.currency||'JPY')==='JPY'?'selected':''}>¥ JPY</option>
+            <option value="USD" ${exp?.currency==='USD'?'selected':''}>US$ USD</option>
+            <option value="ARS" ${exp?.currency==='ARS'?'selected':''}>AR$ ARS</option>
+          </select>
+        </label>
+      </div>
+      <div id="em-equiv" class="form-helper" style="font-size:11.5px;color:var(--text-muted);margin-top:-6px">—</div>
+      
+      <label>Tipo de gasto
+        <select id="em-type">
+          <option value="shared" ${(exp?.type||'shared')==='shared'?'selected':''}>🤝 Compartido (a dividir 50/50)</option>
+          <option value="facu" ${exp?.type==='facu'?'selected':''}>💙 Solo Facu (personal)</option>
+          <option value="marti" ${exp?.type==='marti'?'selected':''}>💜 Solo Marti (personal)</option>
+        </select>
+      </label>
+      
+      <label id="em-payer-wrap">Quién pagó
+        <select id="em-payer">
+          <option value="F" ${(exp?.payer||'F')==='F'?'selected':''}>💙 Facu</option>
+          <option value="M" ${exp?.payer==='M'?'selected':''}>💜 Marti</option>
+        </select>
+      </label>
+      
+      <label>Día (opcional)
+        <select id="em-day">
+          <option value="">Sin día asignado</option>
+          ${Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b)).map(id=>{
+            const d = DAYS_DATA[id];
+            const dt = new Date(d.date+'T00:00:00');
+            const dn = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][dt.getDay()];
+            const sel = (exp?.dayId||defaultDay) == id ? 'selected' : '';
+            return `<option value="${id}" ${sel}>D${id} · ${dn} ${dt.getDate()}/${dt.getMonth()+1} · ${escapeHtml(d.city||'')}</option>`;
+          }).join('')}
+        </select>
+      </label>
+      
+      <label>Notas (opcional)
+        <input type="text" id="em-notes" value="${escapeHtml(exp?.notes||'')}" placeholder="Detalles">
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-role="cancel">Cancelar</button>
+      ${isEdit?'<button class="btn btn-danger" data-role="del-expense">🗑️ Eliminar</button>':''}
+      <button class="btn btn-primary" data-role="save-expense">${isEdit?'Guardar cambios':'Agregar gasto'}</button>
+    </div>
+  `);
+  
+  // Auto-actualizar equivalencia al cambiar monto/moneda
+  const updateEquiv = ()=>{
+    const a = parseFloat(document.getElementById('em-amount').value);
+    const c = document.getElementById('em-curr').value;
+    if(!isNaN(a) && a>0){
+      document.getElementById('em-equiv').textContent = `≈ ${fmtEquivalent(a, c)}`;
+    } else {
+      document.getElementById('em-equiv').textContent = '—';
+    }
+  };
+  document.getElementById('em-amount').addEventListener('input', updateEquiv);
+  document.getElementById('em-curr').addEventListener('change', updateEquiv);
+  updateEquiv();
+  
+  // Mostrar/ocultar "quien pagó" según tipo
+  const updatePayerVisibility = ()=>{
+    const t = document.getElementById('em-type').value;
+    const wrap = document.getElementById('em-payer-wrap');
+    if(t === 'shared'){
+      wrap.style.display = '';
+    } else {
+      // Si es personal, asumir que pagó la persona del tipo
+      wrap.style.display = 'none';
+    }
+  };
+  document.getElementById('em-type').addEventListener('change', updatePayerVisibility);
+  updatePayerVisibility();
+  
+  modalContent.querySelector('[data-role="cancel"]').addEventListener('click', closeModal);
+  if(isEdit){
+    modalContent.querySelector('[data-role="del-expense"]').addEventListener('click',()=>{
+      if(!confirm('¿Eliminar este gasto?')) return;
+      state.expenses = state.expenses.filter(e=>e.id !== expenseId);
+      saveState();
+      closeModal();
+      renderExpenses();
+      showToast('Gasto eliminado');
+    });
+  }
+  modalContent.querySelector('[data-role="save-expense"]').addEventListener('click',()=>{
+    const desc = document.getElementById('em-desc').value.trim();
+    const amount = parseFloat(document.getElementById('em-amount').value);
+    if(!desc){ alert('Falta el concepto'); return; }
+    if(!amount || isNaN(amount) || amount <= 0){ alert('Monto inválido'); return; }
+    const type = document.getElementById('em-type').value;
+    let payer;
+    if(type === 'shared') payer = document.getElementById('em-payer').value;
+    else if(type === 'facu') payer = 'F';
+    else payer = 'M';
+    
+    const u = window.fbState?.user;
+    const meta = {
+      createdAt: Date.now(),
+      createdBy: u?.email || 'local',
+      createdByName: u?.displayName?.split(' ')[0] || u?.email?.split('@')[0] || 'tú'
+    };
+    
+    if(isEdit){
+      const e = state.expenses.find(e=>e.id===expenseId);
+      e.desc = desc;
+      e.amount = amount;
+      e.currency = document.getElementById('em-curr').value;
+      e.category = document.getElementById('em-cat').value;
+      e.type = type;
+      e.payer = payer;
+      e.dayId = document.getElementById('em-day').value || null;
+      e.notes = document.getElementById('em-notes').value.trim();
+      e.updatedAt = Date.now();
+      e.updatedBy = meta.createdBy;
+      e.updatedByName = meta.createdByName;
+    } else {
+      state.expenses.push({
+        id: uid(),
+        desc, amount,
+        currency: document.getElementById('em-curr').value,
+        category: document.getElementById('em-cat').value,
+        type, payer,
+        dayId: document.getElementById('em-day').value || null,
+        notes: document.getElementById('em-notes').value.trim(),
+        ...meta
+      });
+    }
+    saveState();
+    closeModal();
+    renderExpenses();
+    showToast(isEdit?'Gasto actualizado ✓':'Gasto agregado ✓');
   });
-  const diff = Math.round(Math.abs(facuTotal-martiTotal));
-  const debtor = facuTotal>martiTotal ? 'Marti → Facu' : facuTotal<martiTotal ? 'Facu → Marti' : null;
+}
+
+function exportExpensesPDF(){
+  ensureFxRates();
+  const exps = state.expenses.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  
+  let sharedTotal = 0, facuPersonal = 0, martiPersonal = 0, facuPaidShared = 0, martiPaidShared = 0;
+  exps.forEach(e=>{
+    const j = convertCurrency(e.amount, e.currency, 'JPY');
+    if(e.type==='shared'){ sharedTotal+=j; if(e.payer==='F') facuPaidShared+=j; else if(e.payer==='M') martiPaidShared+=j; }
+    else if(e.type==='facu') facuPersonal+=j;
+    else if(e.type==='marti') martiPersonal+=j;
+  });
+  const eachOwes = sharedTotal/2;
+  const martiOwesFacu = facuPaidShared - eachOwes;
+  const facuOwesMarti = martiPaidShared - eachOwes;
+  
   const closeTag = '<' + '/scr' + 'ipt>';
   const openTag = '<' + 'scr' + 'ipt>';
-
+  
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Gastos Japón 2026</title>
 <style>
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:30px;color:#222;max-width:800px;margin:0 auto}
   h1{font-size:22px;margin-bottom:8px;color:#d97757}
   .sub{color:#666;font-size:13px;margin-bottom:20px}
+  .summary{background:#f8f8f8;padding:14px;border-radius:8px;margin-bottom:20px}
+  .summary-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+  .summary-row.bold{font-weight:700;border-top:1px solid #ddd;padding-top:8px;margin-top:6px}
+  .saldo{background:#fff5e6;border:2px solid #d97757;padding:10px;border-radius:8px;margin:10px 0;font-weight:700;text-align:center}
   h2{font-size:14px;margin:20px 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px}
-  table{width:100%;border-collapse:collapse;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:11.5px}
   th,td{padding:6px 8px;text-align:left;border-bottom:1px solid #eee}
-  th{background:#f5f5f5;font-weight:700}
-  .right{text-align:right;font-variant-numeric:tabular-nums}
-  .total-box{background:#fff5ef;border:1px solid #d97757;border-radius:8px;padding:14px;margin:20px 0}
-  .total-box div{display:flex;justify-content:space-between;padding:3px 0;font-size:13px}
-  .total-box .main{font-size:16px;font-weight:700;border-bottom:1px solid #d97757;padding-bottom:6px;margin-bottom:6px}
-  .foot{margin-top:30px;color:#999;font-size:10px;text-align:center}
+  th{background:#f4f4f4;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px}
+  td.right{text-align:right}
+  .foot{margin-top:30px;font-size:10px;color:#999;text-align:center}
 </style></head><body>
-<h1>🇯🇵 Gastos Japón 2026 · Facundo &amp; Martina</h1>
-<div class="sub">Exportado ${new Date().toLocaleDateString('es-AR',{dateStyle:'long'})} · Cotización ¥1 = $${state.usdRate} USD</div>
-<div class="total-box">
-  <div class="main"><span>Total del viaje</span><span>¥${totalYen.toLocaleString('es-AR')} · ${yenToUsd(totalYen)}</span></div>
-  <div><span>💙 Pagó Facu</span><span>¥${Math.round(facuTotal).toLocaleString('es-AR')}</span></div>
-  <div><span>💜 Pagó Marti</span><span>¥${Math.round(martiTotal).toLocaleString('es-AR')}</span></div>
-  ${debtor?`<div style="color:#d97757;font-weight:700;padding-top:6px;border-top:1px dashed #ddd"><span>⚖️ Para saldar</span><span>${debtor}: ¥${diff.toLocaleString('es-AR')}</span></div>`:'<div style="color:#2d8659;font-weight:700"><span>⚖️ Están parejos</span><span>✓</span></div>'}
+<h1>💴 Gastos Japón 2026</h1>
+<div class="sub">Generado ${new Date().toLocaleString('es-AR')} · Tasa USD/JPY: ${(1/state.fxRates.jpyToUsd).toFixed(2)} · USD/ARS: ${state.fxRates.usdToArs.toFixed(2)}</div>
+
+<div class="summary">
+  <div class="summary-row"><span>🤝 Total compartido</span><span>¥${Math.round(sharedTotal).toLocaleString('es-AR')} (≈ US$${Math.round(sharedTotal*state.fxRates.jpyToUsd).toLocaleString('es-AR')})</span></div>
+  <div class="summary-row"><span>💙 Facu personal</span><span>¥${Math.round(facuPersonal).toLocaleString('es-AR')}</span></div>
+  <div class="summary-row"><span>💜 Marti personal</span><span>¥${Math.round(martiPersonal).toLocaleString('es-AR')}</span></div>
+  <div class="summary-row bold"><span>Total general</span><span>¥${Math.round(sharedTotal+facuPersonal+martiPersonal).toLocaleString('es-AR')}</span></div>
 </div>
-${Object.keys(byDay).sort().map(date=>{
-  const items = byDay[date];
-  const total = items.reduce((s,e)=>s+e.amount,0);
-  const d = new Date(date+'T00:00:00');
-  const dn = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()];
-  return `<h2>${dn} ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}</h2>
-  <table>
-    <thead><tr><th>Pagó</th><th>Descripción</th><th class="right">Monto</th></tr></thead>
-    <tbody>
-    ${items.map(e=>`<tr><td>${e.payer==='F'?'Facu':e.payer==='M'?'Marti':'50/50'}</td><td>${escapeHtml(e.desc)}</td><td class="right">¥${e.amount.toLocaleString('es-AR')}</td></tr>`).join('')}
-    <tr style="background:#fafafa;font-weight:700"><td colspan="2">Total día</td><td class="right">¥${total.toLocaleString('es-AR')}</td></tr>
-    </tbody>
-  </table>`;
-}).join('')}
-<div class="foot">Japón 2026 · Generado desde la app</div>
+
+<div class="saldo">
+${Math.round(martiOwesFacu)>100 ? `Marti debe a Facu: ¥${Math.round(martiOwesFacu).toLocaleString('es-AR')}` :
+  Math.round(facuOwesMarti)>100 ? `Facu debe a Marti: ¥${Math.round(facuOwesMarti).toLocaleString('es-AR')}` :
+  '✓ Cuentas parejas'}
+</div>
+
+<h2>Detalle de gastos</h2>
+<table>
+  <thead><tr><th>Fecha</th><th>Día</th><th>Concepto</th><th>Cat.</th><th>Tipo</th><th>Pagó</th><th class="right">Monto</th><th class="right">¥ equiv.</th></tr></thead>
+  <tbody>
+  ${exps.map(e=>{
+    const cat = EXP_CATEGORIES.find(c=>c.id===e.category) || {icon:'',label:''};
+    const typeLbl = e.type==='shared'?'Compartido':e.type==='facu'?'Facu':'Marti';
+    const payerLbl = e.type==='shared' ? (e.payer==='F'?'Facu':'Marti') : '—';
+    const dayLbl = e.dayId ? `D${e.dayId}` : '—';
+    const dt = e.createdAt ? new Date(e.createdAt).toLocaleDateString('es-AR') : '—';
+    const yenEq = Math.round(convertCurrency(e.amount, e.currency, 'JPY'));
+    return `<tr>
+      <td>${dt}</td><td>${dayLbl}</td>
+      <td>${(e.desc||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</td>
+      <td>${cat.icon} ${cat.label}</td>
+      <td>${typeLbl}</td><td>${payerLbl}</td>
+      <td class="right">${e.currency==='JPY'?'¥':e.currency==='USD'?'US$':'AR$'}${e.amount.toLocaleString('es-AR')}</td>
+      <td class="right">¥${yenEq.toLocaleString('es-AR')}</td>
+    </tr>`;
+  }).join('')}
+  </tbody>
+</table>
+<div class="foot">Japón 2026 · Facu &amp; Marti</div>
 ${openTag}window.onload=()=>setTimeout(()=>window.print(),300)${closeTag}
 </body></html>`;
-  const w = window.open('', '_blank');
+  const w = window.open('','_blank');
   if(!w){ alert('Permití popups para exportar PDF'); return; }
   w.document.open(); w.document.write(html); w.document.close();
 }
 
 function exportExpensesCSV(){
-  const header = 'Fecha,Descripción,Monto (¥),Pagó,USD\n';
-  const rows = state.expenses.map(e=>{
-    const usd = (e.amount*state.usdRate).toFixed(2);
-    return `${e.date},"${e.desc.replace(/"/g,'""')}",${e.amount},${e.payer},${usd}`;
+  const header = 'Fecha,Día,Concepto,Categoría,Tipo,PagóOriginal,Moneda,Monto,JPYequiv,Notas,CargadoPor\n';
+  const rows = (state.expenses||[]).map(e=>{
+    const dt = e.createdAt ? new Date(e.createdAt).toISOString() : '';
+    const dayLbl = e.dayId ? `D${e.dayId}` : '';
+    const typeLbl = e.type==='shared'?'Compartido':e.type==='facu'?'Facu':'Marti';
+    const yenEq = Math.round(convertCurrency(e.amount, e.currency, 'JPY'));
+    const desc = '"'+(e.desc||'').replace(/"/g,'""')+'"';
+    const notes = '"'+(e.notes||'').replace(/"/g,'""')+'"';
+    return `${dt},${dayLbl},${desc},${e.category||''},${typeLbl},${e.payer||''},${e.currency},${e.amount},${yenEq},${notes},${e.createdByName||''}`;
   }).join('\n');
   const blob = new Blob([header+rows], {type:'text/csv;charset=utf-8'});
   const url = URL.createObjectURL(blob);
