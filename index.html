@@ -419,14 +419,284 @@ body.edit-mode .act-add{display:flex}
 .sr-arrow{color:var(--text-muted);font-size:20px;flex-shrink:0;font-weight:300}
 @keyframes searchFlash{0%,100%{box-shadow:0 0 0 0 rgba(217,119,87,0)}50%{box-shadow:0 0 0 4px rgba(217,119,87,.4)}}
 .act.search-flash{animation:searchFlash 1s ease-in-out 2}
+
+/* ═══ LOGIN OVERLAY ═══ */
+.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
+.login-overlay.hide{display:none}
+.login-logo{font-family:var(--font-display);font-size:48px;font-weight:800;color:var(--accent);margin-bottom:8px}
+.login-logo span{display:block;font-size:14px;font-weight:500;color:var(--text-muted);margin-top:6px;letter-spacing:1px}
+.login-tagline{color:var(--text-dim);font-size:15px;max-width:340px;margin-bottom:36px;line-height:1.5}
+.login-btn{display:flex;align-items:center;gap:14px;background:white;color:#3c4043;border:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);font-family:var(--font-body);transition:transform .12s,box-shadow .15s}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.login-btn:active{transform:translateY(0)}
+.login-btn svg{width:20px;height:20px}
+.login-status{margin-top:24px;color:var(--text-muted);font-size:13px;min-height:20px}
+.login-error{color:var(--bad);font-weight:600}
+.login-foot{position:absolute;bottom:24px;left:0;right:0;font-size:11px;color:var(--text-muted);opacity:.6}
+
+/* ═══ PRESENCE INDICATOR ═══ */
+.presence-bar{display:flex;align-items:center;gap:6px;margin-left:auto;margin-right:8px}
+.presence-avatar{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface);position:relative;overflow:hidden;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;font-family:var(--font-display)}
+.presence-avatar img{width:100%;height:100%;object-fit:cover}
+.presence-avatar.online::after{content:'';position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#4ade80;border:2px solid var(--bg)}
+.presence-avatar.offline{opacity:.5}
+.presence-avatar.offline::after{content:'';position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#6b7280;border:2px solid var(--bg)}
+.presence-avatar:not(:first-child){margin-left:-8px}
+
+/* ═══ EDITED BY ═══ */
+.edited-by{font-size:10.5px;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:4px;font-style:italic;opacity:.75}
+.edited-by .eb-author{font-weight:600;color:var(--accent-soft);font-style:normal}
+.edited-by .eb-dot{width:3px;height:3px;border-radius:50%;background:var(--text-muted)}
+
+/* ═══ SYNC STATUS ═══ */
+.sync-pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;padding:2px 8px;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-left:6px;font-family:var(--font-display)}
+.sync-pill.online{background:rgba(74,222,128,.15);color:#4ade80}
+.sync-pill.offline{background:rgba(251,146,60,.15);color:#fb923c}
+.sync-pill.syncing{background:rgba(217,119,87,.15);color:var(--accent)}
+.sync-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;animation:syncPulse 2s ease-in-out infinite}
+@keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
+
+<!-- ═══ LOGIN OVERLAY ═══ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-logo">日本<span>JAPÓN 2026</span></div>
+  <div class="login-tagline">Itinerario compartido. Sólo Facu y Marti pueden acceder.</div>
+  <button class="login-btn" id="loginBtn">
+    <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8c1.8-4.4 6.1-7.5 11.1-7.5 3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.5 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.3-.1-2.6-.4-3.9z"/></svg>
+    Entrar con Google
+  </button>
+  <div class="login-status" id="loginStatus"></div>
+  <div class="login-foot">Facu · Marti · 22 Mayo — 8 Junio 2026</div>
+</div>
+
+<!-- ═══ FIREBASE SDK + AUTH/SYNC ═══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, enableIndexedDbPersistence, updateDoc, collection } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD26AXeyvMpl17gS_TNix70gmqfTpOsyhE",
+  authDomain: "japon-2026-44c29.firebaseapp.com",
+  projectId: "japon-2026-44c29",
+  storageBucket: "japon-2026-44c29.firebasestorage.app",
+  messagingSenderId: "118149836731",
+  appId: "1:118149836731:web:bf4bedfd2b5578b3431e9e"
+};
+
+const ALLOWED_EMAILS = ['facundollamedo79@gmail.com', 'martinabonti@gmail.com'];
+const TRIP_DOC_PATH = ['trips', 'japon-2026'];
+const PRESENCE_PATH = ['trips', 'japon-2026', 'presence'];
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Cache offline
+enableIndexedDbPersistence(db).catch(err=>{
+  console.log('Persistence:', err.code);
+});
+
+// Exponer para el resto del JS
+window.fb = { app, auth, db, doc, setDoc, getDoc, onSnapshot, serverTimestamp, updateDoc, signOut };
+window.fbState = { user: null, allowed: false, ready: false, lastWriteTs: 0, syncStatus: 'offline', presence: {}, isApplyingRemote: false };
+
+// Status helper
+function setLoginStatus(msg, isError){
+  const el = document.getElementById('loginStatus');
+  if(!el) return;
+  el.textContent = msg || '';
+  el.className = 'login-status' + (isError ? ' login-error' : '');
+}
+
+function setSyncStatus(s){
+  window.fbState.syncStatus = s;
+  const pill = document.getElementById('syncPill');
+  if(pill){
+    pill.className = 'sync-pill ' + s;
+    pill.textContent = s === 'online' ? 'Sync' : s === 'syncing' ? 'Guardando…' : 'Offline';
+  }
+}
+
+// Login
+document.getElementById('loginBtn').addEventListener('click', async ()=>{
+  setLoginStatus('Conectando…');
+  try{
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  }catch(e){
+    setLoginStatus('Error: ' + (e.message || 'no se pudo loguear'), true);
+  }
+});
+
+// Auth state listener
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
+    document.getElementById('loginOverlay').classList.remove('hide');
+    setLoginStatus('');
+    window.fbState.user = null;
+    window.fbState.allowed = false;
+    return;
+  }
+  if(!ALLOWED_EMAILS.includes(user.email)){
+    setLoginStatus(`El email ${user.email} no está autorizado. Sólo Facu y Marti.`, true);
+    await signOut(auth);
+    return;
+  }
+  window.fbState.user = user;
+  window.fbState.allowed = true;
+  setLoginStatus('✓ Bienvenido, ' + (user.displayName || user.email).split(' ')[0]);
+
+  // Bootstrap del estado
+  await bootstrapFromFirestore();
+
+  // Listeners en vivo
+  setupRemoteListeners();
+
+  // Presence
+  setupPresence();
+
+  // Ocultar overlay
+  setTimeout(()=>{
+    document.getElementById('loginOverlay').classList.add('hide');
+    if(typeof window.afterLogin === 'function') window.afterLogin();
+  }, 300);
+});
+
+async function bootstrapFromFirestore(){
+  setLoginStatus('Cargando datos…');
+  try{
+    const ref = doc(db, ...TRIP_DOC_PATH, 'state');
+    const snap = await getDoc(ref);
+    if(snap.exists()){
+      const data = snap.data();
+      window.fbState.lastWriteTs = data.updatedAt ? (data.updatedAt.seconds || 0) : 0;
+      // Aplicar a la app
+      if(typeof window.applyRemoteState === 'function'){
+        window.fbState.isApplyingRemote = true;
+        window.applyRemoteState(data.payload || data);
+        window.fbState.isApplyingRemote = false;
+      }
+    } else {
+      // Primer uso: subir el estado actual local
+      if(typeof window.serializeState === 'function'){
+        const payload = window.serializeState();
+        await setDoc(ref, {
+          payload,
+          updatedAt: serverTimestamp(),
+          updatedBy: window.fbState.user.email,
+          updatedByName: (window.fbState.user.displayName || window.fbState.user.email).split(' ')[0]
+        });
+      }
+    }
+    window.fbState.ready = true;
+    setSyncStatus('online');
+  }catch(e){
+    console.warn('Bootstrap falló:', e);
+    setSyncStatus('offline');
+  }
+}
+
+function setupRemoteListeners(){
+  const ref = doc(db, ...TRIP_DOC_PATH, 'state');
+  onSnapshot(ref, (snap)=>{
+    if(!snap.exists()) return;
+    const data = snap.data();
+    const ts = data.updatedAt ? (data.updatedAt.seconds || 0) : 0;
+    if(ts <= window.fbState.lastWriteTs) return;
+    window.fbState.lastWriteTs = ts;
+    if(data.updatedBy === window.fbState.user.email && Math.abs(ts - Date.now()/1000) < 3){
+      // Cambio propio recién subido, ignorar
+      return;
+    }
+    // Aplicar cambio remoto
+    if(typeof window.applyRemoteState === 'function'){
+      window.fbState.isApplyingRemote = true;
+      window.applyRemoteState(data.payload);
+      window.fbState.isApplyingRemote = false;
+      if(typeof window.showToast === 'function'){
+        const who = data.updatedByName || 'el otro';
+        window.showToast(`✏️ ${who} acaba de editar`);
+      }
+    }
+  }, (err)=>{
+    console.warn('onSnapshot err', err);
+    setSyncStatus('offline');
+  });
+}
+
+function setupPresence(){
+  const myUid = window.fbState.user.uid;
+  const myName = (window.fbState.user.displayName || window.fbState.user.email).split(' ')[0];
+  const myPhoto = window.fbState.user.photoURL || '';
+  const myRef = doc(db, ...PRESENCE_PATH, myUid);
+
+  // Marcar online
+  setDoc(myRef, {
+    online: true,
+    name: myName,
+    email: window.fbState.user.email,
+    photoURL: myPhoto,
+    lastSeen: serverTimestamp()
+  }).catch(()=>{});
+
+  // Heartbeat cada 60s
+  setInterval(()=>{
+    setDoc(myRef, { online: true, lastSeen: serverTimestamp() }, { merge: true }).catch(()=>{});
+  }, 60000);
+
+  // Marcar offline al cerrar
+  window.addEventListener('beforeunload', ()=>{
+    setDoc(myRef, { online: false, lastSeen: serverTimestamp() }, { merge: true }).catch(()=>{});
+  });
+
+  // Listener: ver a los demás
+  const col = collection(db, ...PRESENCE_PATH);
+  onSnapshot(col, (qs)=>{
+    const presence = {};
+    qs.forEach(d=>{ presence[d.id] = d.data(); });
+    window.fbState.presence = presence;
+    if(typeof window.renderPresence === 'function') window.renderPresence();
+  });
+}
+
+// API pública para el resto del JS
+window.fbWriteState = async function(payload, opts){
+  if(!window.fbState.user) return;
+  if(window.fbState.isApplyingRemote) return; // no eco
+  setSyncStatus('syncing');
+  try{
+    const ref = doc(db, ...TRIP_DOC_PATH, 'state');
+    const tsLocal = Math.floor(Date.now()/1000);
+    window.fbState.lastWriteTs = tsLocal;
+    await setDoc(ref, {
+      payload,
+      updatedAt: serverTimestamp(),
+      updatedBy: window.fbState.user.email,
+      updatedByName: (window.fbState.user.displayName || window.fbState.user.email).split(' ')[0],
+      lastEditedField: opts?.field || null
+    });
+    setSyncStatus('online');
+  }catch(e){
+    console.warn('Write failed', e);
+    setSyncStatus('offline');
+  }
+};
+
+window.fbSignOut = async function(){
+  await signOut(auth);
+  location.reload();
+};
+</script>
 
 <div class="hero">
   <div class="hero-top">
     <div class="hero-logo">日本<span>Japón 2026 · prototipo v4</span></div>
     <div class="hero-actions">
+      <div class="presence-bar" id="presenceBar"></div>
+      <span class="sync-pill offline" id="syncPill">Offline</span>
       <button class="icon-btn" id="btnEditMode" title="Modo edición">✏️</button>
       <button class="icon-btn" id="btnMenu" title="Menú">⋯</button>
     </div>
@@ -3115,15 +3385,52 @@ function initDefaults(){
   state.customFood = structuredCloneSafe(FOOD_PLACES_DEFAULT);
   state.customPhrases = structuredCloneSafe(PHRASES_DEFAULT);
 }
-function saveState(){
+function serializeState(){
+  return {
+    days: DAYS_DATA,
+    suggestions: SUGGESTIONS,
+    state: state,
+    version: 6
+  };
+}
+function applyRemoteState(payload){
+  if(!payload) return;
+  if(payload.days){
+    Object.keys(payload.days).forEach(k=>{ DAYS_DATA[k] = payload.days[k]; });
+  }
+  if(payload.suggestions){
+    Object.keys(payload.suggestions).forEach(k=>{ SUGGESTIONS[k] = payload.suggestions[k]; });
+  }
+  if(payload.state){ Object.assign(state, payload.state); }
+  if(typeof renderAll === 'function') renderAll();
+  if(typeof renderPacking === 'function') renderPacking();
+  if(typeof renderExpenses === 'function') renderExpenses();
+  if(typeof renderNotes === 'function') renderNotes();
+  if(typeof renderFood === 'function') renderFood();
+  if(typeof renderPhrases === 'function') renderPhrases();
+}
+window.serializeState = serializeState;
+window.applyRemoteState = applyRemoteState;
+
+let _saveDebounce = null;
+function saveState(opts){
+  // Local backup siempre (offline fallback)
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       days: DAYS_DATA, suggestions: SUGGESTIONS, state: state,
-      version: 4, savedAt: new Date().toISOString()
+      version: 6, savedAt: new Date().toISOString()
     }));
-  }catch(e){console.warn('save failed',e)}
+  }catch(e){console.warn('save local failed',e)}
+  // Firestore con debounce 600ms
+  if(typeof window.fbWriteState === 'function'){
+    if(_saveDebounce) clearTimeout(_saveDebounce);
+    _saveDebounce = setTimeout(()=>{
+      window.fbWriteState(serializeState(), opts || {});
+    }, 600);
+  }
 }
 function loadState(){
+  // Carga local rápida (luego Firestore overrride si hay datos remotos más nuevos)
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw){ initDefaults(); return; }
@@ -3456,6 +3763,7 @@ function renderActivity(act, day, conflicts){
     <div class="act-meta">${durStr}${priceStr}${crowdStr}</div>
     ${act.desc?`<div class="act-desc">${escapeHtml(act.desc)}</div>`:''}
     <div class="act-actions">${guideBtn}${sugBtn}${editBtn}${delBtn}</div>
+    ${act._edited && typeof window.editedByHtml === 'function' ? window.editedByHtml(act._edited) : ''}
   `;
   el.querySelector('[data-role="edit-time"]')?.addEventListener('click',()=>openEditActivity(act.id, day.id));
   el.querySelector('[data-role="edit-act"]')?.addEventListener('click',()=>openEditActivity(act.id, day.id));
@@ -3631,6 +3939,7 @@ function openEditActivity(actId, dayId){
   modalContent.querySelector('[data-role="cancel"]').addEventListener('click', closeModal);
   modalContent.querySelector('[data-role="save"]').addEventListener('click',()=>{
     readActivityForm(act);
+    if(typeof window.markEdited === 'function') window.markEdited(act);
     saveState(); closeModal(); renderAll(); showToast('Guardado ✓');
   });
 }
@@ -4912,13 +5221,21 @@ document.getElementById('btnMenu').addEventListener('click',()=>{
     </div>
     <div class="divider"></div>
     <div style="font-size:12px;color:var(--text-muted);line-height:1.6">
-      <strong style="color:var(--text-dim)">💡 Compartir con Martina:</strong> Exportá JSON, mandáselo, ella importa.
+      <strong style="color:var(--text-dim)">☁️ Sync Firebase:</strong> Tu y Marti comparten datos en tiempo real. Sin sync manual.
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn btn-ghost" data-role="logout" style="width:100%">🚪 Cerrar sesión</button>
     </div>
   `);
   modalContent.querySelector('[data-role="export"]').addEventListener('click', exportJSON);
   modalContent.querySelector('[data-role="import"]').addEventListener('click', importJSON);
   modalContent.querySelector('[data-role="reset"]').addEventListener('click',()=>{
-    if(confirm('¿Borrar todo y volver al original?')){ localStorage.removeItem(STORAGE_KEY); location.reload(); }
+    if(confirm('¿Borrar tu cache local? (Los datos de Firebase se mantienen)')){ localStorage.removeItem(STORAGE_KEY); location.reload(); }
+  });
+  modalContent.querySelector('[data-role="logout"]').addEventListener('click',()=>{
+    if(confirm('¿Cerrar sesión?')){
+      if(typeof window.fbSignOut === 'function') window.fbSignOut();
+    }
   });
   document.getElementById('m-rate').addEventListener('change',e=>{
     const v = parseFloat(e.target.value);
@@ -5142,6 +5459,81 @@ function setupStuckDetector(){
   }, {passive:true});
   check();
 }
+
+/* ═══ PRESENCE + EDITED-BY ═══ */
+function renderPresence(){
+  const bar = document.getElementById('presenceBar');
+  if(!bar) return;
+  const presence = window.fbState?.presence || {};
+  const myEmail = window.fbState?.user?.email;
+  const items = Object.values(presence);
+  // Ordenar: yo primero
+  items.sort((a,b)=>{
+    if(a.email === myEmail) return -1;
+    if(b.email === myEmail) return 1;
+    return 0;
+  });
+  bar.innerHTML = items.map(p=>{
+    const initial = (p.name || '?')[0].toUpperCase();
+    const isOnline = !!p.online;
+    const lastSec = p.lastSeen?.seconds || 0;
+    const ageMin = lastSec ? Math.floor((Date.now()/1000 - lastSec)/60) : 999;
+    const reallyOnline = isOnline && ageMin < 3;
+    const photo = p.photoURL ? `<img src="${escapeHtml(p.photoURL)}" alt="">` : initial;
+    const tooltip = p.email === myEmail ? `Vos · ${p.name||''}` : `${p.name||p.email||''} · ${reallyOnline?'online':'offline ('+ageMin+'min)'}`;
+    return `<div class="presence-avatar ${reallyOnline?'online':'offline'}" title="${escapeHtml(tooltip)}">${photo}</div>`;
+  }).join('');
+}
+window.renderPresence = renderPresence;
+
+function fmtAgo(ts){
+  if(!ts) return '';
+  const sec = ts.seconds || (ts/1000) || 0;
+  const diff = Math.max(0, Math.floor(Date.now()/1000 - sec));
+  if(diff < 60) return 'hace unos segundos';
+  if(diff < 3600) return `hace ${Math.floor(diff/60)} min`;
+  if(diff < 86400) return `hace ${Math.floor(diff/3600)} h`;
+  return `hace ${Math.floor(diff/86400)} d`;
+}
+function editedByHtml(meta){
+  if(!meta || !meta.by) return '';
+  const myEmail = window.fbState?.user?.email;
+  const author = meta.by === myEmail ? 'vos' : (meta.byName || 'Marti');
+  return `<div class="edited-by">✏️ <span class="eb-author">${escapeHtml(author)}</span><span class="eb-dot"></span><span>${fmtAgo(meta.at)}</span></div>`;
+}
+window.editedByHtml = editedByHtml;
+
+function markEdited(obj){
+  if(!obj) return obj;
+  const u = window.fbState?.user;
+  if(!u) return obj;
+  obj._edited = {
+    by: u.email,
+    byName: (u.displayName || u.email).split(' ')[0],
+    at: { seconds: Math.floor(Date.now()/1000) }
+  };
+  return obj;
+}
+window.markEdited = markEdited;
+
+// Refresh "hace X min" cada 60s
+setInterval(()=>{
+  if(typeof renderPresence === 'function') renderPresence();
+  // Forzar re-render de tarjetas con edited-by si están visibles
+  document.querySelectorAll('.edited-by').forEach(el=>{
+    const t = el.dataset.ts ? parseInt(el.dataset.ts) : 0;
+    if(t){
+      const span = el.querySelector('span:last-child');
+      if(span) span.textContent = fmtAgo({ seconds: t });
+    }
+  });
+}, 60000);
+
+window.afterLogin = function(){
+  renderPresence();
+  // Re-render por si vino state remoto
+  if(typeof renderAll === 'function') renderAll();
+};
 
 /* ═══ INIT ═══ */
 loadState();
