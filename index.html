@@ -487,8 +487,8 @@ const firebaseConfig = {
 };
 
 const ALLOWED_EMAILS = ['facundollamedo79@gmail.com', 'martinabonti@gmail.com'];
-const TRIP_DOC_PATH = ['trips', 'japon-2026'];
-const PRESENCE_PATH = ['trips', 'japon-2026', 'presence'];
+const TRIP_DOC = ['trips', 'japon-2026'];           // doc principal (2 segmentos = doc)
+const PRESENCE_COL = ['trips', 'japon-2026', 'presence']; // subcolección (3 segmentos = collection)
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -580,7 +580,7 @@ onAuthStateChanged(auth, async (user)=>{
 async function bootstrapFromFirestore(){
   setLoginStatus('Cargando datos…');
   try{
-    const ref = doc(db, ...TRIP_DOC_PATH, 'state');
+    const ref = doc(db, ...TRIP_DOC);
     const snap = await getDoc(ref);
     if(snap.exists()){
       const data = snap.data();
@@ -612,7 +612,7 @@ async function bootstrapFromFirestore(){
 }
 
 function setupRemoteListeners(){
-  const ref = doc(db, ...TRIP_DOC_PATH, 'state');
+  const ref = doc(db, ...TRIP_DOC);
   onSnapshot(ref, (snap)=>{
     if(!snap.exists()) return;
     const data = snap.data();
@@ -643,7 +643,7 @@ function setupPresence(){
   const myUid = window.fbState.user.uid;
   const myName = (window.fbState.user.displayName || window.fbState.user.email).split(' ')[0];
   const myPhoto = window.fbState.user.photoURL || '';
-  const myRef = doc(db, ...PRESENCE_PATH, myUid);
+  const myRef = doc(db, ...PRESENCE_COL, myUid);
 
   // Marcar online
   setDoc(myRef, {
@@ -665,7 +665,7 @@ function setupPresence(){
   });
 
   // Listener: ver a los demás
-  const col = collection(db, ...PRESENCE_PATH);
+  const col = collection(db, ...PRESENCE_COL);
   onSnapshot(col, (qs)=>{
     const presence = {};
     qs.forEach(d=>{ presence[d.id] = d.data(); });
@@ -680,7 +680,7 @@ window.fbWriteState = async function(payload, opts){
   if(window.fbState.isApplyingRemote) return; // no eco
   setSyncStatus('syncing');
   try{
-    const ref = doc(db, ...TRIP_DOC_PATH, 'state');
+    const ref = doc(db, ...TRIP_DOC);
     const tsLocal = Math.floor(Date.now()/1000);
     window.fbState.lastWriteTs = tsLocal;
     await setDoc(ref, {
