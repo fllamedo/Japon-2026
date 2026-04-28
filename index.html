@@ -5613,37 +5613,20 @@ window.addEventListener('resize', computeStickyOffsets);
 // Cargar clima asíncrono
 setTimeout(loadWeatherAll, 400);
 
-// SW — limpiar registros viejos primero, registrar después de auth
-async function cleanOldServiceWorkers(){
-  if(!('serviceWorker' in navigator)) return;
-  try{
-    const regs = await navigator.serviceWorker.getRegistrations();
-    for(const r of regs){
-      // Si el SW activo no es de la versión actual o tiene cualquier estado raro, lo limpiamos
-      if(r.scope && r.scope.includes(location.origin)){
-        // Mantenemos el reg pero forzamos update
-        r.update().catch(()=>{});
-      }
-    }
-  }catch(e){ console.log('SW cleanup err:', e.message); }
-}
-
+// SW
 function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol === 'file:'){
     console.log('SW no funciona con file://');
     return;
   }
-  navigator.serviceWorker.register('sw.js').then((reg)=>{
-    const el = document.getElementById('cdOffline');
-    if(el) el.style.display = 'inline-flex';
+  navigator.serviceWorker.register('sw.js').then(()=>{
+    document.getElementById('cdOffline').style.display = 'inline-flex';
   }).catch(err=>{
     console.log('SW falló:', err.message);
   });
 }
-// Solo registrar SW después de que Firebase esté inicializado para evitar interferencias
-setTimeout(()=>{ cleanOldServiceWorkers(); }, 200);
-setTimeout(registerSW, 3000);
+setTimeout(registerSW, 800);
 
 </script>
 </body>
