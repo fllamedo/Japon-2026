@@ -474,7 +474,7 @@ body.edit-mode .act-add{display:flex}
 <!-- ═══ FIREBASE SDK + AUTH/SYNC ═══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, enableIndexedDbPersistence, updateDoc, collection } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -520,14 +520,26 @@ function setSyncStatus(s){
   }
 }
 
-// Login
+// Login (REDIRECT — más confiable en móvil)
 document.getElementById('loginBtn').addEventListener('click', async ()=>{
-  setLoginStatus('Conectando…');
+  setLoginStatus('Redirigiendo a Google…');
   try{
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   }catch(e){
     setLoginStatus('Error: ' + (e.message || 'no se pudo loguear'), true);
+  }
+});
+
+// Procesar resultado del redirect al volver de Google
+getRedirectResult(auth).then((result)=>{
+  if(result && result.user){
+    setLoginStatus('✓ Conectado, cargando…');
+  }
+}).catch((e)=>{
+  if(e && e.code !== 'auth/no-current-user'){
+    console.warn('redirect result err', e);
+    setLoginStatus('Error al volver de Google: ' + e.message, true);
   }
 });
 
