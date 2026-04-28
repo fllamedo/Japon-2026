@@ -473,9 +473,13 @@ body.edit-mode .act-add{display:flex}
 
 <!-- ═══ FIREBASE SDK + AUTH/SYNC ═══ -->
 <script type="module">
+console.log('[FB] Module script empezando a ejecutar');
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, enableIndexedDbPersistence, updateDoc, collection } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+console.log('[FB] Imports OK');
 
 const firebaseConfig = {
   apiKey: "AIzaSyD26AXeyvMpl17gS_TNix70gmqfTpOsyhE",
@@ -487,26 +491,32 @@ const firebaseConfig = {
 };
 
 const ALLOWED_EMAILS = ['facundollamedo79@gmail.com', 'martinabonti@gmail.com'];
-const TRIP_DOC = ['trips', 'japon-2026'];           // doc principal (2 segmentos = doc)
-const PRESENCE_COL = ['trips', 'japon-2026', 'presence']; // subcolección (3 segmentos = collection)
+const TRIP_DOC = ['trips', 'japon-2026'];
+const PRESENCE_COL = ['trips', 'japon-2026', 'presence'];
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Cache offline
-enableIndexedDbPersistence(db).catch(err=>{
-  console.log('Persistence:', err.code);
+console.log('[FB] App inicializada, auth:', !!auth, 'db:', !!db);
+
+// Forzar persistencia local (evita perder sesión entre redirects)
+setPersistence(auth, browserLocalPersistence).then(()=>{
+  console.log('[FB] Persistencia local OK');
+}).catch(err=>{
+  console.error('[FB] Error setPersistence:', err);
 });
 
-// Exponer para el resto del JS
+enableIndexedDbPersistence(db).catch(err=>{
+  console.log('[FB] Persistence Firestore:', err.code);
+});
+
 window.fb = { app, auth, db, doc, setDoc, getDoc, onSnapshot, serverTimestamp, updateDoc, signOut };
 window.fbState = { user: null, allowed: false, ready: false, lastWriteTs: 0, syncStatus: 'offline', presence: {}, isApplyingRemote: false };
 
-// Status helper
 function setLoginStatus(msg, isError){
   const el = document.getElementById('loginStatus');
-  if(!el) return;
+  if(!el){ console.log('[FB] loginStatus el missing, msg=', msg); return; }
   el.textContent = msg || '';
   el.className = 'login-status' + (isError ? ' login-error' : '');
 }
@@ -520,58 +530,66 @@ function setSyncStatus(s){
   }
 }
 
-// Login (REDIRECT — más confiable en móvil)
-document.getElementById('loginBtn').addEventListener('click', async ()=>{
-  setLoginStatus('Redirigiendo a Google…');
-  try{
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    await signInWithRedirect(auth, provider);
-  }catch(e){
-    console.error('signInWithRedirect failed:', e);
-    setLoginStatus('Error al redirigir: ' + (e.code || e.message), true);
+// Esperar al DOM antes de bindear botones
+function whenReady(fn){
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', fn, { once: true });
+  } else {
+    fn();
   }
-});
-
-// Procesar resultado del redirect al volver de Google
-setLoginStatus('Verificando sesión…');
-
-// Helper: ignora errores irrelevantes de extensiones del navegador
-function isExtensionNoise(err){
-  const msg = String(err?.message || err || '');
-  return msg.includes('message channel closed') ||
-         msg.includes('Extension context') ||
-         msg.includes('chrome-extension');
 }
 
-// Atrapar errores globales que vienen de extensiones para que no rompan el flujo
+whenReady(()=>{
+  console.log('[FB] DOM ready, binding handlers');
+  const btn = document.getElementById('loginBtn');
+  if(!btn){
+    console.error('[FB] loginBtn NO encontrado en el DOM');
+    return;
+  }
+  btn.addEventListener('click', async ()=>{
+    console.log('[FB] Click login');
+    setLoginStatus('Redirigiendo a Google…');
+    try{
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithRedirect(auth, provider);
+    }catch(e){
+      console.error('[FB] signInWithRedirect failed:', e);
+      setLoginStatus('Error al redirigir: ' + (e.code || e.message), true);
+    }
+  });
+  console.log('[FB] Handler de loginBtn conectado');
+});
+
+// Atrapar errores de extensiones
 window.addEventListener('unhandledrejection', (event)=>{
-  if(isExtensionNoise(event.reason)){
-    event.preventDefault(); // suprimir
-    console.log('Ignorado error de extensión:', event.reason?.message);
+  const msg = String(event.reason?.message || event.reason || '');
+  if(msg.includes('message channel closed') || msg.includes('chrome-extension')){
+    event.preventDefault();
+    console.log('[FB] Ignorado error extensión:', msg);
   }
 });
 
-// Timeout: si en 8s no hay resultado del redirect, mostrar el botón igual
+// Procesar redirect result al cargar
+console.log('[FB] Llamando getRedirectResult…');
+setLoginStatus('Verificando sesión…');
+
 const redirectTimeout = setTimeout(()=>{
+  console.log('[FB] Timeout 8s sin resultado de redirect');
   setLoginStatus('');
 }, 8000);
 
 getRedirectResult(auth).then((result)=>{
   clearTimeout(redirectTimeout);
+  console.log('[FB] getRedirectResult resuelto. result:', result, 'user:', result?.user?.email || 'sin user');
   if(result && result.user){
     setLoginStatus('✓ Conectado, cargando…');
-    console.log('Login OK:', result.user.email);
   } else {
     setLoginStatus('');
   }
 }).catch((e)=>{
   clearTimeout(redirectTimeout);
-  console.error('getRedirectResult err:', e);
-  if(isExtensionNoise(e)){
-    setLoginStatus('');
-    return;
-  }
+  console.error('[FB] getRedirectResult ERROR:', e);
   if(e && e.code !== 'auth/no-current-user'){
     setLoginStatus('Error: ' + (e.code || e.message), true);
   } else {
@@ -579,45 +597,39 @@ getRedirectResult(auth).then((result)=>{
   }
 });
 
-// Auth state listener
+// Auth state listener — DEBE registrarse SIEMPRE, no esperar al DOM
+console.log('[FB] Registrando onAuthStateChanged…');
 onAuthStateChanged(auth, async (user)=>{
+  console.log('[FB] onAuthStateChanged disparado. user:', user?.email || 'null');
   if(!user){
-    document.getElementById('loginOverlay').classList.remove('hide');
+    const overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.classList.remove('hide');
     setLoginStatus('');
     window.fbState.user = null;
     window.fbState.allowed = false;
     return;
   }
-  // Normalizar email a minúsculas y trim para comparar
   const userEmail = (user.email || '').toLowerCase().trim();
   const allowedNormalized = ALLOWED_EMAILS.map(e => e.toLowerCase().trim());
-  console.log('Email del login:', JSON.stringify(user.email), '→ normalizado:', JSON.stringify(userEmail));
-  console.log('Permitidos:', allowedNormalized);
+  console.log('[FB] Email:', JSON.stringify(user.email), '→ normalizado:', JSON.stringify(userEmail));
+  console.log('[FB] Permitidos:', allowedNormalized);
 
   if(!allowedNormalized.includes(userEmail)){
-    setLoginStatus(`❌ Email "${user.email}" no autorizado. Esperaba uno de: ${ALLOWED_EMAILS.join(' ó ')}`, true);
-    // NO hacer signOut automático — dejar que el usuario vea el error y decida
-    setTimeout(async ()=>{
-      await signOut(auth);
-    }, 8000); // signout después de 8s para que pueda leer
+    setLoginStatus(`❌ Email "${user.email}" no autorizado.`, true);
+    setTimeout(async ()=>{ await signOut(auth); }, 8000);
     return;
   }
   window.fbState.user = user;
   window.fbState.allowed = true;
   setLoginStatus('✓ Bienvenido, ' + (user.displayName || user.email).split(' ')[0]);
 
-  // Bootstrap del estado
   await bootstrapFromFirestore();
-
-  // Listeners en vivo
   setupRemoteListeners();
-
-  // Presence
   setupPresence();
 
-  // Ocultar overlay
   setTimeout(()=>{
-    document.getElementById('loginOverlay').classList.add('hide');
+    const overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.classList.add('hide');
     if(typeof window.afterLogin === 'function') window.afterLogin();
   }, 300);
 });
@@ -630,14 +642,12 @@ async function bootstrapFromFirestore(){
     if(snap.exists()){
       const data = snap.data();
       window.fbState.lastWriteTs = data.updatedAt ? (data.updatedAt.seconds || 0) : 0;
-      // Aplicar a la app
       if(typeof window.applyRemoteState === 'function'){
         window.fbState.isApplyingRemote = true;
         window.applyRemoteState(data.payload || data);
         window.fbState.isApplyingRemote = false;
       }
     } else {
-      // Primer uso: subir el estado actual local
       if(typeof window.serializeState === 'function'){
         const payload = window.serializeState();
         await setDoc(ref, {
@@ -651,7 +661,7 @@ async function bootstrapFromFirestore(){
     window.fbState.ready = true;
     setSyncStatus('online');
   }catch(e){
-    console.warn('Bootstrap falló:', e);
+    console.error('[FB] Bootstrap falló:', e);
     setSyncStatus('offline');
   }
 }
@@ -665,10 +675,8 @@ function setupRemoteListeners(){
     if(ts <= window.fbState.lastWriteTs) return;
     window.fbState.lastWriteTs = ts;
     if(data.updatedBy === window.fbState.user.email && Math.abs(ts - Date.now()/1000) < 3){
-      // Cambio propio recién subido, ignorar
       return;
     }
-    // Aplicar cambio remoto
     if(typeof window.applyRemoteState === 'function'){
       window.fbState.isApplyingRemote = true;
       window.applyRemoteState(data.payload);
@@ -679,7 +687,7 @@ function setupRemoteListeners(){
       }
     }
   }, (err)=>{
-    console.warn('onSnapshot err', err);
+    console.warn('[FB] onSnapshot err', err);
     setSyncStatus('offline');
   });
 }
@@ -690,7 +698,6 @@ function setupPresence(){
   const myPhoto = window.fbState.user.photoURL || '';
   const myRef = doc(db, ...PRESENCE_COL, myUid);
 
-  // Marcar online
   setDoc(myRef, {
     online: true,
     name: myName,
@@ -699,17 +706,14 @@ function setupPresence(){
     lastSeen: serverTimestamp()
   }).catch(()=>{});
 
-  // Heartbeat cada 60s
   setInterval(()=>{
     setDoc(myRef, { online: true, lastSeen: serverTimestamp() }, { merge: true }).catch(()=>{});
   }, 60000);
 
-  // Marcar offline al cerrar
   window.addEventListener('beforeunload', ()=>{
     setDoc(myRef, { online: false, lastSeen: serverTimestamp() }, { merge: true }).catch(()=>{});
   });
 
-  // Listener: ver a los demás
   const col = collection(db, ...PRESENCE_COL);
   onSnapshot(col, (qs)=>{
     const presence = {};
@@ -719,10 +723,9 @@ function setupPresence(){
   });
 }
 
-// API pública para el resto del JS
 window.fbWriteState = async function(payload, opts){
   if(!window.fbState.user) return;
-  if(window.fbState.isApplyingRemote) return; // no eco
+  if(window.fbState.isApplyingRemote) return;
   setSyncStatus('syncing');
   try{
     const ref = doc(db, ...TRIP_DOC);
@@ -737,7 +740,7 @@ window.fbWriteState = async function(payload, opts){
     });
     setSyncStatus('online');
   }catch(e){
-    console.warn('Write failed', e);
+    console.warn('[FB] Write failed', e);
     setSyncStatus('offline');
   }
 };
@@ -746,6 +749,8 @@ window.fbSignOut = async function(){
   await signOut(auth);
   location.reload();
 };
+
+console.log('[FB] Módulo terminó de configurarse');
 </script>
 
 <div class="hero">
