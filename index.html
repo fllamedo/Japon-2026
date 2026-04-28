@@ -535,18 +535,45 @@ document.getElementById('loginBtn').addEventListener('click', async ()=>{
 
 // Procesar resultado del redirect al volver de Google
 setLoginStatus('Verificando sesión…');
+
+// Helper: ignora errores irrelevantes de extensiones del navegador
+function isExtensionNoise(err){
+  const msg = String(err?.message || err || '');
+  return msg.includes('message channel closed') ||
+         msg.includes('Extension context') ||
+         msg.includes('chrome-extension');
+}
+
+// Atrapar errores globales que vienen de extensiones para que no rompan el flujo
+window.addEventListener('unhandledrejection', (event)=>{
+  if(isExtensionNoise(event.reason)){
+    event.preventDefault(); // suprimir
+    console.log('Ignorado error de extensión:', event.reason?.message);
+  }
+});
+
+// Timeout: si en 8s no hay resultado del redirect, mostrar el botón igual
+const redirectTimeout = setTimeout(()=>{
+  setLoginStatus('');
+}, 8000);
+
 getRedirectResult(auth).then((result)=>{
+  clearTimeout(redirectTimeout);
   if(result && result.user){
     setLoginStatus('✓ Conectado, cargando…');
     console.log('Login OK:', result.user.email);
   } else {
-    // No hay redirect pendiente — usuario no logueado todavía
     setLoginStatus('');
   }
 }).catch((e)=>{
+  clearTimeout(redirectTimeout);
   console.error('getRedirectResult err:', e);
+  if(isExtensionNoise(e)){
+    setLoginStatus('');
+    return;
+  }
   if(e && e.code !== 'auth/no-current-user'){
-    setLoginStatus('Error al volver de Google: ' + (e.code || e.message), true);
+    setLoginStatus('Error: ' + (e.code || e.message), true);
   } else {
     setLoginStatus('');
   }
