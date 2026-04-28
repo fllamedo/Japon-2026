@@ -5642,8 +5642,8 @@ function registerSW(){
   });
 }
 // Solo registrar SW después de que Firebase esté inicializado para evitar interferencias
-setTimeout(()=>{ cleanOldServiceWorkers(); }, 200); // limpia los viejos
-// setTimeout(registerSW, 3000); // DESHABILITADO PARA TEST
+setTimeout(()=>{ cleanOldServiceWorkers(); }, 200);
+setTimeout(registerSW, 3000);
 
 </script>
 </body>
