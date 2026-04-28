@@ -476,7 +476,7 @@ body.edit-mode .act-add{display:flex}
 console.log('[FB] Module script empezando a ejecutar');
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, enableIndexedDbPersistence, updateDoc, collection } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 console.log('[FB] Imports OK');
@@ -548,14 +548,37 @@ whenReady(()=>{
   }
   btn.addEventListener('click', async ()=>{
     console.log('[FB] Click login');
-    setLoginStatus('Redirigiendo a Google…');
+    setLoginStatus('Abriendo Google…');
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     try{
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithRedirect(auth, provider);
+      // INTENTO 1: Popup (más confiable en browsers con storage partitioning)
+      const result = await signInWithPopup(auth, provider);
+      console.log('[FB] Popup login OK:', result.user.email);
+      setLoginStatus('✓ Conectado');
     }catch(e){
-      console.error('[FB] signInWithRedirect failed:', e);
-      setLoginStatus('Error al redirigir: ' + (e.code || e.message), true);
+      console.error('[FB] Popup falló:', e.code, e.message);
+      // Casos en que popup falla y conviene caer a redirect
+      const fallbackCodes = [
+        'auth/popup-blocked',
+        'auth/operation-not-supported-in-this-environment',
+        'auth/cancelled-popup-request'
+      ];
+      if(fallbackCodes.includes(e.code)){
+        setLoginStatus('Popup bloqueado. Redirigiendo…');
+        try{
+          await signInWithRedirect(auth, provider);
+        }catch(e2){
+          setLoginStatus('Error: ' + (e2.code || e2.message), true);
+        }
+        return;
+      }
+      // Si el usuario cerró el popup, no mostrar error feo
+      if(e.code === 'auth/popup-closed-by-user'){
+        setLoginStatus('Login cancelado');
+        return;
+      }
+      setLoginStatus('Error: ' + (e.code || e.message), true);
     }
   });
   console.log('[FB] Handler de loginBtn conectado');
