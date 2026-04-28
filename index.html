@@ -525,21 +525,30 @@ document.getElementById('loginBtn').addEventListener('click', async ()=>{
   setLoginStatus('Redirigiendo a Google…');
   try{
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     await signInWithRedirect(auth, provider);
   }catch(e){
-    setLoginStatus('Error: ' + (e.message || 'no se pudo loguear'), true);
+    console.error('signInWithRedirect failed:', e);
+    setLoginStatus('Error al redirigir: ' + (e.code || e.message), true);
   }
 });
 
 // Procesar resultado del redirect al volver de Google
+setLoginStatus('Verificando sesión…');
 getRedirectResult(auth).then((result)=>{
   if(result && result.user){
     setLoginStatus('✓ Conectado, cargando…');
+    console.log('Login OK:', result.user.email);
+  } else {
+    // No hay redirect pendiente — usuario no logueado todavía
+    setLoginStatus('');
   }
 }).catch((e)=>{
+  console.error('getRedirectResult err:', e);
   if(e && e.code !== 'auth/no-current-user'){
-    console.warn('redirect result err', e);
-    setLoginStatus('Error al volver de Google: ' + e.message, true);
+    setLoginStatus('Error al volver de Google: ' + (e.code || e.message), true);
+  } else {
+    setLoginStatus('');
   }
 });
 
