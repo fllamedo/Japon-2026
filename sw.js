@@ -1,5 +1,5 @@
-/* Service Worker — Japón 2026 v10 */
-const CACHE = 'japon2026-v10';
+/* Service Worker — Japón 2026 v11 */
+const CACHE = 'japon2026-v11';
 const CORE = ['./', './index.html'];
 
 // Esquemas válidos para cachear
