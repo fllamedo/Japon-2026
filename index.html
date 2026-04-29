@@ -80,7 +80,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .section-title-r{font-size:11px;letter-spacing:.6px;color:var(--text-muted);text-transform:none;font-family:var(--font-body);font-weight:500}
 
 /* CITY SEGMENT (header por ciudad) */
-.city-segment{position:relative;top:auto;z-index:1;background:linear-gradient(180deg,var(--bg) 60%,transparent 100%);padding:14px 18px 10px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--border-soft);width:100%;border:none;text-align:left;cursor:pointer;font-family:var(--font-display);transition:background .15s}
+.city-segment{position:sticky;top:102px;z-index:46;background:var(--bg);padding:10px 18px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--border-soft);width:100%;border:none;text-align:left;cursor:pointer;transition:background .15s;box-shadow:0 1px 0 var(--border-soft)}
 .city-segment::before{content:none}
 .city-segment-toggle{font-size:10px;color:var(--accent);transition:transform .2s;flex-shrink:0;width:14px;text-align:center;display:inline-block}
 .city-segment:hover{background:linear-gradient(180deg,rgba(217,119,87,.08) 60%,transparent 100%)}
@@ -92,7 +92,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 /* DAY */
 .day{border-bottom:1px solid var(--border-soft);background:var(--bg);position:relative}
 .day.is-today{background:linear-gradient(90deg,rgba(217,119,87,.07) 0%,transparent 100%);border-left:3px solid var(--accent)}
-.day-head{width:100%;background:var(--bg);border:none;padding:14px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:relative;top:auto;z-index:1}
+.day-head.day-head{width:100%;background:var(--surface);border:none;padding:10px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:sticky;top:141px;z-index:45;box-shadow:0 1px 0 var(--border-soft)}
 .day-head.open{background:var(--surface);box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .day-head.open.is-stuck .day-chips{display:none}
 .day-head.open.is-stuck .day-sub{font-weight:600;color:var(--accent-soft)}
