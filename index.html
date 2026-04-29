@@ -93,7 +93,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .day{border-bottom:1px solid var(--border-soft);background:var(--bg);position:relative}
 .day.is-today{background:linear-gradient(90deg,rgba(217,119,87,.07) 0%,transparent 100%);border-left:3px solid var(--accent)}
 .day-head.day-head{width:100%;background:var(--surface);border:none;padding:10px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:sticky;top:141px;z-index:45;box-shadow:0 1px 0 var(--border-soft)}
-.day-head.open{background:var(--surface);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.day-head.open{background:var(--surface);box-shadow:0 1px 0 var(--border-soft)}
 .day-head.open.is-stuck .day-chips{display:none}
 .day-head.open.is-stuck .day-sub{font-weight:600;color:var(--accent-soft)}
 .day-head:hover{background:var(--surface)}
@@ -593,6 +593,44 @@ body.edit-mode .act-add{display:flex}
   z-index:97 !important;
   background:var(--surface) !important;
   padding:10px 18px !important;
+  box-shadow:0 1px 0 var(--border-soft) !important;
+}
+  /* FIX FINAL MOBILE/DESKTOP: headers sticky compactos */
+.tabs{
+  position:sticky !important;
+  top:0 !important;
+  z-index:300 !important;
+  min-height:40px !important;
+}
+
+.search-wrap{
+  position:sticky !important;
+  top:41px !important;
+  z-index:290 !important;
+  background:var(--bg) !important;
+  padding:6px 14px !important;
+}
+
+.search-box input{
+  padding:7px 30px 7px 32px !important;
+  font-size:13px !important;
+}
+
+.city-segment{
+  position:sticky !important;
+  top:92px !important;
+  z-index:280 !important;
+  background:var(--bg) !important;
+  padding:7px 18px !important;
+  box-shadow:0 1px 0 var(--border-soft) !important;
+}
+
+.day-head{
+  position:sticky !important;
+  top:126px !important;
+  z-index:270 !important;
+  background:var(--surface) !important;
+  padding:9px 18px !important;
   box-shadow:0 1px 0 var(--border-soft) !important;
 }
 </style>
