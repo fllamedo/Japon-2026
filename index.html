@@ -92,7 +92,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 /* DAY */
 .day{border-bottom:1px solid var(--border-soft);background:var(--bg);position:relative}
 .day.is-today{background:linear-gradient(90deg,rgba(217,119,87,.07) 0%,transparent 100%);border-left:3px solid var(--accent)}
-.day-head{width:100%;background:var(--bg);border:none;padding:14px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:sticky;top:146px;z-index:40}
+.day-head{width:100%;background:var(--bg);border:none;padding:14px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:relative;top:auto;z-index:1}
 .day-head.open{background:var(--surface);box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .day-head.open.is-stuck .day-chips{display:none}
 .day-head.open.is-stuck .day-sub{font-weight:600;color:var(--accent-soft)}
