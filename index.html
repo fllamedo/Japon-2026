@@ -94,8 +94,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .day.is-today{background:linear-gradient(90deg,rgba(217,119,87,.07) 0%,transparent 100%);border-left:3px solid var(--accent)}
 .day-head{width:100%;background:var(--bg);border:none;padding:14px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:relative;top:auto;z-index:1}
 .day-head.open{background:var(--surface);box-shadow:0 1px 0 var(--border-soft)}
-.day-head.open.is-stuck .day-chips{display:none}
-.day-head.open.is-stuck .day-sub{font-weight:600;color:var(--accent-soft)}
+/* (is-stuck rules removed: day-head no longer sticky, fix 29/4) */
 .day-head:hover{background:var(--surface)}
 .day-num{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent);line-height:1;flex-shrink:0;min-width:40px}
 .day-main{flex:1;min-width:0}
@@ -218,7 +217,7 @@ body.edit-mode .insert-divider{display:block}
 .transit-edit:hover{color:var(--accent);background:var(--surface-2)}
 
 /* DAY FOOTER */
-.day-footer{margin:12px 4px 0;padding:12px 14px;background:var(--bg-soft);border:1px solid var(--border-soft);border-radius:var(--radius-sm);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.day-footer{margin:12px 4px 0;padding:12px 14px;background:var(--bg-soft);border:1px solid var(--border-soft);border-radius:var(--radius-sm);display:grid;grid-template-columns:repeat(2,1fr);gap:10px;text-align:center}
 .df-stat{display:flex;flex-direction:column;gap:2px}
 .df-stat-val{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--accent)}
 .df-stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px}
@@ -563,7 +562,9 @@ body.edit-mode .act-add{display:flex}
 .sync-pill.syncing{background:rgba(217,119,87,.15);color:var(--accent)}
 .sync-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;animation:syncPulse 2s ease-in-out infinite}
 @keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.4}}
-  /* FIX LIMPIO: tabs + buscador + ciudad fijos; día actual en barra flotante */
+  /* FIX LIMPIO v2 (29/4): jerarquía sticky sin gaps ni superposiciones
+     Usa --sticky-h calculado en JS para evitar números mágicos.
+     Orden de capas: tabs (top) > search > city-segment > day-head > content */
 .tabs{
   position:sticky !important;
   top:0 !important;
@@ -572,10 +573,11 @@ body.edit-mode .act-add{display:flex}
 
 .search-wrap{
   position:sticky !important;
-  top:43px !important;
+  top:var(--tabs-h, 43px) !important;
   z-index:290 !important;
   background:var(--bg) !important;
   padding:6px 14px !important;
+  margin:0 !important;
 }
 
 .search-box input{
@@ -585,12 +587,23 @@ body.edit-mode .act-add{display:flex}
 
 .city-segment{
   position:sticky !important;
-  top:92px !important;
+  top:var(--sticky-h, 90px) !important;
   z-index:280 !important;
   background:var(--bg) !important;
-  padding:7px 18px !important;
+  padding:8px 18px !important;
+  margin:0 !important;
   box-shadow:0 1px 0 var(--border-soft) !important;
 }
+
+/* day-head NO es sticky para evitar tapar info del itinerario al hacer scroll */
+.day-head{position:relative !important;top:auto !important;z-index:5 !important}
+
+/* el primer día dentro del region-group NO debe tener border-top extra
+   (esto eliminaba el "espacio vacío" antes del primer día) */
+.region-group > .day:first-child{border-top:none !important;margin-top:0 !important}
+.region-group{margin:0 !important;padding:0 !important}
+.city-segment + .region-group{margin-top:0 !important}
+.city-segment{margin-bottom:0 !important;border-bottom:1px solid var(--border-soft) !important}
 
 .current-day-sticky{
   position:sticky;
@@ -1097,6 +1110,7 @@ function histPeriod(date){
 const DAYS_DATA = {
 1: {
   id:1, date:'2026-05-22', city:'Tokio', region:'Tokio 1',
+  steps:6000, km:4,
   title:'Llegada a Tokio — Haneda & Omoide Yokocho',
   level:'green',
   hotel:'Dash Living Shinjuku Sanchome',
@@ -1129,6 +1143,7 @@ const DAYS_DATA = {
 
 5: {
   id:5, date:'2026-05-26', city:'Nikko (excursión)', region:'Tokio 1',
+  steps:18000, km:13,
   title:'Excursión Nikko — UNESCO + Chuzenji + Kegon',
   level:'red',
   hotel:'Dash Living Shinjuku Sanchome',
@@ -1141,7 +1156,7 @@ const DAYS_DATA = {
     {id:'d5-a2',time:'06:00',title:'☕ Desayuno konbini',mapName:'7-Eleven Shinjuku Station',kind:'meal',badge:'Libre',anchor:false,durationMin:10,priceYen:500,desc:'Comprado la noche anterior u onigiri rápido.'},
     {id:'d5-t2',kind:'transit',from:'Shinjuku',to:'Tobu-Asakusa',durationMin:30,priceYen:280,walkMin:5,mode:'🚃 Shinjuku Line → Asakusa Line directo',mapLink:'https://www.google.com/maps/dir/Shinjuku+Station/Tobu+Asakusa+Station',note:'Tobu-Asakusa terminal privada, 5 min de la de metro'},
     {id:'d5-a3',time:'07:05',title:'⏳ Buffer Tobu-Asakusa',mapName:'Tobu Asakusa Station',kind:'free',badge:'Buffer',anchor:false,durationMin:25,priceYen:0,desc:'Tobu-Asakusa terminal privada, ~5 min a pie. Carteles "Tobu Railway".'},
-    {id:'d5-a4',time:'07:30',title:'🚃 Tobu Spacia X → Nikko',mapName:'Tobu Asakusa Station',kind:'anchor',badge:'Ancla',anchor:true,durationMin:120,priceYen:5600,desc:'¥2.740 surcharge + ¥2.860 base pp i/v. Reservar 1 mes antes.'},
+    {id:'d5-t2b',kind:'transit',from:'Tobu-Asakusa',to:'Tobu-Nikko',durationMin:120,priceYen:5600,walkMin:0,mode:'🚃 Tobu Spacia X — salida 07:30 · ⚠️ Reservar 1 mes antes',mapLink:'https://www.google.com/maps/dir/Tobu+Asakusa+Station/Tobu+Nikko+Station',note:'¥2.740 surcharge + ¥2.860 base i/v pp. Cubre TAMBIÉN la vuelta.'},
     {id:'d5-t3',kind:'transit',from:'Tobu-Nikko',to:'Shinkyo Bridge',durationMin:10,priceYen:0,walkMin:15,mode:'🚌 World Heritage Loop o 🚶 15 min',mapLink:'https://www.google.com/maps/dir/Tobu+Nikko+Station/Shinkyo+Bridge+Nikko'},
     {id:'d5-a5',time:'09:45',title:'🌉 Puente Shinkyo',mapName:'Shinkyo Bridge Nikko',kind:'recommended',badge:'Entrada',anchor:false,durationMin:15,priceYen:300,crowd:'🟢',desc:'Entrada simbólica al área UNESCO. Cierra 15:30.',guide:'shinkyo'},
     {id:'d5-t4',kind:'transit',from:'Shinkyo',to:'Rinno-ji',durationMin:6,priceYen:0,walkMin:6,mode:'🚶 6 min',mapLink:'https://www.google.com/maps/dir/Shinkyo+Bridge+Nikko/Rinnoji+Temple+Nikko'},
@@ -1154,16 +1169,16 @@ const DAYS_DATA = {
     {id:'d5-a9',time:'12:45',title:'⛩️ Taiyu-in (Mausoleo Iemitsu)',mapName:'Taiyuin Mausoleum Nikko',kind:'imperdible',badge:'UNESCO',anchor:false,durationMin:30,priceYen:550,desc:'Más íntimo. 8:00-16:00.',guide:'taiyuin'},
     {id:'d5-t8',kind:'transit',from:'Taiyu-in',to:'Parada bus Nishisando',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min',mapLink:'https://www.google.com/maps/dir/Taiyuin+Mausoleum+Nikko/Nishisando+Bus+Stop+Nikko'},
     {id:'d5-a10',time:'13:20',title:'🍽️ Almuerzo zona templos',mapName:'Hippari Dako Nikko',kind:'meal',badge:'Libre',anchor:false,durationMin:40,priceYen:1500,desc:'Yuba (piel de tofu) local, o konbini.',freeTime:true,suggestions:'d5-almuerzo'},
-    {id:'d5-t9',kind:'transit',from:'Nikko templos',to:'Lago Chuzenji',durationMin:55,priceYen:1250,walkMin:0,mode:'🚌 Bus Irohazaka (sinuoso)',mapLink:'https://www.google.com/maps/dir/Toshogu+Shrine+Nikko/Lake+Chuzenji+Nikko',note:'1h+ con tráfico'},
+    {id:'d5-t9',kind:'transit',from:'Nikko templos',to:'Lago Chuzenji',durationMin:55,priceYen:1250,walkMin:0,mode:'🚌 Bus Irohazaka (sinuoso) — sale 14:00',mapLink:'https://www.google.com/maps/dir/Toshogu+Shrine+Nikko/Lake+Chuzenji+Nikko',note:'1h+ con tráfico'},
     {id:'d5-a11',time:'15:00',title:'🏔️ Lago Chuzenji',mapName:'Lake Chuzenji Nikko',kind:'recommended',badge:'Recomendado',anchor:false,durationMin:45,priceYen:0,desc:'Altitud 1269m. Erupción del Nantai hace ~20.000 años.',guide:'chuzenji'},
     {id:'d5-t10',kind:'transit',from:'Chuzenji',to:'Kegon Falls',durationMin:10,priceYen:0,walkMin:10,mode:'🚶 10 min',mapLink:'https://www.google.com/maps/dir/Lake+Chuzenji+Nikko/Kegon+Falls+Nikko'},
     {id:'d5-a12',time:'15:45',title:'🏔️ Cascada Kegon + ascensor',mapName:'Kegon Falls Nikko',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:45,priceYen:570,crowd:'🟡 Cola ~10 min',desc:'Caída de 97m. 9:00-17:00.',guide:'kegon'},
     {id:'d5-t11',kind:'transit',from:'Kegon',to:'Terminal Chuzenji',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min',mapLink:'https://www.google.com/maps/dir/Kegon+Falls+Nikko/Chuzenji+Onsen+Bus+Terminal'},
-    {id:'d5-a13',time:'16:35',title:'🚌 Bus Chuzenji → Tobu-Nikko',mapName:'Chuzenji Onsen Bus Terminal',kind:'logistic',badge:'Bus',anchor:false,durationMin:45,priceYen:1250,desc:'Últimos: 16:27 / 17:02 / 17:22 / 18:02.'},
-    {id:'d5-t12',kind:'transit',from:'Tobu-Nikko',to:'Tobu-Asakusa',durationMin:5,priceYen:0,walkMin:2,mode:'🚶 ~2 min al andén',mapLink:'https://www.google.com/maps/dir/Chuzenji+Onsen+Bus+Terminal/Tobu+Nikko+Station'},
-    {id:'d5-a14',time:'18:00',title:'🚃 Tobu Spacia X → Asakusa',mapName:'Tobu Nikko Station',kind:'logistic',badge:'Tren',anchor:false,durationMin:120,priceYen:0,desc:'Boleto i/v ya comprado. 2h.'},
+    {id:'d5-t11b',kind:'transit',from:'Chuzenji Bus Terminal',to:'Tobu-Nikko Station',durationMin:45,priceYen:1250,walkMin:0,mode:'🚌 Bus Chuzenji → Nikko Station — salida 16:35',mapLink:'https://www.google.com/maps/dir/Chuzenji+Onsen+Bus+Terminal/Tobu+Nikko+Station',note:'Últimos: 16:27 / 17:02 / 17:22 / 18:02. ¥1.250 pp.'},
+    {id:'d5-a13b',time:'17:30',title:'☕ Buffer Tobu-Nikko Station',mapName:'Tobu Nikko Station',kind:'free',badge:'Buffer',anchor:false,durationMin:30,priceYen:300,desc:'Café o baño antes del Spacia X.'},
+    {id:'d5-t12',kind:'transit',from:'Tobu-Nikko',to:'Tobu-Asakusa',durationMin:120,priceYen:0,walkMin:0,mode:'🚃 Tobu Spacia X — salida 18:00',mapLink:'https://www.google.com/maps/dir/Tobu+Nikko+Station/Tobu+Asakusa+Station',note:'Boleto i/v incluido en el del ida (¥5.600 pp ya pagado).'},
     {id:'d5-t13',kind:'transit',from:'Asakusa',to:'Shinjuku',durationMin:30,priceYen:390,walkMin:5,mode:'🚇 Ginza + Chuo Line',mapLink:'https://www.google.com/maps/dir/Tobu+Asakusa+Station/Shinjuku+Station'},
-    {id:'d5-a15',time:'20:30',title:'🍽️ Cena Shinjuku',mapName:'Fuunji Shinjuku',kind:'meal',badge:'Libre',anchor:false,durationMin:60,priceYen:2500,desc:'Ver sugerencias ↓',freeTime:true,suggestions:'d5-cena'},
+    {id:'d5-a15',time:'20:30',title:'🍽️ Cena Shinjuku',mapName:'Fuunji Shinjuku',kind:'meal',badge:'Libre',anchor:false,durationMin:60,priceYen:1500,desc:'Después de Nikko, ramen rápido o izakaya cercana.',freeTime:true,suggestions:'d5-cena'},
     {id:'d5-t14',kind:'transit',from:'Shinjuku',to:'Dash Living',durationMin:11,priceYen:0,walkMin:11,mode:'🚶 11 min',mapLink:'https://www.google.com/maps/dir/Shinjuku+Station/Dash+Living+Shinjuku+Sanchome'},
     {id:'d5-a16',time:'21:30',title:'🏨 Preparar Takkyubin D6',mapName:'Dash Living Shinjuku Sanchome',kind:'logistic',badge:'Importante',anchor:false,durationMin:0,priceYen:0,desc:'💡 ESTA NOCHE: formularios Takkyubin 1. Destino: Travelodge Kyoto.'}
   ],
@@ -1187,6 +1202,7 @@ const DAYS_DATA = {
 
 11: {
   id:11, date:'2026-06-01', city:'Kyoto → Nara → Osaka', region:'Kyoto',
+  steps:14000, km:10,
   title:'Nara + mudanza a Osaka',
   level:'yellow',
   hotel:'Apartment Hotel 11 Dotonbori 7',
@@ -1198,9 +1214,9 @@ const DAYS_DATA = {
     {id:'d11-t1',kind:'transit',from:'Travelodge',to:'Kyoto Station',durationMin:22,priceYen:220,walkMin:18,mode:'🚶 8 → 🚇 Karasuma 4 → 🚶 10',mapLink:'https://www.google.com/maps/dir/Travelodge+Kyoto+Shijo+Kawaramachi/Kyoto+Station'},
     {id:'d11-a2',time:'07:40',title:'☕ Desayuno Kyoto Station',mapName:'Kyoto Station',kind:'meal',badge:'Libre',anchor:false,durationMin:20,priceYen:800,desc:'Onigiri konbini + bento, o café en torres.'},
     {id:'d11-t2',kind:'transit',from:'Kyoto',to:'Kintetsu-Nara',durationMin:55,priceYen:760,walkMin:5,mode:'🚃 Kintetsu Kyoto Line directo',mapLink:'https://www.google.com/maps/dir/Kyoto+Station/Kintetsu+Nara+Station',note:'Real 48 min + buffer'},
-    {id:'d11-a3',time:'08:55',title:'🔐 Coin Lockers Kintetsu-Nara',mapName:'Kintetsu Nara Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:5,priceYen:1400,desc:'¥400-700/valija. L/XL andenes B1.'},
+    {id:'d11-a3',time:'08:55',title:'🔐 Coin Lockers Kintetsu-Nara',mapName:'Kintetsu Nara Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:5,priceYen:700,desc:'¥400-700/valija. L/XL andenes B1. Total 2 valijas: ~¥1.400.'},
     {id:'d11-t3',kind:'transit',from:'Kintetsu-Nara',to:'Parque Nara',durationMin:15,priceYen:0,walkMin:15,mode:'🚶 15 min',mapLink:'https://www.google.com/maps/dir/Kintetsu+Nara+Station/Nara+Park'},
-    {id:'d11-a4',time:'09:15',title:'🦌 Parque de Nara + ciervos',mapName:'Nara Park',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:65,priceYen:400,desc:'Shika senbei ¥200 pp. Ciervos hacen reverencia.',guide:'nara-park'},
+    {id:'d11-a4',time:'09:15',title:'🦌 Parque de Nara + ciervos',mapName:'Nara Park',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:65,priceYen:200,desc:'Shika senbei ¥200 pp (galletitas para ciervos). Hacen reverencia para pedir.',guide:'nara-park'},
     {id:'d11-t4',kind:'transit',from:'Nara Park',to:'Tōdai-ji',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min',mapLink:'https://www.google.com/maps/dir/Nara+Park/Todaiji+Temple'},
     {id:'d11-a5',time:'10:20',title:'⛩️ Tōdai-ji (Gran Buda)',mapName:'Todaiji Temple Nara',kind:'imperdible',badge:'UNESCO',anchor:false,durationMin:60,priceYen:600,desc:'Edificio de madera más grande hasta 1998. Buda 15m. 7:30-17:30.',guide:'todaiji'},
     {id:'d11-t5',kind:'transit',from:'Tōdai-ji',to:'Naramachi',durationMin:20,priceYen:0,walkMin:20,mode:'🚶 20 min',mapLink:'https://www.google.com/maps/dir/Todaiji+Temple/Naramachi+Nara'},
@@ -1208,9 +1224,9 @@ const DAYS_DATA = {
     {id:'d11-t6',kind:'transit',from:'Naramachi',to:'Ganko',durationMin:10,priceYen:0,walkMin:10,mode:'🚶 10 min',mapLink:'https://www.google.com/maps/dir/Naramachi+Nara/Ganko+Nara+Station'},
     {id:'d11-a7',time:'12:35',title:'🍽️ Tonkatsu Ganko',mapName:'Ganko Nara Station',kind:'meal',badge:'Comida',anchor:false,durationMin:45,priceYen:1800,desc:'Clásico de tonkatsu.'},
     {id:'d11-t7',kind:'transit',from:'Ganko',to:'Kintetsu-Nara',durationMin:15,priceYen:0,walkMin:15,mode:'🚶 15 min retirar valijas',mapLink:'https://www.google.com/maps/dir/Ganko+Nara/Kintetsu+Nara+Station'},
-    {id:'d11-a8',time:'13:45',title:'🚃 Kintetsu Nara → Nippombashi',mapName:'Kintetsu Nara Station',kind:'logistic',badge:'Tren',anchor:false,durationMin:38,priceYen:680,desc:'Con las valijas.'},
+    {id:'d11-t7b',kind:'transit',from:'Kintetsu Nara',to:'Kintetsu Nippombashi',durationMin:38,priceYen:680,walkMin:0,mode:'🚃 Kintetsu Line directo — salida 13:45',mapLink:'https://www.google.com/maps/dir/Kintetsu+Nara+Station/Kintetsu+Nippombashi+Station',note:'¥680 pp · Con las 2 valijas.'},
     {id:'d11-t8',kind:'transit',from:'Nippombashi',to:'Coin lockers',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 a salidas 5 o 10',mapLink:'https://www.google.com/maps/dir/Kintetsu+Nippombashi+Station/Apartment+Hotel+11+Dotonbori+7'},
-    {id:'d11-a9',time:'14:25',title:'🔐 Coin lockers Nippombashi',mapName:'Kintetsu Nippombashi Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:1400,desc:'Hasta check-in 16:00.'},
+    {id:'d11-a9',time:'14:25',title:'🔐 Coin lockers Nippombashi',mapName:'Kintetsu Nippombashi Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:700,desc:'¥400-700/valija. Hasta check-in 16:00. Total 2 valijas: ~¥1.400.'},
     {id:'d11-t9',kind:'transit',from:'Nippombashi',to:'Zona Namba',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 al paseo',mapLink:'https://www.google.com/maps/dir/Kintetsu+Nippombashi+Station/Namba+Osaka'},
     {id:'d11-a10',time:'14:45',title:'⏳ Tiempo libre Namba',mapName:'Namba Osaka',kind:'free',badge:'Libre',anchor:false,durationMin:75,priceYen:0,desc:'Ver sugerencias ↓',freeTime:true,suggestions:'d11-libre'},
     {id:'d11-t10',kind:'transit',from:'Zona Namba',to:'Depto + valijas',durationMin:14,priceYen:0,walkMin:14,mode:'🚶 ida y vuelta lockers',mapLink:'https://www.google.com/maps/dir/Namba+Osaka/Apartment+Hotel+11+Dotonbori+7'},
@@ -1243,6 +1259,7 @@ const DAYS_DATA = {
 
 15: {
   id:15, date:'2026-06-05', city:'Hiroshima + Miyajima', region:'Hiroshima',
+  steps:18000, km:13,
   title:'Miyajima (River Cruise + Itsukushima) + Hondori',
   level:'red',
   hotel:'MYSTAYS Hiroshima Peace Park',
@@ -1271,8 +1288,7 @@ const DAYS_DATA = {
     {id:'d15-a11',time:'13:45',title:'⏳ Tiempo libre Miyajima',mapName:'Miyajima Island',kind:'free',badge:'Libre',anchor:false,durationMin:55,priceYen:0,desc:'Paseo, ciervos, fotos.',freeTime:true,suggestions:'d15-miyajima'},
     {id:'d15-a12',time:'14:40',title:'🚢 Llegada muelle ferry',mapName:'Miyajima Ferry Terminal',kind:'logistic',badge:'Buffer',anchor:false,durationMin:5,priceYen:0,desc:'5 min buffer.'},
     {id:'d15-a13',time:'14:45',title:'🚢 Ferry JR → Miyajimaguchi',mapName:'Miyajima Ferry Terminal',kind:'anchor',badge:'Ferry',anchor:true,durationMin:10,priceYen:180,desc:'¥180 pp.'},
-    {id:'d15-t9',kind:'transit',from:'Miyajimaguchi',to:'Hiroshima Station',durationMin:26,priceYen:420,walkMin:3,mode:'🚃 JR San-yo Line',mapLink:'https://www.google.com/maps/dir/Miyajimaguchi+Station/Hiroshima+Station'},
-    {id:'d15-a14',time:'15:00',title:'🚃 JR San-yo → Hiroshima',mapName:'Miyajimaguchi Station',kind:'logistic',badge:'Tren',anchor:false,durationMin:26,priceYen:0,desc:''},
+    {id:'d15-t9',kind:'transit',from:'Miyajimaguchi',to:'Hiroshima Station',durationMin:26,priceYen:240,walkMin:3,mode:'🚃 JR San-yo Line — sale 15:00',mapLink:'https://www.google.com/maps/dir/Miyajimaguchi+Station/Hiroshima+Station',note:'¥240 pp.'},
     {id:'d15-t10',kind:'transit',from:'Hiroshima Station',to:'MYSTAYS',durationMin:15,priceYen:200,walkMin:3,mode:'🚃 Tranvía línea 2 o 6',mapLink:'https://www.google.com/maps/dir/Hiroshima+Station/MYSTAYS+Hiroshima+Peace+Park'},
     {id:'d15-a15',time:'15:50',title:'🏨 MYSTAYS · descanso',mapName:'MYSTAYS Hiroshima Peace Park',kind:'logistic',badge:'Descanso',anchor:false,durationMin:45,priceYen:0,desc:'Refrescarse para tarde.'},
     {id:'d15-t11',kind:'transit',from:'MYSTAYS',to:'Hondori',durationMin:8,priceYen:0,walkMin:8,mode:'🚶 8 min',mapLink:'https://www.google.com/maps/dir/MYSTAYS+Hiroshima+Peace+Park/Hondori+Shopping+Street+Hiroshima'},
@@ -1649,6 +1665,7 @@ const NOTES_DEFAULT = [
 
 DAYS_DATA[2] = {
   id:2, date:'2026-05-23', city:'Tokio · Ueno + Akihabara', region:'Tokio 1',
+  steps:14000, km:10,
   title:'Ueno + Ameyoko + Akihabara',
   level:'yellow',
   hotel:'Dash Living Shinjuku Sanchome',
@@ -1691,6 +1708,7 @@ DAYS_DATA[2] = {
 
 DAYS_DATA[3] = {
   id:3, date:'2026-05-24', city:'Tokio · Gyoen + Shinjuku', region:'Tokio 1',
+  steps:15000, km:11,
   title:'Shinjuku Gyoen + Honey Toast + Ayuntamiento + Fuunji',
   level:'yellow',
   hotel:'Dash Living Shinjuku Sanchome',
@@ -1731,6 +1749,7 @@ DAYS_DATA[3] = {
 
 DAYS_DATA[4] = {
   id:4, date:'2026-05-25', city:'Tokio · Meiji + Harajuku + Shibuya', region:'Tokio 1',
+  steps:14000, km:10,
   title:'Meiji Jingu → Harajuku → Omotesando → Shibuya',
   level:'yellow',
   hotel:'Dash Living Shinjuku Sanchome',
@@ -1773,6 +1792,7 @@ DAYS_DATA[4] = {
 
 DAYS_DATA[6] = {
   id:6, date:'2026-05-27', city:'Kamakura + Enoshima', region:'Tokio 1',
+  steps:15000, km:11,
   title:'Takkyubin 1 + Gran Buda + Hasedera + Enoshima',
   level:'yellow',
   hotel:'Dash Living Shinjuku Sanchome',
@@ -1782,9 +1802,9 @@ DAYS_DATA[6] = {
   activities:[
     {id:'d6-a1',time:'06:55',title:'🏨 Salida Dash Living con 2 valijas',mapName:'Dash Living Shinjuku Sanchome',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:''},
     {id:'d6-t1',kind:'transit',from:'Dash Living',to:'7-Eleven Shinjuku 5-11-2',durationMin:2,priceYen:0,walkMin:2,mode:'🚶 ~2 min (127m)',mapLink:'https://www.google.com/maps/dir/Dash+Living+Shinjuku+Sanchome/7-Eleven+5-chome-11-2+Shinjuku'},
-    {id:'d6-a2',time:'07:00',title:'📦 Takkyubin 1 — 7-Eleven',mapName:'7-Eleven Shinjuku 5-chome-11-2',kind:'anchor',badge:'Ancla',anchor:true,durationMin:25,priceYen:4000,crowd:'🟢',desc:'Pedir formulario, pagar, fotografiar comprobante. ☕ desayuno ahí mismo. Destino: Travelodge Kyoto. Llegan vie 29/5. ¥2.000/valija.',guide:'takkyubin'},
+    {id:'d6-a2',time:'07:00',title:'📦 Takkyubin 1 — 7-Eleven',mapName:'7-Eleven Shinjuku 5-chome-11-2',kind:'anchor',badge:'Ancla',anchor:true,durationMin:25,priceYen:2000,crowd:'🟢',desc:'Pedir formulario, pagar, fotografiar comprobante. ☕ desayuno ahí mismo. Destino: Travelodge Kyoto. Llegan vie 29/5. ¥2.000/valija (total 2 valijas: ¥4.000).',guide:'takkyubin'},
     {id:'d6-t2',kind:'transit',from:'7-Eleven',to:'Kamakura',durationMin:80,priceYen:1040,walkMin:15,mode:'🚶15 min Shinjuku Station → 🚃 Shonan-Shinjuku Line 63 min',mapLink:'https://www.google.com/maps/dir/7-Eleven+5-chome-11-2+Shinjuku/Kamakura+Station'},
-    {id:'d6-a3',time:'08:50',title:'🚃 Enoden: Kamakura → Hase',mapName:'Kamakura Station',kind:'logistic',badge:'Tren',anchor:false,durationMin:15,priceYen:200,desc:'3 min walk + 12 min tren Enoden.'},
+    {id:'d6-t2b',kind:'transit',from:'Kamakura Station',to:'Hase Station',durationMin:15,priceYen:200,walkMin:3,mode:'🚃 Enoden Line — 3 min walk + 12 min tren',mapLink:'https://www.google.com/maps/dir/Kamakura+Station/Hase+Station+Kanagawa'},
     {id:'d6-t3',kind:'transit',from:'Hase Station',to:'Kōtoku-in',durationMin:8,priceYen:0,walkMin:8,mode:'🚶 8 min',mapLink:'https://www.google.com/maps/dir/Hase+Station+Kanagawa/Kotoku-in+Kamakura'},
     {id:'d6-a4',time:'09:20',title:'🗿 Kōtoku-in (Gran Buda)',mapName:'Kotoku-in Kamakura',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:45,priceYen:300,crowd:'🟡 Mié mañana tranquilo',desc:'Gran Buda de bronce de 13.4m al aire libre desde 1252. 8:00-16:45. Se puede entrar al interior por ¥50 extra.',guide:'kotokuin'},
     {id:'d6-t4',kind:'transit',from:'Kōtoku-in',to:'Hasedera',durationMin:9,priceYen:0,walkMin:9,mode:'🚶 9 min',mapLink:'https://www.google.com/maps/dir/Kotoku-in+Kamakura/Hasedera+Temple'},
@@ -1794,7 +1814,6 @@ DAYS_DATA[6] = {
     {id:'d6-a7',time:'12:45',title:'🍽️ Almuerzo libre Enoshima',mapName:'Enoshima',kind:'meal',badge:'Libre',anchor:false,durationMin:45,priceYen:1500,crowd:'🟡',desc:'Shirasu-don (sardinas blancas locales) recomendado.',freeTime:true,suggestions:'d6-almuerzo'},
     {id:'d6-a8',time:'13:30',title:'⏳ Tiempo libre Enoshima',mapName:'Enoshima',kind:'free',badge:'Libre',anchor:false,durationMin:60,priceYen:500,desc:'Sea Candle (¥500) · Cuevas (¥500) · Playa.',freeTime:true,suggestions:'d6-tarde'},
     {id:'d6-t6',kind:'transit',from:'Enoshima',to:'Shinjuku',durationMin:90,priceYen:930,walkMin:15,mode:'🚶5 → 🚃 Odakyu/Shonan-Shinjuku 75 min → 🚶10',mapLink:'https://www.google.com/maps/dir/Enoshima+Station/Shinjuku+Station'},
-    {id:'d6-a9',time:'14:30',title:'🚃 Regreso a Shinjuku',mapName:'Enoshima Station',kind:'logistic',badge:'Tren',anchor:false,durationMin:90,priceYen:0,desc:''},
     {id:'d6-a10',time:'16:00',title:'⏳ Tiempo libre tarde',mapName:'Shinjuku',kind:'free',badge:'Libre',anchor:false,durationMin:210,priceYen:0,desc:'Compras Shinjuku (UNIQLO Honten, BICQLO, GU, Adidas, Isetan) o vintage Shimokitazawa (10 min Odakyu).',freeTime:true,suggestions:'d6-shopping'},
     {id:'d6-t7',kind:'transit',from:'Dash Living',to:'AFURI Lumine',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
     {id:'d6-a11',time:'19:30',title:'🍜 AFURI Shinjuku Lumine · Cena',mapName:'AFURI Shinjuku Lumine',kind:'meal',badge:'Comida',anchor:false,durationMin:45,priceYen:1300,crowd:'🟡',desc:'Misma cadena que probaron en D4 (yuzu ramen).'},
@@ -1818,6 +1837,7 @@ DAYS_DATA[6] = {
 
 DAYS_DATA[7] = {
   id:7, date:'2026-05-28', city:'Kawaguchiko (pernocte)', region:'Fuji',
+  steps:13000, km:9,
   title:'Shimoyoshida + Chureito + Lago Kawaguchi',
   level:'yellow',
   hotel:'Hostel Labeek (Funatsu 561-1)',
@@ -1826,17 +1846,18 @@ DAYS_DATA[7] = {
   clothing:'<strong>Capas obligatorio.</strong> Kawaguchiko a 850m de altura. Mañana ~12°, máximo 22°. Camiseta + manga larga + campera ligera. Pantalón largo. Zapatillas (398 escalones en Chureito).',
   activities:[
     {id:'d7-a1',time:'07:00',title:'🏨 Check-out Dash Living + desayuno konbini',mapName:'Dash Living Shinjuku Sanchome',kind:'logistic',badge:'Salida',anchor:false,durationMin:15,priceYen:300,desc:''},
-    {id:'d7-t1',kind:'transit',from:'Shinjuku',to:'Shimoyoshida',durationMin:140,priceYen:4010,walkMin:5,mode:'🚃 Fuji Excursion ~2 hs ¥4.010 pp · ⚠️ Reservar Ekinet 27-28 abril 10:00 JST',mapLink:'https://www.google.com/maps/dir/Shinjuku+Station/Shimoyoshida+Station'},
-    {id:'d7-a2',time:'07:15',title:'🚃 Fuji Excursion → Shimoyoshida',mapName:'Shinjuku Station',kind:'anchor',badge:'Ancla',anchor:true,durationMin:122,priceYen:0,desc:'Tren directo Shinjuku → Shimoyoshida. ¥4.010 pp. Reservar Ekinet 27-28 abril, 10:00 JST.'},
+    {id:'d7-t1',kind:'transit',from:'Shinjuku',to:'Shimoyoshida',durationMin:122,priceYen:4010,walkMin:5,mode:'🚃 Fuji Excursion — salida 07:15 · ⚠️ Reservar Ekinet 27-28 abril 10:00 JST',mapLink:'https://www.google.com/maps/dir/Shinjuku+Station/Shimoyoshida+Station',note:'¥4.010 pp. 2h directo.'},
+    {id:'d7-a2b',time:'09:17',title:'🔐 Coin lockers Shimoyoshida Station — dejar carry-on',mapName:'Shimoyoshida Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:8,priceYen:600,desc:'Dejar carry-on aquí. Subir solo con mochila chica para Honcho + Chureito (398 escalones). Lockers ¥400-700. Retirar al volver 12:20.'},
     {id:'d7-t2',kind:'transit',from:'Shimoyoshida',to:'Honcho Street',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
     {id:'d7-a3',time:'09:25',title:'🏘️ Shimoyoshida Honcho Street',mapName:'Shimoyoshida Honcho Street',kind:'imperdible',badge:'Foto',anchor:false,durationMin:30,priceYen:0,crowd:'🟢 Jue mañana — solos',desc:'Calle retro con vista al Fuji al fondo. La foto típica del Fuji con casas tradicionales en primer plano.',guide:'honcho-street'},
     {id:'d7-t3',kind:'transit',from:'Honcho Street',to:'Chureito',durationMin:28,priceYen:0,walkMin:28,mode:'🚶 28 min caminando',mapLink:'https://www.google.com/maps/dir/Shimoyoshida+Honcho+Street/Chureito+Pagoda'},
     {id:'d7-a4',time:'10:23',title:'🪜 Subida Chureito (398 escalones)',mapName:'Chureito Pagoda',kind:'logistic',badge:'Subida',anchor:false,durationMin:20,priceYen:0,crowd:'🟡 Jue moderado',desc:'⚠️ 398 escalones, tomar tiempo. Hidratarse.'},
     {id:'d7-a5',time:'10:45',title:'⛩️ Chureito Pagoda · Fuji + Sakura',mapName:'Chureito Pagoda Fujiyoshida',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:60,priceYen:0,crowd:'🟡',desc:'La pagoda con el Fuji al fondo: la foto icónica de Japón. Mejor luz: mañana.',guide:'chureito'},
     {id:'d7-t4',kind:'transit',from:'Chureito',to:'Shimoyoshida Station',durationMin:35,priceYen:0,walkMin:35,mode:'🚶 bajada 15 min + 20 min walk a estación'},
-    {id:'d7-a6',time:'12:20',title:'🚃 Shimoyoshida → Kawaguchiko',mapName:'Shimoyoshida Station',kind:'logistic',badge:'Tren',anchor:false,durationMin:5,priceYen:310,desc:'Fujikyu Line 5 min.'},
+    {id:'d7-a5b',time:'12:15',title:'🔐 Retirar carry-on de coin lockers Shimoyoshida',mapName:'Shimoyoshida Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:5,priceYen:0,desc:'Retirar carry-on antes de tomar el Fujikyu Line a Kawaguchiko.'},
+    {id:'d7-t4b',kind:'transit',from:'Shimoyoshida',to:'Kawaguchiko Station',durationMin:5,priceYen:310,walkMin:0,mode:'🚃 Fujikyu Line — salida 12:20',mapLink:'https://www.google.com/maps/dir/Shimoyoshida+Station/Kawaguchiko+Station',note:'5 min · ¥310 pp.'},
     {id:'d7-t5',kind:'transit',from:'Kawaguchiko Station',to:'Coin lockers',durationMin:7,priceYen:0,walkMin:5,mode:'🚶 al andén/salida'},
-    {id:'d7-a7',time:'12:35',title:'🔐 Coin lockers Kawaguchiko Station',mapName:'Kawaguchiko Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:600,desc:'Dejar mochilas hasta el final del día. ¥500-700.'},
+    {id:'d7-a7',time:'12:35',title:'🔐 Coin lockers Kawaguchiko Station — dejar TODO',mapName:'Kawaguchiko Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:600,desc:'Dejar carry-on + mochilas hasta el final del día. ¥500-700.'},
     {id:'d7-t6',kind:'transit',from:'Kawaguchiko Station',to:'Hōtō Fudō',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
     {id:'d7-a8',time:'13:00',title:'🍲 Almuerzo hōtō (Hōtō Fudō)',mapName:'Hoto Fudo Kawaguchiko',kind:'meal',badge:'Comida',anchor:false,durationMin:60,priceYen:1500,crowd:'🟡 Espera 10-15 min',desc:'Fideos miso gruesos con verduras de temporada. Especialidad del Fuji. Sin apuro.',guide:'hoto'},
     {id:'d7-t7',kind:'transit',from:'Hōtō Fudō',to:'Fujisanbike',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
@@ -1856,14 +1877,16 @@ DAYS_DATA[7] = {
   ],
   packing:[
     {id:uid(),text:'<strong>Carry-on máximo</strong> — solo lo del día y noche',done:false},
+    {id:uid(),text:'<strong>Mochila chica</strong> dentro del carry-on para subir Chureito sin peso',done:false},
     {id:uid(),text:'Comprobante Takkyubin fotografiado',done:false},
     {id:uid(),text:'Reserva Fuji Excursion impresa o screenshot',done:false},
     {id:uid(),text:'Capas: campera ligera obligatoria',done:false},
-    {id:uid(),text:'Efectivo ¥5-7k (taxi + bicis + comida)',done:false},
+    {id:uid(),text:'Efectivo ¥7-9k (lockers Shimoyoshida + lockers Kawaguchiko + taxi + bicis + comida)',done:false},
     {id:uid(),text:'Cámara cargada (Chureito + lago)',done:false},
     {id:uid(),text:'Zapatillas para subir 398 escalones',done:false}
   ],
   notes:[
+    {type:'tip',icon:'🔐',text:'<strong>Carry-on en Shimoyoshida:</strong> Al llegar a Shimoyoshida (9:17), dejar carry-on en coin lockers de la estación. Subir solo con mochila chica. Retirar 12:15 antes del Fujikyu a Kawaguchiko.'},
     {type:'warn',icon:'⚠️',text:'<strong>Hostel Labeek 21 min walk:</strong> Tomar taxi al final del día (¥700-1.000). 4 min en auto.'},
     {type:'tip',icon:'💡',text:'<strong>Cuevas de lava (alternativa Oishi):</strong> Solo si cancelan Oishi. Fugaku Wind Cave + Narusawa Ice Cave ¥350 c/u.'},
     {type:'info',icon:'🌧️',text:'<strong>Plan B lluvia:</strong> Saltar bicis → Fujiyama Onsen ¥1.500 (10 min bus) + cuevas a pie/taxi.'},
@@ -1876,6 +1899,7 @@ DAYS_DATA[7] = {
 
 DAYS_DATA[8] = {
   id:8, date:'2026-05-29', city:'Kawaguchiko → Kyoto', region:'Kyoto',
+  steps:11000, km:8,
   title:'Bus + Shinkansen + Nishiki + Té + Pontocho',
   level:'green',
   hotel:'Travelodge Kyoto Shijo Kawaramachi',
@@ -1885,13 +1909,11 @@ DAYS_DATA[8] = {
   activities:[
     {id:'d8-a1',time:'06:45',title:'☕ Desayuno konbini',mapName:'Hostel Labeek',kind:'meal',badge:'Libre',anchor:false,durationMin:15,priceYen:500,desc:''},
     {id:'d8-a2',time:'07:00',title:'🏨 Check-out Hostel Labeek',mapName:'Hostel Labeek Fujikawaguchiko',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:'Hasta 10:00 ✅.'},
-    {id:'d8-t1',kind:'transit',from:'Hostel Labeek',to:'Kawaguchiko Station',durationMin:21,priceYen:1000,walkMin:21,mode:'🚶 21 min walk o 🚕 4 min ¥700-1.000 (recomendado con mochilas)',mapLink:'https://www.google.com/maps/dir/Hostel+Labeek+Fujikawaguchiko/Kawaguchiko+Station'},
+    {id:'d8-t1',kind:'transit',from:'Hostel Labeek',to:'Kawaguchiko Station',durationMin:21,priceYen:0,walkMin:21,mode:'🚶 21 min walk o 🚕 4 min ¥700-1.000 (recomendado con mochilas)',mapLink:'https://www.google.com/maps/dir/Hostel+Labeek+Fujikawaguchiko/Kawaguchiko+Station',note:'Si toman taxi: ¥700-1.000 total para los 2.'},
     {id:'d8-a3',time:'07:30',title:'⏳ Buffer Kawaguchiko Station',mapName:'Kawaguchiko Station',kind:'logistic',badge:'Buffer',anchor:false,durationMin:20,priceYen:0,desc:'Buffer de 20 min antes del bus.'},
-    {id:'d8-t2',kind:'transit',from:'Kawaguchiko',to:'Mishima',durationMin:90,priceYen:2260,walkMin:0,mode:'🚌 Bus Mishima Liner ~90 min ¥2.260 pp',mapLink:'https://www.google.com/maps/dir/Kawaguchiko+Station/Mishima+Station',note:'Reservar 1-2 días antes online'},
-    {id:'d8-a4',time:'07:50',title:'🚌 Bus Mishima Liner',mapName:'Kawaguchiko Station',kind:'anchor',badge:'Ancla',anchor:true,durationMin:90,priceYen:0,desc:'⚠️ Reservar 1-2 días antes online o ventanilla.'},
+    {id:'d8-t2',kind:'transit',from:'Kawaguchiko',to:'Mishima',durationMin:90,priceYen:2260,walkMin:0,mode:'🚌 Bus Mishima Liner — salida 07:50',mapLink:'https://www.google.com/maps/dir/Kawaguchiko+Station/Mishima+Station',note:'¥2.260 pp · ⚠️ Reservar 1-2 días antes online'},
     {id:'d8-a5',time:'09:20',title:'⏳ Mishima Station · café/baño',mapName:'Mishima Station',kind:'logistic',badge:'Buffer',anchor:false,durationMin:25,priceYen:300,desc:'Buffer 25 min antes del shinkansen.'},
-    {id:'d8-t3',kind:'transit',from:'Mishima',to:'Kyoto',durationMin:120,priceYen:9900,walkMin:5,mode:'🚄 Shinkansen Hikari ~2 hs · Smart EX Hayatoku-21',mapLink:'https://www.google.com/maps/dir/Mishima+Station/Kyoto+Station',note:'Reservar 21 días antes en SmartEX'},
-    {id:'d8-a6',time:'09:45',title:'🚄 Shinkansen Hikari → Kyoto',mapName:'Mishima Station',kind:'anchor',badge:'Ancla',anchor:true,durationMin:120,priceYen:0,desc:'~¥9.900 pp con descuento Hayatoku-21. ⚠️ Reservar 21 días antes.'},
+    {id:'d8-t3',kind:'transit',from:'Mishima',to:'Kyoto',durationMin:120,priceYen:9900,walkMin:5,mode:'🚄 Shinkansen Hikari — salida 09:45',mapLink:'https://www.google.com/maps/dir/Mishima+Station/Kyoto+Station',note:'~¥9.900 pp con Smart EX Hayatoku-21 · ⚠️ Reservar 21 días antes en SmartEX'},
     {id:'d8-t4',kind:'transit',from:'Kyoto Station',to:'Travelodge',durationMin:25,priceYen:230,walkMin:5,mode:'🚌 Bus ciudad ~20 min',mapLink:'https://www.google.com/maps/dir/Kyoto+Station/Travelodge+Kyoto+Shijo+Kawaramachi'},
     {id:'d8-a7',time:'12:10',title:'🏨 Travelodge · dejar equipaje',mapName:'Travelodge Kyoto Shijo Kawaramachi',kind:'logistic',badge:'Logística',anchor:false,durationMin:15,priceYen:0,desc:'Check-in real 15:00. Aceptan equipaje + recogen tu Takkyubin.'},
     {id:'d8-t5',kind:'transit',from:'Travelodge',to:'Nishiki Market',durationMin:7,priceYen:0,walkMin:7,mode:'🚶 7 min',mapLink:'https://www.google.com/maps/dir/Travelodge+Kyoto+Shijo+Kawaramachi/Nishiki+Market+Kyoto'},
@@ -1924,6 +1946,7 @@ DAYS_DATA[8] = {
 
 DAYS_DATA[9] = {
   id:9, date:'2026-05-30', city:'Kyoto · Arashiyama + Kinkaku-ji', region:'Kyoto',
+  steps:14000, km:10,
   title:'Bamboo Forest + Tenryū-ji + Kinkaku-ji + Nijō (opcional)',
   level:'yellow',
   hotel:'Travelodge Kyoto Shijo Kawaramachi',
@@ -1931,7 +1954,7 @@ DAYS_DATA[9] = {
   luggage:'Solo mochila día',
   clothing:'Ligero. Días de Kyoto pueden ser calurosos (26°+) y húmedos. Camiseta + protector solar. Zapatillas para muchos templos. Lista para sacarse zapatos varias veces.',
   activities:[
-    {id:'d9-a1',time:'07:30',title:'🚃 Salida hotel (sin desayuno)',mapName:'Travelodge Kyoto Shijo Kawaramachi',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:'Sin desayuno — Arabica recién a las 9:10.'},
+    {id:'d9-a1',time:'07:30',title:'🏨 Salida hotel (sin desayuno)',mapName:'Travelodge Kyoto Shijo Kawaramachi',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:'Sin desayuno — Arabica recién a las 9:10.'},
     {id:'d9-t1',kind:'transit',from:'Travelodge',to:'Hankyu Arashiyama',durationMin:30,priceYen:240,walkMin:5,mode:'🚃 Hankyu Kyoto → Arashiyama Line',mapLink:'https://www.google.com/maps/dir/Travelodge+Kyoto+Shijo+Kawaramachi/Hankyu+Arashiyama+Station'},
     {id:'d9-a2',time:'08:10',title:'🎋 Arashiyama Bamboo Forest',mapName:'Arashiyama Bamboo Forest Kyoto',kind:'imperdible',badge:'Imperdible',anchor:true,durationMin:60,priceYen:0,crowd:'🟢 8:10 sáb casi vacío',desc:'⚠️ Llegar antes 9:00 — a las 10:00 será 🚨. Gratis. Ancla por horario óptimo.',guide:'arashiyama-bambu'},
     {id:'d9-t2',kind:'transit',from:'Bamboo Forest',to:'%Arabica',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
@@ -1961,6 +1984,7 @@ DAYS_DATA[9] = {
 
 DAYS_DATA[10] = {
   id:10, date:'2026-05-31', city:'Kyoto · Fushimi + Uji + Higashiyama', region:'Kyoto',
+  steps:22000, km:16,
   title:'Fushimi amanecer + Uji + Kiyomizu + Gion',
   level:'red',
   hotel:'Travelodge Kyoto Shijo Kawaramachi',
@@ -1972,14 +1996,13 @@ DAYS_DATA[10] = {
     {id:'d10-a2',time:'05:45',title:'🏨 Salida Travelodge',mapName:'Travelodge Kyoto Shijo Kawaramachi',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:''},
     {id:'d10-t1',kind:'transit',from:'Travelodge',to:'Fushimi Inari',durationMin:25,priceYen:240,walkMin:5,mode:'🚃 Keihan Main Line ~20 min · ¥240 pp',mapLink:'https://www.google.com/maps/dir/Travelodge+Kyoto+Shijo+Kawaramachi/Fushimi+Inari+Taisha'},
     {id:'d10-a3',time:'06:15',title:'⛩️ Fushimi Inari · amanecer',mapName:'Fushimi Inari Taisha Kyoto',kind:'imperdible',badge:'Imperdible',anchor:true,durationMin:150,priceYen:0,crowd:'🟢 6:15 dom prácticamente vacío',desc:'Miles de torii rojos subiendo el monte. Gratis. 24 hs. Subir al menos al mirador Yotsutsuji (~45 min). Bajar antes de las 9:00.',guide:'fushimi-inari'},
-    {id:'d10-t2',kind:'transit',from:'Fushimi Inari',to:'Uji',durationMin:25,priceYen:240,walkMin:5,mode:'🚃 JR Nara Line Inari → Uji',mapLink:'https://www.google.com/maps/dir/Fushimi+Inari+Taisha/Uji+Station+JR'},
-    {id:'d10-a4',time:'08:45',title:'🚃 Tren Inari → Uji',mapName:'Inari Station',kind:'logistic',badge:'Tren',anchor:false,durationMin:25,priceYen:0,desc:''},
+    {id:'d10-t2',kind:'transit',from:'Fushimi Inari',to:'Uji',durationMin:25,priceYen:240,walkMin:5,mode:'🚃 JR Nara Line Inari → Uji — sale 08:45',mapLink:'https://www.google.com/maps/dir/Fushimi+Inari+Taisha/Uji+Station+JR'},
     {id:'d10-t3',kind:'transit',from:'Uji Station',to:'Byōdō-in',durationMin:10,priceYen:0,walkMin:10,mode:'🚶 10 min',mapLink:'https://www.google.com/maps/dir/Uji+Station+JR/Byodoin+Temple+Uji'},
     {id:'d10-a5',time:'09:20',title:'⛩️ Byōdō-in (Phoenix Hall)',mapName:'Byodoin Temple Uji',kind:'imperdible',badge:'UNESCO',anchor:false,durationMin:90,priceYen:900,crowd:'🟢 Dom 9:20 sin fila',desc:'Templo budista del 1052. Phoenix Hall es ÉL edificio del billete de ¥10. UNESCO. 8:45-17:30. Registrar turno Phoenix Hall al entrar (máx 50 pax c/20 min).',guide:'byodoin'},
     {id:'d10-t4',kind:'transit',from:'Byōdō-in',to:'Rutubo',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
     {id:'d10-a6',time:'10:50',title:'🍵 Rutubo Uji · Matcha',mapName:'Rutubo Uji',kind:'meal',badge:'Comida',anchor:false,durationMin:45,priceYen:1500,crowd:'🟡 Fila 10-20 min',desc:'Matcha real de Uji + dulces tradicionales. ¥1.000-1.800.'},
     {id:'d10-t5',kind:'transit',from:'Rutubo',to:'Uji Station',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
-    {id:'d10-a7',time:'11:45',title:'🚃 Uji → Kyoto Station',mapName:'Uji Station JR',kind:'logistic',badge:'Tren',anchor:false,durationMin:17,priceYen:240,desc:''},
+    {id:'d10-t5b',kind:'transit',from:'Uji',to:'Kyoto Station',durationMin:17,priceYen:240,walkMin:0,mode:'🚃 JR Nara Line — sale 11:45',mapLink:'https://www.google.com/maps/dir/Uji+Station+JR/Kyoto+Station'},
     {id:'d10-t6',kind:'transit',from:'Kyoto Station',to:'Kiyomizu zona',durationMin:25,priceYen:230,walkMin:5,mode:'🚌 Bus 206 o 100 ~20 min',mapLink:'https://www.google.com/maps/dir/Kyoto+Station/Kiyomizu-dera'},
     {id:'d10-a8',time:'12:25',title:'🍽️ Almuerzo libre camino a Kiyomizu',mapName:'Higashiyama Kyoto',kind:'meal',badge:'Libre',anchor:false,durationMin:45,priceYen:1500,crowd:'🟡',desc:'Zona Gojo/Higashiyama.',freeTime:true,suggestions:'d10-almuerzo'},
     {id:'d10-a9',time:'13:15',title:'⛩️ Kiyomizu-dera + Sannenzaka',mapName:'Kiyomizu-dera Kyoto',kind:'imperdible',badge:'UNESCO',anchor:false,durationMin:150,priceYen:500,crowd:'🚨 Dom tarde saturado',desc:'Templo budista con plataforma de madera de 13m. UNESCO. 6:00-18:00. Calles empedradas Ninenzaka/Sannenzaka.',guide:'kiyomizu'},
@@ -2011,6 +2034,7 @@ DAYS_DATA[10] = {
 
 DAYS_DATA[12] = {
   id:12, date:'2026-06-02', city:'Osaka · Shopping Day', region:'Osaka',
+  steps:13000, km:9,
   title:'Namba Parks + Kuromon + EDION + Amerika-mura + Ichiran',
   level:'green',
   hotel:'Apartment Hotel 11 Dotonbori 7',
@@ -2051,6 +2075,7 @@ DAYS_DATA[12] = {
 
 DAYS_DATA[13] = {
   id:13, date:'2026-06-03', city:'Osaka · Castillo + Umeda', region:'Osaka',
+  steps:16000, km:11,
   title:'Castillo + Umeda Sky + Shinsaibashi + Don Quijote + Dearbros',
   level:'yellow',
   hotel:'Apartment Hotel 11 Dotonbori 7',
@@ -2059,7 +2084,7 @@ DAYS_DATA[13] = {
   clothing:'Día normal. Para Umeda Sky azotea: capa fina (puede haber viento). Camiseta + gorra.',
   activities:[
     {id:'d13-a1',time:'07:30',title:'☕ Desayuno konbini',mapName:'Apartment Hotel 11 Dotonbori 7',kind:'meal',badge:'Libre',anchor:false,durationMin:25,priceYen:400,crowd:'🟢',desc:'7-Eleven Dotonbori o FamilyMart cercano.'},
-    {id:'d13-a2',time:'08:00',title:'🚇 Salida hotel',mapName:'Apartment Hotel 11 Dotonbori 7',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:''},
+    {id:'d13-a2',time:'08:00',title:'🏨 Salida hotel',mapName:'Apartment Hotel 11 Dotonbori 7',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:''},
     {id:'d13-t1',kind:'transit',from:'Depto',to:'Osaka Castle',durationMin:35,priceYen:240,walkMin:13,mode:'🚶8 → 🚇 Sakaisuji + Tanimachi Line ~22 min → 🚶5',mapLink:'https://www.google.com/maps/dir/Apartment+Hotel+11+Dotonbori+7/Osaka+Castle+Park'},
     {id:'d13-a3',time:'08:35',title:'🏯 Llegada Castle Park · paseo exterior',mapName:'Osaka Castle Park',kind:'recommended',badge:'Imperdible',anchor:false,durationMin:25,priceYen:0,crowd:'🟢 Mié temprano vacío',desc:'Castillo abre 9:00. Mientras tanto: paseo del foso + parque.'},
     {id:'d13-a4',time:'09:00',title:'🏯 Castillo de Osaka',mapName:'Osaka Castle',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:120,priceYen:1200,crowd:'🟡 Mié moderado',desc:'Castillo emblemático del siglo XVI. Interior + museo. 9:00-17:00 (última subida 16:30). ¥1.200 pp.',guide:'osaka-castle'},
@@ -2098,6 +2123,7 @@ DAYS_DATA[13] = {
 
 DAYS_DATA[14] = {
   id:14, date:'2026-06-04', city:'Hiroshima · Memorial', region:'Hiroshima',
+  steps:14000, km:10,
   title:'Takkyubin 2 + Shinkansen + Parque Paz + Castillo',
   level:'yellow',
   hotel:'MYSTAYS Hiroshima Peace Park',
@@ -2108,12 +2134,10 @@ DAYS_DATA[14] = {
     {id:'d14-a1',time:'05:30',title:'⏰ Despertar · valijas listas (de anoche)',mapName:'Apartment Hotel 11 Dotonbori 7',kind:'logistic',badge:'Despertar',anchor:false,durationMin:15,priceYen:0,desc:''},
     {id:'d14-a2',time:'05:45',title:'🏨 Check-out Apartment Hotel',mapName:'Apartment Hotel 11 Dotonbori 7',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:'Hasta 10:00 ✅. Sin recepción — código.'},
     {id:'d14-t1',kind:'transit',from:'Depto',to:'Lawson Kintetsu-Nippombashi',durationMin:11,priceYen:0,walkMin:11,mode:'🚶 ~11 min con valijas',mapLink:'https://www.google.com/maps/dir/Apartment+Hotel+11+Dotonbori+7/Kintetsu+Nippombashi+Station+Osaka'},
-    {id:'d14-a3',time:'05:55',title:'📦 Takkyubin 2 — Lawson',mapName:'Lawson Kintetsu Nippombashi',kind:'anchor',badge:'Ancla',anchor:true,durationMin:15,priceYen:4000,crowd:'🟢 Madrugada',desc:'Llevar valijas, pedir formulario, pagar, fotografiar. Destino: Daffitto Oshiage. Llegan sáb 6/6. ¥2.000/valija.',guide:'takkyubin'},
-    {id:'d14-t2',kind:'transit',from:'Nippombashi',to:'Shin-Osaka',durationMin:25,priceYen:280,walkMin:5,mode:'🚇 Sennichimae→Namba→Midosuji ~25 min',mapLink:'https://www.google.com/maps/dir/Kintetsu+Nippombashi+Station+Osaka/Shin-Osaka+Station'},
-    {id:'d14-a4',time:'06:20',title:'🚇 Metro a Shin-Osaka',mapName:'Kintetsu Nippombashi Station',kind:'logistic',badge:'Metro',anchor:false,durationMin:25,priceYen:0,desc:''},
+    {id:'d14-a3',time:'05:55',title:'📦 Takkyubin 2 — Lawson',mapName:'Lawson Kintetsu Nippombashi',kind:'anchor',badge:'Ancla',anchor:true,durationMin:15,priceYen:2000,crowd:'🟢 Madrugada',desc:'Llevar valijas, pedir formulario, pagar, fotografiar. Destino: Daffitto Oshiage. Llegan sáb 6/6. ¥2.000/valija (total 2 valijas: ~¥4.000).',guide:'takkyubin'},
+    {id:'d14-t2',kind:'transit',from:'Kintetsu Nippombashi',to:'Shin-Osaka',durationMin:25,priceYen:280,walkMin:5,mode:'🚇 Sennichimae→Namba→Midosuji — sale 06:20',mapLink:'https://www.google.com/maps/dir/Kintetsu+Nippombashi+Station/Shin-Osaka+Station'},
     {id:'d14-a5',time:'06:45',title:'🚄 Shin-Osaka · ☕ desayuno + bento',mapName:'Shin-Osaka Station',kind:'meal',badge:'Buffer',anchor:false,durationMin:25,priceYen:1200,crowd:'🟢',desc:'25 min buffer. Comprar bento para shinkansen.'},
-    {id:'d14-t3',kind:'transit',from:'Shin-Osaka',to:'Hiroshima',durationMin:85,priceYen:9000,walkMin:5,mode:'🚄 Shinkansen Nozomi · Smart EX Hayatoku-21',mapLink:'https://www.google.com/maps/dir/Shin-Osaka+Station/Hiroshima+Station',note:'Reservar 21 días antes'},
-    {id:'d14-a6',time:'07:15',title:'🚄 Shinkansen Nozomi → Hiroshima',mapName:'Shin-Osaka Station',kind:'anchor',badge:'Ancla',anchor:true,durationMin:85,priceYen:0,desc:'~¥9.000 pp con descuento. ⚠️ Reservar 21 días antes.'},
+    {id:'d14-t3',kind:'transit',from:'Shin-Osaka',to:'Hiroshima',durationMin:85,priceYen:9000,walkMin:5,mode:'🚄 Shinkansen Nozomi — sale 07:15',mapLink:'https://www.google.com/maps/dir/Shin-Osaka+Station/Hiroshima+Station',note:'~¥9.000 pp con Smart EX Hayatoku-21 · ⚠️ Reservar 21 días antes'},
     {id:'d14-t4',kind:'transit',from:'Hiroshima Station',to:'MYSTAYS',durationMin:20,priceYen:240,walkMin:5,mode:'🚃 Tranvía línea 2 ~15 min + 🚶5',mapLink:'https://www.google.com/maps/dir/Hiroshima+Station/MYSTAYS+Hiroshima+Peace+Park'},
     {id:'d14-a7',time:'09:00',title:'🏨 MYSTAYS · dejar equipaje',mapName:'MYSTAYS Hiroshima Peace Park',kind:'logistic',badge:'Logística',anchor:false,durationMin:15,priceYen:0,desc:'Aceptan carry-on + mochilas antes del check-in 15:00. Gratis.'},
     {id:'d14-t5',kind:'transit',from:'MYSTAYS',to:'Parque Paz',durationMin:6,priceYen:0,walkMin:6,mode:'🚶 6 min',mapLink:'https://www.google.com/maps/dir/MYSTAYS+Hiroshima+Peace+Park/Hiroshima+Peace+Memorial+Park'},
@@ -2152,6 +2176,7 @@ DAYS_DATA[14] = {
 
 DAYS_DATA[16] = {
   id:16, date:'2026-06-06', city:'Hiroshima → Tokio', region:'Tokio 2',
+  steps:14000, km:10,
   title:'Shinkansen + Kappabashi + Asakusa + Daffitto',
   level:'yellow',
   hotel:'Daffitto Oshiage (Mukojima 2-20)',
@@ -2163,8 +2188,7 @@ DAYS_DATA[16] = {
     {id:'d16-a2',time:'07:25',title:'🏨 Check-out MYSTAYS',mapName:'MYSTAYS Hiroshima Peace Park',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:''},
     {id:'d16-t1',kind:'transit',from:'MYSTAYS',to:'Hiroshima Station',durationMin:15,priceYen:200,walkMin:3,mode:'🚃 Tranvía línea 2 o 6 ~15 min',mapLink:'https://www.google.com/maps/dir/MYSTAYS+Hiroshima+Peace+Park/Hiroshima+Station'},
     {id:'d16-a3',time:'07:45',title:'🚄 Hiroshima Station · comprar bento',mapName:'Hiroshima Station',kind:'meal',badge:'Buffer',anchor:false,durationMin:20,priceYen:1500,crowd:'🟢',desc:'20 min buffer. Bento para shinkansen.'},
-    {id:'d16-t2',kind:'transit',from:'Hiroshima',to:'Asakusa',durationMin:255,priceYen:19000,walkMin:25,mode:'🚄 Nozomi 3h 50 min → 🚶5 → 🚇 Marunouchi+Ginza 20 min → Asakusa Station',mapLink:'https://www.google.com/maps/dir/Hiroshima+Station/Asakusa+Station+Tokyo',note:'~¥19.000 pp con SmartEX'},
-    {id:'d16-a4',time:'08:10',title:'🚄 Shinkansen Nozomi → Tokyo',mapName:'Hiroshima Station',kind:'anchor',badge:'Ancla',anchor:true,durationMin:255,priceYen:0,desc:'4h 10min total. ~¥19.000 pp con descuento. ⚠️ Reservar 21 días antes.'},
+    {id:'d16-t2',kind:'transit',from:'Hiroshima',to:'Asakusa',durationMin:255,priceYen:19000,walkMin:25,mode:'🚄 Shinkansen Nozomi — sale 08:10 · 3h 50min · luego 🚇 a Asakusa',mapLink:'https://www.google.com/maps/dir/Hiroshima+Station/Asakusa+Station+Tokyo',note:'~¥19.000 pp con SmartEX · ⚠️ Reservar 21 días antes · 4h 10min total con metro'},
     {id:'d16-a5',time:'12:20',title:'🔐 Asakusa · Coin lockers',mapName:'Asakusa Station Tokyo',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:600,desc:'Dejar carry-on + mochilas. Retirar al volver para check-in. ¥500-700.'},
     {id:'d16-t3',kind:'transit',from:'Asakusa',to:'Kappabashi',durationMin:15,priceYen:0,walkMin:15,mode:'🚶 ~15 min',mapLink:'https://www.google.com/maps/dir/Asakusa+Station/Kappabashi+Street'},
     {id:'d16-a6',time:'12:45',title:'🔪 Kappabashi Street',mapName:'Kappabashi Street Tokyo',kind:'imperdible',badge:'Compras',anchor:false,durationMin:90,priceYen:0,crowd:'🟡 Sáb moderado',desc:'⚠️ Cierra 17:00 sáb. Cerrado dom. Calle de utensilios y vajilla. Llevar efectivo. Cuchillos japoneses, cerámica, comida plástica.',guide:'kappabashi'},
@@ -2204,6 +2228,7 @@ DAYS_DATA[16] = {
 
 DAYS_DATA[17] = {
   id:17, date:'2026-06-07', city:'Tokio · Último día activo', region:'Tokio 2',
+  steps:18000, km:13,
   title:'Lucent + Senso-ji + Skytree + Tsukiji + teamLab + Torre Tokio',
   level:'yellow',
   hotel:'Daffitto Oshiage',
@@ -2254,6 +2279,7 @@ DAYS_DATA[17] = {
 
 DAYS_DATA[18] = {
   id:18, date:'2026-06-08', city:'Tokio → Buenos Aires', region:'Tokio 2',
+  steps:9000, km:6,
   title:'Día libre + Vuelo Haneda',
   level:'green',
   hotel:'— (vuelo)',
@@ -2264,13 +2290,12 @@ DAYS_DATA[18] = {
     {id:'d18-a1',time:'08:30',title:'☕ Desayuno libre Daffitto/konbini',mapName:'Daffitto Oshiage',kind:'meal',badge:'Libre',anchor:false,durationMin:30,priceYen:600,desc:''},
     {id:'d18-a2',time:'09:00',title:'🧳 Salida Daffitto con TODO',mapName:'Daffitto Oshiage',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:'Check-out 10:00 ✅. Llevan todo el equipaje.'},
     {id:'d18-t1',kind:'transit',from:'Daffitto',to:'Oshiage Station',durationMin:10,priceYen:0,walkMin:10,mode:'🚶 ~10 min con valijas',mapLink:'https://www.google.com/maps/dir/Daffitto+Oshiage/Oshiage+Station'},
-    {id:'d18-a3',time:'09:15',title:'🔐 Coin lockers Oshiage Station',mapName:'Oshiage Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:1600,desc:'Dejar valijas grandes (¥800 c/u) hasta 14:45.'},
+    {id:'d18-a3',time:'09:15',title:'🔐 Coin lockers Oshiage Station',mapName:'Oshiage Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:800,desc:'¥800 por valija grande. Total 2 valijas: ~¥1.600. Hasta 14:45.'},
     {id:'d18-a4',time:'09:25',title:'⏳ Últimas compras/paseo sin peso',mapName:'Oshiage Asakusa Tokyo',kind:'free',badge:'Libre',anchor:false,durationMin:135,priceYen:0,desc:'Solamachi (mall del Skytree) · Kappabashi si no terminaron sáb (cerrado en sáb pero abre lun ✅) · Nakamise últimos souvenirs · Drugstore (Salonpas, eye drops, medicinas).',freeTime:true,suggestions:'d18-mañana'},
     {id:'d18-a5',time:'11:40',title:'🍽️ Último almuerzo en Japón',mapName:'Tokyo',kind:'meal',badge:'Última',anchor:false,durationMin:60,priceYen:2500,desc:'Sushi, ramen, lo que tengan ganas.',freeTime:true,suggestions:'d18-almuerzo'},
     {id:'d18-a6',time:'12:40',title:'⏳ Últimas compras tax-free',mapName:'Oshiage',kind:'free',badge:'Libre',anchor:false,durationMin:120,priceYen:0,desc:'Don Quijote, drugstore, regalos. Recordar pasaporte para tax-free.',freeTime:true,suggestions:'d18-tarde'},
     {id:'d18-a7',time:'14:45',title:'🔐 Retirar valijas coin lockers',mapName:'Oshiage Station',kind:'logistic',badge:'Valijas',anchor:false,durationMin:10,priceYen:0,desc:''},
-    {id:'d18-t2',kind:'transit',from:'Oshiage',to:'Haneda',durationMin:55,priceYen:610,walkMin:5,mode:'🚇 Keikyu Asakusa Line directo',mapLink:'https://www.google.com/maps/dir/Oshiage+Station/Haneda+Airport+International+Terminal+Station'},
-    {id:'d18-a8',time:'15:00',title:'🚇 Traslado a Haneda',mapName:'Oshiage Station',kind:'anchor',badge:'Ancla',anchor:true,durationMin:55,priceYen:0,desc:'~55 min · ¥610 pp. Directo sin trasbordos.'},
+    {id:'d18-t2',kind:'transit',from:'Oshiage',to:'Haneda',durationMin:55,priceYen:610,walkMin:5,mode:'🚇 Keikyu Asakusa Line directo — sale 15:00',mapLink:'https://www.google.com/maps/dir/Oshiage+Station/Haneda+Airport+International+Terminal+Station',note:'~55 min · ¥610 pp. Directo sin trasbordos.'},
     {id:'d18-a9',time:'15:55',title:'✈️ Haneda Terminal 3 · Check-in',mapName:'Haneda Airport Terminal 3',kind:'anchor',badge:'Ancla',anchor:true,durationMin:215,priceYen:0,crowd:'⚠️ Check-in cierra ~17:00-17:30',desc:'Llegan con 3.5 hs de margen ✅. Check-in + migraciones + duty free.'},
     {id:'d18-a10',time:'19:30',title:'✈️ Vuelo TYO → JFK → LIM → BUE',mapName:'Haneda Airport Terminal 3',kind:'anchor',badge:'Vuelo',anchor:true,durationMin:0,priceYen:0,desc:'¡Hasta la próxima Japón! 🇯🇵'}
   ],
@@ -3809,21 +3834,49 @@ function computeDayTotals(day){
   let walkMin = 0, priceYen = 0;
   for(const it of day.activities){
     priceYen += it.priceYen || 0;
-    if(it.kind==='transit') walkMin += it.walkMin || 0;
+    if(it.kind==='transit'){
+      if(typeof it.walkMin === 'number'){
+        walkMin += it.walkMin;
+      } else if(it.mode){
+        if(/🚄|🚇|🚃|🚌/.test(it.mode)) walkMin += 5;
+        else if(/^🚶/.test(it.mode)) walkMin += (it.durationMin || 0);
+      }
+    }
   }
+  // Velocidad caminata 4.8 km/h = 80 m/min
   const walkKm = walkMin * 80 / 1000;
-  let activitySteps = 0;
+  // 1 paso ≈ 0.75 m → 1 km ≈ 1300 pasos
+  const walkSteps = Math.round(walkKm * 1300);
+
+  // Caminata interna en actividades calibrada para que un día turístico activo
+  // dé ~12-18k pasos / 8-13 km totales (rango realista verificado)
+  let activitySteps = 0, activityWalkM = 0;
   for(const it of day.activities){
-    if(it.kind!=='transit' && it.kind!=='logistic' && !it.freeTime && (it.durationMin||0)>15){
-      activitySteps += Math.round((it.durationMin||0) * 35);
-    }
-    if(it.freeTime && (it.durationMin||0)>0){
-      activitySteps += Math.round((it.durationMin||0) * 40);
-    }
+    if(it.kind === 'transit') continue;
+    const dur = it.durationMin || 0;
+    if(dur < 15) continue;
+    const t = (it.title || '').toLowerCase();
+    let stepsPerMin = 15; // base
+    if(it.freeTime || it.kind === 'free' || /tiempo libre|libre/.test(t)) stepsPerMin = 18;
+    if(/parque|park|forest|gardens|jardín|gyoen|ueno|nara park|miyajima/.test(t)) stepsPerMin = 35;
+    if(/templo|temple|santuario|shrine|jinja|⛩️|🏯|tōdai|tōshō|byōdō|kiyomizu|fushimi|sensoji|chureito|kotoku|hasedera|tenryuji|kinkaku|nijo|taiyu|rinnoji|futarasan|meiji|itsukushima|daishoin|daigan|pagoda/.test(t)) stepsPerMin = 30;
+    if(/museo|museum|🏛️|peace memorial|parque de la paz/.test(t)) stepsPerMin = 18;
+    if(/mercado|market|nakamise|nishiki|kuromon|tsukiji|ameyoko/.test(t)) stepsPerMin = 35;
+    if(/comida|cena|almuerzo|desayuno|brunch|snack|merienda|🍱|🍜|🥩|🍢|🍣|🍙|🍡|🍳|🍰|☕|🦪|🍲/.test(t)) stepsPerMin = 5;
+    if(/check|hotel|🏨|descans|ducha|locker|🔐|preparar|salida$/.test(t)) stepsPerMin = 3;
+    if(/shopping|tienda|compras|🛍️|takeshita|hondori|shinsaibashi|kappabashi|don quijote|akihabara|harajuku|shibuya|omotesando|amerika|solamachi|namba parks|edion|denpoin|ginza|naramachi|kabukich|golden gai|motomachi/.test(t)) stepsPerMin = 30;
+    if(/cruce|crossing|hachiko|godzilla|glico|atardecer|fotos|paseo/.test(t)) stepsPerMin = 25;
+    if(/escalones|subida|hike|trekking/.test(t)) stepsPerMin = 60;
+    if(/buffer/.test(t) && !(/tiempo libre|libre/.test(t))) stepsPerMin = 5;
+
+    activitySteps += Math.round(dur * stepsPerMin);
+    activityWalkM += dur * stepsPerMin * 0.75;
   }
+  const totalSteps = walkSteps + activitySteps;
+  const totalKm = +(walkKm + activityWalkM/1000).toFixed(1);
   return {
-    steps: Math.round(walkKm * 1300) + activitySteps,
-    km: +(walkKm).toFixed(1),
+    steps: totalSteps,
+    km: totalKm,
     walkMin, priceYen
   };
 }
@@ -3937,6 +3990,7 @@ function renderDayCard(day){
   const totals = computeDayTotals(day);
   const stepChip = totals.steps < 10000 ? 'chip-steps-low' : totals.steps < 18000 ? 'chip-steps-mid' : 'chip-steps-hi';
   const stepTxt = totals.steps > 1000 ? (totals.steps/1000).toFixed(1)+'k' : totals.steps;
+  const kmTxt = totals.km > 0 ? ` · ${totals.km}km` : '';
   const levelChip = 'chip-level-' + (day.level==='green'?'green':day.level==='red'?'red':'yellow');
   const levelTxt = day.level==='green' ? '🟢 Suave' : day.level==='red' ? '🔴 Exigente' : '🟡 Moderado';
   const dateObj = new Date(day.date+'T00:00:00');
@@ -3957,7 +4011,7 @@ function renderDayCard(day){
         <div class="day-sub"><span>${dayFormat}</span><span class="dot"></span><span>${escapeHtml(day.city||'')}</span></div>
         <div class="day-chips">
           <span class="chip ${levelChip}">${levelTxt}</span>
-          <span class="chip ${stepChip}" data-role="steps-chip">👣 ${stepTxt}</span>
+          <span class="chip ${stepChip}" data-role="steps-chip" title="Pasos y km caminados">👣 ${stepTxt}${kmTxt}</span>
           <span class="chip chip-weather" data-role="weather-chip">🌤️ —</span>
         </div>
       </div>
@@ -3984,6 +4038,7 @@ function renderDayCard(day){
         <div class="df-stat"><div class="df-stat-val" data-role="total-steps">—</div><div class="df-stat-lbl">Pasos</div></div>
         <div class="df-stat"><div class="df-stat-val" data-role="total-km">—</div><div class="df-stat-lbl">km a pie</div></div>
         <div class="df-stat"><div class="df-stat-val" data-role="total-cost">—</div><div class="df-stat-lbl">Costo pp</div></div>
+        <div class="df-stat"><div class="df-stat-val" data-role="total-cost-2pax" style="color:var(--accent)">—</div><div class="df-stat-lbl">Total 2 pax</div></div>
       </div>
       <div style="margin-top:14px;padding:0 4px">
         <div class="section-title" style="padding:6px 0;font-size:13px">Equipaje de este día</div>
@@ -4055,9 +4110,12 @@ function renderDayContent(day, container){
     totals.steps > 1000 ? (totals.steps/1000).toFixed(1)+'k' : totals.steps;
   container.querySelector('[data-role="total-km"]').textContent = totals.km.toFixed(1);
   container.querySelector('[data-role="total-cost"]').textContent = fmtYen(totals.priceYen);
+  const cost2 = container.querySelector('[data-role="total-cost-2pax"]');
+  if(cost2) cost2.textContent = fmtYen(totals.priceYen * 2);
   const chip = container.querySelector('[data-role="steps-chip"]');
   if(chip){
-    chip.textContent = '👣 ' + (totals.steps>1000 ? (totals.steps/1000).toFixed(1)+'k' : totals.steps);
+    const kmTxt = totals.km > 0 ? ` · ${totals.km.toFixed(1)}km` : '';
+    chip.textContent = '👣 ' + (totals.steps>1000 ? (totals.steps/1000).toFixed(1)+'k' : totals.steps) + kmTxt;
     chip.className = 'chip ' + (totals.steps<10000?'chip-steps-low':totals.steps<18000?'chip-steps-mid':'chip-steps-hi');
   }
 }
@@ -4650,15 +4708,33 @@ function getSpanishVoices(){
   if(!window.speechSynthesis) return [];
   const all = speechSynthesis.getVoices();
   const es = all.filter(v=>v.lang.toLowerCase().startsWith('es'));
-  const priority = {'es-us':1,'es-mx':2,'es-ar':3,'es-co':4,'es-cl':5,'es-pe':6,'es-ve':7,'es-419':8,'es-es':20,'es':50};
-  return es.sort((a,b)=>{
-    const pa = priority[a.lang.toLowerCase()]||30;
-    const pb = priority[b.lang.toLowerCase()]||30;
-    if(pa!==pb) return pa-pb;
-    const ga = /google/i.test(a.name) ? 0 : 1;
-    const gb = /google/i.test(b.name) ? 0 : 1;
-    return ga-gb;
-  });
+  // Voces premium/naturales de iOS/macOS conocidas (suenan bien, no robóticas)
+  const premiumNames = /paulina|monica|mónica|jorge|juan|diego|carolina|esperanza|enrique|marisol|isabela/i;
+  // Voces conocidas como robóticas (deprioridad)
+  const roboticPatterns = /microsoft|espeak|default|compact|fred|ralph/i;
+
+  function score(v){
+    const lang = v.lang.toLowerCase();
+    const name = v.name;
+    let s = 0;
+    // 1. Google español Estados Unidos = TOP absoluto
+    if(/google/i.test(name) && /(estados unidos|united states|us)/i.test(name)) return -1000;
+    // 2. Otras voces Google es-US (variantes)
+    if(/google/i.test(name) && lang === 'es-us') return -900;
+    // 3. Cualquier Google es-MX (suele ser muy buena)
+    if(/google/i.test(name) && lang === 'es-mx') return -800;
+    // 4. Voces premium nativas iOS/macOS en español
+    if(premiumNames.test(name)) s -= 500;
+    // 5. Cualquier Google español
+    if(/google/i.test(name)) s -= 300;
+    // 6. Prioridad por dialecto (neutro/latino arriba, España al fondo)
+    const langPriority = {'es-us':10,'es-419':15,'es-mx':20,'es-ar':25,'es-co':30,'es-cl':35,'es-pe':40,'es-ve':45,'es':100,'es-es':200};
+    s += (langPriority[lang] || 80);
+    // 7. Penalizar robóticas conocidas
+    if(roboticPatterns.test(name)) s += 1000;
+    return s;
+  }
+  return es.sort((a,b)=>score(a)-score(b));
 }
 function getBestSpanishVoice(){
   const all = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
@@ -4674,9 +4750,8 @@ function getBestSpanishVoice(){
   }
   const voices = getSpanishVoices();
   if(!voices.length) return null;
-  const google = voices.find(v=>/google/i.test(v.name) && /(estados unidos|united states|us)/i.test(v.name));
-  if(google){ console.log('[TTS] Usando Google ES-US default'); return google; }
-  console.log('[TTS] Usando primera ES disponible:', voices[0].name);
+  // El primer elemento ya es la mejor según el score
+  console.log('[TTS] Mejor voz detectada:', voices[0].name, voices[0].lang);
   return voices[0];
 }
 
@@ -4799,18 +4874,18 @@ function openGuide(guideId){
     showModal(`<h3>Guía en preparación</h3><div class="modal-sub">"${escapeHtml(guideId)}" estará en versión final.</div>`);
     return;
   }
-  const allVoices = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
   const spanishVoices = getSpanishVoices();
-  const otherVoices = allVoices.filter(v=>!spanishVoices.includes(v));
   const best = getBestSpanishVoice();
   function voiceOpt(v){
     const sel = state.voiceName ? state.voiceName===v.name : (best && v===best);
-    return `<option value="${escapeHtml(v.name)}" ${sel?'selected':''}>${escapeHtml(v.name)} (${v.lang})</option>`;
+    const isRec = best && v===best && !state.voiceName;
+    const label = `${v.name} (${v.lang})${isRec?' ⭐ recomendada':''}`;
+    return `<option value="${escapeHtml(v.name)}" ${sel?'selected':''}>${escapeHtml(label)}</option>`;
   }
-  const voiceOptions = `
-    <optgroup label="Español (recomendado)">${spanishVoices.map(voiceOpt).join('')}</optgroup>
-    ${otherVoices.length ? `<optgroup label="Otros idiomas">${otherVoices.map(voiceOpt).join('')}</optgroup>` : ''}
-  `;
+  // Solo voces en español. Si no hay ninguna, mensaje claro.
+  const voiceOptions = spanishVoices.length
+    ? spanishVoices.map(voiceOpt).join('')
+    : '<option>Sin voces en español disponibles</option>';
   showModal(`
     <h3>${escapeHtml(g.title)}</h3>
     <div class="modal-sub">${escapeHtml(g.subtitle||'')}</div>
@@ -5591,13 +5666,15 @@ function computePlanEstimate(){
     day.activities.forEach(a=>{
       const price = a.priceYen || 0;
       if(!price) return;
-      // Suma siempre por dos personas (Facu + Marti)
-      const total = price * (a.kind === 'transit' ? 1 : 2); // tránsitos ya van por persona usualmente, pero acá es x2 por defecto
-      // Mejor: tránsitos los multiplicamos por 2 también (priceYen suele ser por persona)
-      // Por simplicidad sumo 2x para todo (es x2 viajeros)
-      const finalPrice = price * 2;
+      // ⭐ FIX 29/4: Distinguir precios "total" (no multiplicar por 2) de precios "pp" (por persona)
+      // Override explícito: a.pricePer = 'total' o 'pp'
+      // Default por keyword: takkyubin/locker/lodging = total (precio único o ya por valija/habitación)
+      // OJO: bicis y trenes/atracciones SÍ son por persona (no entran acá)
+      const t = (a.title||'').toLowerCase();
+      const isTotal = a.pricePer === 'total' ||
+        /takkyubin|locker|🔐|hotel|hostel|depto|airbnb/.test(t);
+      const finalPrice = isTotal ? price : price * 2;
       out.total += finalPrice;
-      // Mapear kind a categoría
       const cat = mapKindToCategory(a);
       out.byCat[cat] = (out.byCat[cat]||0) + finalPrice;
     });
@@ -6336,22 +6413,16 @@ setupSearch('searchPhrases','clearPhrases',(q)=>{
 
 /* ═══ COMPUTE STICKY OFFSETS DINÁMICAMENTE ═══ */
 function computeStickyOffsets(){
-  // Calcula altura tabs + search wrap visible para que city-segment y day-head se sticky correctamente
+  // Calcula altura tabs + search wrap visible para que city-segment quede sticky bien.
+  // day-head ya NO es sticky (bug fix 29/4): tapaba info del itinerario al hacer scroll.
   const tabs = document.querySelector('.tabs');
   const search = document.querySelector('#view-itinerary .search-wrap');
-  const tabsH = tabs ? tabs.offsetHeight : 45;
-  const searchH = search ? search.offsetHeight : 50;
+  const tabsH = tabs ? tabs.offsetHeight : 43;
+  const searchH = (search && getComputedStyle(search).display !== 'none') ? search.offsetHeight : 0;
+  document.documentElement.style.setProperty('--tabs-h', tabsH + 'px');
   document.documentElement.style.setProperty('--sticky-h', (tabsH+searchH) + 'px');
-  // Reasignar manualmente porque las CSS rules ya tienen valores fijos
-  document.querySelectorAll('.city-segment').forEach(s=>{
-    s.style.top = (tabsH+searchH-1) + 'px';
-  });
-  document.querySelectorAll('.day-head').forEach(h=>{
-    // city segment + city header height ~40
-    h.style.top = (tabsH + searchH + 35) + 'px';
-  });
-  // search wrap
-  if(search) search.style.top = tabsH + 'px';
+  // city-segment usa la variable CSS, no necesita asignación inline
+  // search-wrap también usa --tabs-h
 }
 
 /* ═══ DETECTAR DAY-HEAD STUCK ═══ */
