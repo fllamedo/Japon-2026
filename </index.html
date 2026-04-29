@@ -92,7 +92,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 /* DAY */
 .day{border-bottom:1px solid var(--border-soft);background:var(--bg);position:relative}
 .day.is-today{background:linear-gradient(90deg,rgba(217,119,87,.07) 0%,transparent 100%);border-left:3px solid var(--accent)}
-.day-head.day-head{width:100%;background:var(--surface);border:none;padding:10px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:sticky;top:141px;z-index:45;box-shadow:0 1px 0 var(--border-soft)}
+.day-head{width:100%;background:var(--bg);border:none;padding:14px 18px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;user-select:none;font-family:var(--font-body);transition:background .15s;position:relative;top:auto;z-index:1}
 .day-head.open{background:var(--surface);box-shadow:0 1px 0 var(--border-soft)}
 .day-head.open.is-stuck .day-chips{display:none}
 .day-head.open.is-stuck .day-sub{font-weight:600;color:var(--accent-soft)}
@@ -629,50 +629,6 @@ body.edit-mode .act-add{display:flex}
 }
 </style>
 </head>
-  <script>
-(function(){
-  function updateCurrentDaySticky(){
-    const bar = document.getElementById('currentDaySticky');
-    const num = document.getElementById('currentDayNum');
-    const title = document.getElementById('currentDayTitle');
-    if(!bar || !num || !title) return;
-
-    const heads = Array.from(document.querySelectorAll('.day-head'));
-    if(!heads.length) return;
-
-    let current = null;
-const triggerY = 126;
-
-for(const h of heads){
-  const rect = h.getBoundingClientRect();
-
-  // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
-  if(rect.bottom <= triggerY){
-    current = h;
-  }else{
-    break;
-  }
-}
-
-if(!current){
-  bar.classList.remove('on');
-  return;
-}
-
-    const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
-    const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
-
-    num.textContent = dayNum;
-    title.textContent = dayTitle;
-    bar.classList.add('on');
-  }
-
-  window.addEventListener('scroll', updateCurrentDaySticky, {passive:true});
-  window.addEventListener('resize', updateCurrentDaySticky);
-  document.addEventListener('DOMContentLoaded', updateCurrentDaySticky);
-  setTimeout(updateCurrentDaySticky, 500);
-})();
-</script>
 <body>
 <div id="currentDaySticky" class="current-day-sticky">
   <div class="cds-num" id="currentDayNum">--</div>
@@ -6562,6 +6518,50 @@ function registerSW(){
 setTimeout(()=>{ cleanOldServiceWorkers(); }, 200);
 setTimeout(registerSW, 3000);
 
+</script>
+  <script>
+(function(){
+  function updateCurrentDaySticky(){
+    const bar = document.getElementById('currentDaySticky');
+    const num = document.getElementById('currentDayNum');
+    const title = document.getElementById('currentDayTitle');
+    if(!bar || !num || !title) return;
+
+    const heads = Array.from(document.querySelectorAll('.day-head'));
+    if(!heads.length) return;
+
+    let current = null;
+const triggerY = 126;
+
+for(const h of heads){
+  const rect = h.getBoundingClientRect();
+
+  // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
+  if(rect.bottom <= triggerY){
+    current = h;
+  }else{
+    break;
+  }
+}
+
+if(!current){
+  bar.classList.remove('on');
+  return;
+}
+
+    const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
+    const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
+
+    num.textContent = dayNum;
+    title.textContent = dayTitle;
+    bar.classList.add('on');
+  }
+
+  window.addEventListener('scroll', updateCurrentDaySticky, {passive:true});
+  window.addEventListener('resize', updateCurrentDaySticky);
+  document.addEventListener('DOMContentLoaded', updateCurrentDaySticky);
+  setTimeout(updateCurrentDaySticky, 500);
+})();
 </script>
 </body>
 </html>
