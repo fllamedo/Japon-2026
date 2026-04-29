@@ -563,6 +563,38 @@ body.edit-mode .act-add{display:flex}
 .sync-pill.syncing{background:rgba(217,119,87,.15);color:var(--accent)}
 .sync-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;animation:syncPulse 2s ease-in-out infinite}
 @keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.4}}
+  /* FIX FINAL: sticky de tabs + buscador + ciudad + día */
+.tabs{
+  position:sticky !important;
+  top:0 !important;
+  z-index:100 !important;
+}
+
+.search-wrap{
+  position:sticky !important;
+  top:43px !important;
+  z-index:99 !important;
+  background:var(--bg) !important;
+  padding:10px 14px !important;
+}
+
+.city-segment{
+  position:sticky !important;
+  top:104px !important;
+  z-index:98 !important;
+  background:var(--bg) !important;
+  padding:8px 18px !important;
+  box-shadow:0 1px 0 var(--border-soft) !important;
+}
+
+.day-head{
+  position:sticky !important;
+  top:140px !important;
+  z-index:97 !important;
+  background:var(--surface) !important;
+  padding:10px 18px !important;
+  box-shadow:0 1px 0 var(--border-soft) !important;
+}
 </style>
 </head>
 <body>
