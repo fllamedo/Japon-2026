@@ -3794,19 +3794,27 @@ function renderAll(){
   const container = document.getElementById('daysContainer');
   const openIds = new Set([...document.querySelectorAll('.day-head.open')].map(h=>h.closest('.day').dataset.day));
   container.innerHTML = '';
-  const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
-  let lastRegion = null;
-  const regionDays = {};
-  ids.forEach(id=>{
-    const r = DAYS_DATA[id].region || DAYS_DATA[id].city || '?';
-    (regionDays[r] = regionDays[r] || []).push(id);
-  });
-  if(!state._collapsedRegions) state._collapsedRegions = {};
-  let currentRegionGroup = null; // div contenedor de los days de la región actual
-  for(const id of ids){
-    const day = DAYS_DATA[id];
-    const region = day.region || day.city;
-    if(region !== lastRegion){
+const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
+
+function getRegionName(day){
+  return day.region || day.city || '?';
+}
+
+const regionDays = {};
+ids.forEach(id=>{
+  const r = getRegionName(DAYS_DATA[id]);
+  (regionDays[r] = regionDays[r] || []).push(id);
+});
+
+if(!state._collapsedRegions) state._collapsedRegions = {};
+
+let lastRegion = null;
+let currentRegionGroup = null; // div contenedor de los days de la región actual
+
+for(const id of ids){
+  const day = DAYS_DATA[id];
+  const region = getRegionName(day);
+  if(region !== lastRegion){
       const rdays = regionDays[region];
       const seg = document.createElement('button');
       seg.className = 'city-segment';
