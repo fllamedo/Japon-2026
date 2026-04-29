@@ -3790,7 +3790,19 @@ function findActivity(id, dayId){ return DAYS_DATA[dayId]?.activities.find(a=>a.
 /* ═══ RENDER ALL ═══ */
 let activeWeather = {};
 
+  function normalizeRegions(){
+  [1,2,3,4,5,6].forEach(id=>{
+    if(DAYS_DATA[id]) DAYS_DATA[id].region = 'Tokio 1';
+  });
+
+  [16,17,18].forEach(id=>{
+    if(DAYS_DATA[id]) DAYS_DATA[id].region = 'Tokio 2';
+  });
+}
+  
 function renderAll(){
+  normalizeRegions();
+  
   const container = document.getElementById('daysContainer');
   const openIds = new Set([...document.querySelectorAll('.day-head.open')].map(h=>h.closest('.day').dataset.day));
   container.innerHTML = '';
