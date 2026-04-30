@@ -6764,6 +6764,7 @@ setTimeout(registerSW, 3000);
       return;
     }
 
+    const heads = Array.from(itineraryView.querySelectorAll('.region-group:not(.collapsed) .day-head'));
     const heads = Array.from(itineraryView.querySelectorAll('.day-head'));
     if(!heads.length){
       bar.classList.remove('on');
