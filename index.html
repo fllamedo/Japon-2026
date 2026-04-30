@@ -666,12 +666,23 @@ body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
   overflow:hidden;
   text-overflow:ellipsis;
 }
+.current-day-sticky .cds-city{
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:.6px;
+  color:var(--accent-soft);
+  text-transform:uppercase;
+  opacity:.9;
+}
 </style>
 </head>
 <body>
 <div id="currentDaySticky" class="current-day-sticky">
   <div class="cds-num" id="currentDayNum">--</div>
-  <div class="cds-title" id="currentDayTitle">Día actual</div>
+  <div>
+    <div class="cds-city" id="currentDayCity">Región</div>
+    <div class="cds-title" id="currentDayTitle">Día actual</div>
+  </div>
 </div>
 <!-- ═══ LOGIN OVERLAY ═══ -->
 <div class="login-overlay" id="loginOverlay">
@@ -6708,8 +6719,9 @@ setTimeout(registerSW, 3000);
   function updateCurrentDaySticky(){
     const bar = document.getElementById('currentDaySticky');
     const num = document.getElementById('currentDayNum');
+    const city = document.getElementById('currentDayCity');
     const title = document.getElementById('currentDayTitle');
-    if(!bar || !num || !title) return;
+    if(!bar || !num || !title || !city) return;
 
     const itineraryView = document.getElementById('view-itinerary');
     const itineraryActive = itineraryView?.classList.contains('active') && document.body.classList.contains('view-itinerary-active');
@@ -6742,8 +6754,12 @@ setTimeout(registerSW, 3000);
 
     const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
     const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
+    const dayId = current.closest('.day')?.dataset?.day;
+    const dayObj = dayId ? DAYS_DATA[dayId] : null;
+    const dayRegion = dayObj?.region || dayObj?.city || '—';
 
     num.textContent = dayNum;
+    city.textContent = dayRegion;
     title.textContent = dayTitle;
     bar.classList.add('on');
   }
