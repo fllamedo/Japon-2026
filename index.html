@@ -225,6 +225,7 @@ body.edit-mode .insert-divider{display:block}
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:1200;animation:fadeIn .2s ease}
 .modal-overlay.on{display:flex}
+body.modal-open .current-city-sticky,
 body.modal-open .current-day-sticky,
 body.modal-open .tabs,
 body.modal-open #view-itinerary .search-wrap,
@@ -611,7 +612,7 @@ body.edit-mode .act-add{display:flex}
 
 #view-itinerary .city-segment{
   position:sticky !important;
-  top:var(--sticky-h, 90px) !important;
+  top:calc(var(--sticky-h, 90px) + 72px) !important;
   z-index:280 !important;
   background:var(--bg) !important;
   padding:8px 18px !important;
@@ -629,9 +630,30 @@ body.edit-mode .act-add{display:flex}
 .city-segment + .region-group{margin-top:0 !important}
 .city-segment{margin-bottom:0 !important;border-bottom:1px solid var(--border-soft) !important}
 
-.current-day-sticky{
+.current-city-sticky{
   position:sticky;
   top:var(--sticky-h, 126px);
+  z-index:510;
+  display:none;
+  align-items:center;
+  gap:8px;
+  background:var(--bg-soft);
+  color:var(--accent-soft);
+  padding:6px 18px;
+  border-bottom:1px solid var(--border-soft);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+}
+
+.current-city-sticky::before{content:"📍";font-size:11px;opacity:.85}
+
+.current-city-sticky.on{display:flex}
+
+.current-day-sticky{
+  position:sticky;
+  top:calc(var(--sticky-h, 126px) + 34px);
   z-index:500;
   display:none;
   align-items:center;
@@ -644,6 +666,7 @@ body.edit-mode .act-add{display:flex}
   font-family:var(--font-body);
 }
 
+body:not(.view-itinerary-active) .current-city-sticky,
 body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 
 .current-day-sticky.on{
@@ -669,6 +692,7 @@ body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 </style>
 </head>
 <body>
+<div id="currentCitySticky" class="current-city-sticky">Ciudad actual</div>
 <div id="currentDaySticky" class="current-day-sticky">
   <div class="cds-num" id="currentDayNum">--</div>
   <div class="cds-title" id="currentDayTitle">Día actual</div>
@@ -6700,33 +6724,60 @@ setTimeout(registerSW, 3000);
 </script>
   <script>
 (function(){
+  function getScrollableDayHeads(itineraryView){
+    const groups = Array.from(itineraryView.querySelectorAll('.region-group'));
+    return groups.flatMap(group=>{
+      if(group.classList.contains('collapsed')) return [];
+      return Array.from(group.querySelectorAll('.day-head'));
+    });
+  }
+
   function updateCurrentDaySticky(){
+    const cityBar = document.getElementById('currentCitySticky');
     const bar = document.getElementById('currentDaySticky');
     const num = document.getElementById('currentDayNum');
     const title = document.getElementById('currentDayTitle');
-    if(!bar || !num || !title) return;
+    if(!bar || !num || !title || !cityBar) return;
 
     const itineraryView = document.getElementById('view-itinerary');
     const itineraryActive = itineraryView?.classList.contains('active') && document.body.classList.contains('view-itinerary-active');
     if(!itineraryActive){
       bar.classList.remove('on');
+      cityBar.classList.remove('on');
       return;
     }
 
-    const heads = Array.from(itineraryView.querySelectorAll('.day-head'));
+    const stickyTop = getComputedStyle(document.documentElement).getPropertyValue('--sticky-h').trim();
+    const triggerY = Number.parseInt(stickyTop, 10) || 126;
+
+    const citySegments = Array.from(itineraryView.querySelectorAll('.city-segment'));
+    let currentCity = null;
+    for(const seg of citySegments){
+      const group = seg.nextElementSibling;
+      if(!group || !group.classList || !group.classList.contains('region-group')) continue;
+      if(group.classList.contains('collapsed')) continue;
+      const rect = seg.getBoundingClientRect();
+      if(rect.bottom <= triggerY + 34) currentCity = seg;
+      else break;
+    }
+    if(currentCity){
+      cityBar.textContent = currentCity.querySelector('span:nth-child(2)')?.textContent?.trim() || 'Ciudad actual';
+      cityBar.classList.add('on');
+    } else {
+      cityBar.classList.remove('on');
+    }
+
+    const heads = getScrollableDayHeads(itineraryView);
     if(!heads.length){
       bar.classList.remove('on');
       return;
     }
 
     let current = null;
-    const stickyTop = getComputedStyle(document.documentElement).getPropertyValue('--sticky-h').trim();
-    const triggerY = Number.parseInt(stickyTop, 10) || 126;
-
     for(const h of heads){
       const rect = h.getBoundingClientRect();
-      // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
-      if(rect.bottom <= triggerY) current = h;
+      if(rect.height <= 0) continue;
+      if(rect.bottom <= triggerY + 34) current = h;
       else break;
     }
 
@@ -6744,6 +6795,9 @@ setTimeout(registerSW, 3000);
   }
 
   window.addEventListener('scroll', updateCurrentDaySticky, {passive:true});
+  document.addEventListener('click', (e)=>{
+    if(e.target.closest('.city-segment')) setTimeout(updateCurrentDaySticky, 0);
+  });
   window.addEventListener('resize', updateCurrentDaySticky);
   document.addEventListener('DOMContentLoaded', updateCurrentDaySticky);
   setTimeout(updateCurrentDaySticky, 500);
