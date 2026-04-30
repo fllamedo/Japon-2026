@@ -4030,6 +4030,7 @@ let currentRegionGroup = null; // div contenedor de los days de la región actua
 
 for(const id of ids){
   const day = DAYS_DATA[id];
+  if(day && (day.id === undefined || day.id === null)) day.id = parseInt(id,10);
   const region = getRegionName(day);
   if(region !== lastRegion){
       const rdays = regionDays[region];
