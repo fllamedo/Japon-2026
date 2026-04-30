@@ -6778,6 +6778,10 @@ setTimeout(registerSW, 3000);
       const rect = h.getBoundingClientRect();
       if(rect.height <= 0) continue;
       if(rect.bottom <= triggerY + 34) current = h;
+      // Ignorar headers no visibles (por colapsado, filtro o display none)
+      if(rect.height <= 0) continue;
+      // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
+      if(rect.bottom <= triggerY) current = h;
       else break;
     }
 
