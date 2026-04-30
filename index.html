@@ -3972,7 +3972,7 @@ function removeDuplicatedTransferStops(){
       const act = day.activities[i];
       const title = (act.title||'').toLowerCase();
       const looksTransferStop = (act.kind === 'anchor' || act.kind === 'logistic') &&
-        /traslado|ir a haneda|hacia haneda|aeropuerto/.test(title);
+        /traslado|ir a haneda|(?:hacia )?haneda|aeropuerto/.test(title);
       if(!looksTransferStop){
         keep.push(act);
         continue;
