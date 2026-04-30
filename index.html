@@ -450,7 +450,6 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-budget-item-main strong{color:var(--text);font-size:12px}
 .exp-budget-item-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
 .exp-budget-item-meta{display:block;font-size:10px;color:var(--text-muted);font-weight:500;margin-top:1px}
-.exp-budget-move{margin-top:4px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:10.5px;padding:2px 4px;border-radius:5px;max-width:160px}
 
 /* Weather estimado */
 .weather-estimated{position:relative}
@@ -5590,7 +5589,6 @@ function renderExpenses(){
           ${EXP_CATEGORIES.map(cat=>{
             const v = planEstimate.byCat[cat.id] || 0;
             if(!v) return '';
-            const detail = (planEstimate.detailByCat[cat.id] || []).slice().sort((a,b)=>b.finalPrice-a.finalPrice);
             const detail = planEstimate.detailByCat[cat.id] || [];
             return `<details class="exp-budget-catdetail">
               <summary class="exp-budget-catrow">
@@ -5600,11 +5598,6 @@ function renderExpenses(){
               <div class="exp-budget-item-list">
                 ${detail.map(d=>`<div class="exp-budget-item-row">
                   <div class="exp-budget-item-main">Día ${d.dayId} · ${escapeHtml(d.dayTitle || '')}<br><strong>${escapeHtml(d.title)}</strong></div>
-                  <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span>
-                    <select class="exp-budget-move" data-day="${d.dayId}" data-act="${d.actId}">
-                      ${EXP_CATEGORIES.map(opt=>`<option value="${opt.id}" ${opt.id===cat.id?'selected':''}>${opt.icon} ${opt.label}</option>`).join('')}
-                    </select>
-                  </div>
                   <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span></div>
                 </div>`).join('')}
               </div>
@@ -5818,7 +5811,6 @@ function computePlanEstimate(){
         multiplier: isTotal ? 1 : 2,
         finalPrice,
         actId: a.id
-        finalPrice
       });
     });
   });
@@ -5831,18 +5823,6 @@ function mapKindToCategory(act){
   if(act.kind === 'logistic'){
     const t = (act.title||'').toLowerCase();
     if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
-  const t = (act.title||'').toLowerCase();
-  const transportHint = /ferry|river cruise|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
-  const transportHint = /ferry|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
-  const foodHint = /desayuno|almuerzo|merienda|café|cafe|coffee|dinner|cena|brunch|snack|onigiri|ramen|sushi/.test(t);
-  if(foodHint) return 'food';
-  if(transportHint) return 'transport';
-  if(act.kind === 'transit') return 'transport';
-  if(act.kind === 'meal') return 'food';
-  if(act.kind === 'logistic'){
-    if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
-    if(t.includes('takkyubin') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
-    if(t.includes('locker') || t.includes('coin locker')) return 'other';
     if(t.includes('takkyubin') || t.includes('lockers') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
     return 'other';
   }
@@ -6748,7 +6728,6 @@ function registerSW(){
     console.log('SW no funciona con file://');
     return;
   }
-  navigator.serviceWorker.register('sw.js?v=13').then((reg)=>{
   navigator.serviceWorker.register('sw.js?v=12').then((reg)=>{
     const el = document.getElementById('cdOffline');
     if(el) el.style.display = 'inline-flex';
@@ -6788,7 +6767,6 @@ setTimeout(registerSW, 3000);
       return;
     }
 
-    const heads = Array.from(itineraryView.querySelectorAll('.region-group:not(.collapsed) .day-head'));
     const heads = Array.from(itineraryView.querySelectorAll('.day-head'));
     if(!heads.length){
       bar.classList.remove('on');
@@ -6801,8 +6779,6 @@ setTimeout(registerSW, 3000);
 
     for(const h of heads){
       const rect = h.getBoundingClientRect();
-      // Mostrar la barra cuando el top del día cruza la línea sticky (más preciso en móvil).
-      if(rect.top <= triggerY + 2) current = h;
       // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
       if(rect.bottom <= triggerY) current = h;
       else break;
