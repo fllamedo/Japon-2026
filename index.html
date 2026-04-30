@@ -5575,6 +5575,7 @@ function renderExpenses(){
             const v = planEstimate.byCat[cat.id] || 0;
             if(!v) return '';
             const detail = (planEstimate.detailByCat[cat.id] || []).slice().sort((a,b)=>b.finalPrice-a.finalPrice);
+            const detail = planEstimate.detailByCat[cat.id] || [];
             return `<details class="exp-budget-catdetail">
               <summary class="exp-budget-catrow">
                 <span>${cat.icon} ${cat.label}</span>
@@ -5588,6 +5589,7 @@ function renderExpenses(){
                       ${EXP_CATEGORIES.map(opt=>`<option value="${opt.id}" ${opt.id===cat.id?'selected':''}>${opt.icon} ${opt.label}</option>`).join('')}
                     </select>
                   </div>
+                  <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span></div>
                 </div>`).join('')}
               </div>
             </details>`;
@@ -5800,6 +5802,7 @@ function computePlanEstimate(){
         multiplier: isTotal ? 1 : 2,
         finalPrice,
         actId: a.id
+        finalPrice
       });
     });
   });
@@ -5809,6 +5812,7 @@ function mapKindToCategory(act){
   if(act.budgetCategory) return act.budgetCategory;
   const t = (act.title||'').toLowerCase();
   const transportHint = /ferry|river cruise|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
+  const transportHint = /ferry|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
   const foodHint = /desayuno|almuerzo|merienda|café|cafe|coffee|dinner|cena|brunch|snack|onigiri|ramen|sushi/.test(t);
   if(foodHint) return 'food';
   if(transportHint) return 'transport';
@@ -5818,6 +5822,7 @@ function mapKindToCategory(act){
     if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
     if(t.includes('takkyubin') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
     if(t.includes('locker') || t.includes('coin locker')) return 'other';
+    if(t.includes('takkyubin') || t.includes('lockers') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
     return 'other';
   }
   if(act.kind === 'imperdible' || act.kind === 'recommended') return 'attractions';
@@ -6721,6 +6726,7 @@ function registerSW(){
     return;
   }
   navigator.serviceWorker.register('sw.js?v=13').then((reg)=>{
+  navigator.serviceWorker.register('sw.js?v=12').then((reg)=>{
     const el = document.getElementById('cdOffline');
     if(el) el.style.display = 'inline-flex';
     reg.update().catch(()=>{});
@@ -6760,6 +6766,7 @@ setTimeout(registerSW, 3000);
     }
 
     const heads = Array.from(itineraryView.querySelectorAll('.region-group:not(.collapsed) .day-head'));
+    const heads = Array.from(itineraryView.querySelectorAll('.day-head'));
     if(!heads.length){
       bar.classList.remove('on');
       return;
@@ -6773,6 +6780,8 @@ setTimeout(registerSW, 3000);
       const rect = h.getBoundingClientRect();
       // Mostrar la barra cuando el top del día cruza la línea sticky (más preciso en móvil).
       if(rect.top <= triggerY + 2) current = h;
+      // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
+      if(rect.bottom <= triggerY) current = h;
       else break;
     }
 
