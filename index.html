@@ -3951,6 +3951,7 @@ let activeWeather = {};
 }
   
 function renderAll(){
+  removeDuplicatedTransferStops();
   normalizeRegions();
   
   const container = document.getElementById('daysContainer');
@@ -3960,6 +3961,40 @@ const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
 
 function getRegionName(day){
   return day.region || day.city || '?';
+}
+
+function removeDuplicatedTransferStops(){
+  const removed = [];
+  Object.values(DAYS_DATA).forEach(day=>{
+    if(!Array.isArray(day.activities) || !day.activities.length) return;
+    const keep = [];
+    for(let i=0;i<day.activities.length;i++){
+      const act = day.activities[i];
+      const title = (act.title||'').toLowerCase();
+      const looksTransferStop = (act.kind === 'anchor' || act.kind === 'logistic') &&
+        /traslado|ir a haneda|aeropuerto/.test(title);
+      if(!looksTransferStop){
+        keep.push(act);
+        continue;
+      }
+      const prev = day.activities[i-1];
+      const next = day.activities[i+1];
+      const nearTransit = [prev,next].some(x=>{
+        if(!x || x.kind !== 'transit') return false;
+        const txt = `${x.from||''} ${x.to||''} ${x.mode||''}`.toLowerCase();
+        return /haneda|airport|aeropuerto/.test(txt);
+      });
+      if(nearTransit){
+        removed.push(`Día ${day.id}: ${act.title}`);
+        continue;
+      }
+      keep.push(act);
+    }
+    day.activities = keep;
+  });
+  if(removed.length){
+    console.log('[itinerary] Traslados duplicados removidos:', removed);
+  }
 }
 
 const regionDays = {};
