@@ -3963,6 +3963,11 @@ let activeWeather = {};
 }
   
 function renderAll(){
+  try{
+    removeDuplicatedTransferStops();
+  }catch(err){
+    console.warn('[renderAll] cleanup transfer duplicados falló:', err);
+  }
   removeDuplicatedTransferStops();
   normalizeRegions();
   
@@ -4047,8 +4052,12 @@ for(const id of ids){
       container.appendChild(currentRegionGroup);
       lastRegion = region;
     }
-    if(currentRegionGroup) currentRegionGroup.appendChild(renderDayCard(day));
-    else container.appendChild(renderDayCard(day));
+    try{
+      if(currentRegionGroup) currentRegionGroup.appendChild(renderDayCard(day));
+      else container.appendChild(renderDayCard(day));
+    }catch(err){
+      console.warn('[renderAll] fallo al renderizar día', day?.id, err);
+    }
   }
   openIds.forEach(id=>{
     const d = container.querySelector(`.day[data-day="${id}"]`);
