@@ -448,6 +448,7 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-budget-item-main strong{color:var(--text);font-size:12px}
 .exp-budget-item-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
 .exp-budget-item-meta{display:block;font-size:10px;color:var(--text-muted);font-weight:500;margin-top:1px}
+.exp-budget-move{margin-top:4px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:10.5px;padding:2px 4px;border-radius:5px;max-width:160px}
 
 /* Weather estimado */
 .weather-estimated{position:relative}
@@ -4498,6 +4499,13 @@ function insertActivityAfter(dayId, afterId){
       </select>
     </div>
     <div class="field"><label>Descripción</label><textarea id="ins-desc" rows="2"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Precio pp (¥)</label><input type="number" id="ins-price" value="0" min="0"></div>
+      <div class="field"><label>Badge</label><input type="text" id="ins-badge" placeholder="Ej: Opcional"></div>
+    </div>
+    <div class="field"><label>Concurrencia</label><input type="text" id="ins-crowd" placeholder="Ej: 🔴 Muy concurrido"></div>
+    <div class="field-toggle"><input type="checkbox" id="ins-anchor"><label for="ins-anchor">⚓ Es ancla (hora fija)</label></div>
+    <div class="field-toggle"><input type="checkbox" id="ins-free"><label for="ins-free">⏳ Tiempo libre con sugerencias</label></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" data-role="cancel">Cancelar</button>
       <button class="btn btn-primary" data-role="insert">Insertar</button>
@@ -4516,8 +4524,10 @@ function insertActivityAfter(dayId, afterId){
       time: /^\d{1,2}:\d{2}$/.test(time) ? time : suggestedTime,
       title, mapName: document.getElementById('ins-mapname').value.trim(),
       kind: document.getElementById('ins-kind').value,
-      badge:'', anchor:false, freeTime:false,
-      durationMin: dur, priceYen:0, crowd:'',
+      badge: document.getElementById('ins-badge').value.trim(),
+      anchor: document.getElementById('ins-anchor').checked,
+      freeTime: document.getElementById('ins-free').checked,
+      durationMin: dur, priceYen:parseInt(document.getElementById('ins-price').value)||0, crowd:document.getElementById('ins-crowd').value.trim(),
       desc: document.getElementById('ins-desc').value.trim()
     };
     // Tránsito automático tras la nueva actividad (editable después)
@@ -5564,6 +5574,7 @@ function renderExpenses(){
           ${EXP_CATEGORIES.map(cat=>{
             const v = planEstimate.byCat[cat.id] || 0;
             if(!v) return '';
+            const detail = (planEstimate.detailByCat[cat.id] || []).slice().sort((a,b)=>b.finalPrice-a.finalPrice);
             const detail = planEstimate.detailByCat[cat.id] || [];
             return `<details class="exp-budget-catdetail">
               <summary class="exp-budget-catrow">
@@ -5573,6 +5584,11 @@ function renderExpenses(){
               <div class="exp-budget-item-list">
                 ${detail.map(d=>`<div class="exp-budget-item-row">
                   <div class="exp-budget-item-main">Día ${d.dayId} · ${escapeHtml(d.dayTitle || '')}<br><strong>${escapeHtml(d.title)}</strong></div>
+                  <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span>
+                    <select class="exp-budget-move" data-day="${d.dayId}" data-act="${d.actId}">
+                      ${EXP_CATEGORIES.map(opt=>`<option value="${opt.id}" ${opt.id===cat.id?'selected':''}>${opt.icon} ${opt.label}</option>`).join('')}
+                    </select>
+                  </div>
                   <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span></div>
                 </div>`).join('')}
               </div>
@@ -5742,6 +5758,19 @@ function renderExpenses(){
   
   document.getElementById('exp-export-pdf').addEventListener('click',exportExpensesPDF);
   document.getElementById('exp-export-csv').addEventListener('click',exportExpensesCSV);
+  list.querySelectorAll('.exp-budget-move').forEach(sel=>{
+    sel.addEventListener('change',()=>{
+      const dayId = sel.dataset.day;
+      const actId = sel.dataset.act;
+      const d = DAYS_DATA[dayId];
+      const act = d?.activities?.find(a=>a.id===actId);
+      if(!act) return;
+      act.budgetCategory = sel.value;
+      saveState();
+      renderExpenses();
+      showToast('Categoría actualizada');
+    });
+  });
 }
 
 /* === Calcular estimado del plan desde itinerario === */
@@ -5771,6 +5800,8 @@ function computePlanEstimate(){
         title: a.title || a.from || 'Actividad',
         basePrice: price,
         multiplier: isTotal ? 1 : 2,
+        finalPrice,
+        actId: a.id
         finalPrice
       });
     });
@@ -5780,6 +5811,7 @@ function computePlanEstimate(){
 function mapKindToCategory(act){
   if(act.budgetCategory) return act.budgetCategory;
   const t = (act.title||'').toLowerCase();
+  const transportHint = /ferry|river cruise|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
   const transportHint = /ferry|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
   const foodHint = /desayuno|almuerzo|merienda|café|cafe|coffee|dinner|cena|brunch|snack|onigiri|ramen|sushi/.test(t);
   if(foodHint) return 'food';
@@ -5788,6 +5820,8 @@ function mapKindToCategory(act){
   if(act.kind === 'meal') return 'food';
   if(act.kind === 'logistic'){
     if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
+    if(t.includes('takkyubin') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
+    if(t.includes('locker') || t.includes('coin locker')) return 'other';
     if(t.includes('takkyubin') || t.includes('lockers') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
     return 'other';
   }
@@ -6742,6 +6776,8 @@ setTimeout(registerSW, 3000);
 
     for(const h of heads){
       const rect = h.getBoundingClientRect();
+      // Mostrar la barra cuando el top del día cruza la línea sticky (más preciso en móvil).
+      if(rect.top <= triggerY + 2) current = h;
       // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
       if(rect.bottom <= triggerY) current = h;
       else break;
