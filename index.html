@@ -3972,7 +3972,7 @@ function removeDuplicatedTransferStops(){
       const act = day.activities[i];
       const title = (act.title||'').toLowerCase();
       const looksTransferStop = (act.kind === 'anchor' || act.kind === 'logistic') &&
-        /traslado|ir a haneda|aeropuerto/.test(title);
+        /traslado|ir a haneda|hacia haneda|aeropuerto/.test(title);
       if(!looksTransferStop){
         keep.push(act);
         continue;
@@ -3982,7 +3982,9 @@ function removeDuplicatedTransferStops(){
       const nearTransit = [prev,next].some(x=>{
         if(!x || x.kind !== 'transit') return false;
         const txt = `${x.from||''} ${x.to||''} ${x.mode||''}`.toLowerCase();
-        return /haneda|airport|aeropuerto/.test(txt);
+        const samePrice = (act.priceYen||0) === 0 || (act.priceYen||0) === (x.priceYen||0);
+        const similarDuration = !act.durationMin || !x.durationMin || Math.abs((act.durationMin||0)-(x.durationMin||0)) <= 15;
+        return /haneda|airport|aeropuerto/.test(txt) && samePrice && similarDuration;
       });
       if(nearTransit){
         removed.push(`Día ${day.id}: ${act.title}`);
@@ -5767,7 +5769,7 @@ function computePlanEstimate(){
 function mapKindToCategory(act){
   if(act.budgetCategory) return act.budgetCategory;
   const t = (act.title||'').toLowerCase();
-  const transportHint = /ferry|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|station|aeropuerto|airport|haneda|miyajimaguchi|kamakura|hase|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
+  const transportHint = /ferry|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
   const foodHint = /desayuno|almuerzo|merienda|café|cafe|coffee|dinner|cena|brunch|snack|onigiri|ramen|sushi/.test(t);
   if(foodHint) return 'food';
   if(transportHint) return 'transport';
