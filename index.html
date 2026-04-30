@@ -223,6 +223,7 @@ body.edit-mode .insert-divider{display:block}
 .df-stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px}
 
 /* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:1000;animation:fadeIn .2s ease}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:1200;animation:fadeIn .2s ease}
 .modal-overlay.on{display:flex}
 body.modal-open .current-day-sticky,
@@ -232,6 +233,7 @@ body.modal-open #view-itinerary .city-segment{
   visibility:hidden;
 }
 
+.modal{background:var(--bg);border-top:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:92vh;overflow-y:auto;padding:18px 18px 30px;animation:slideUp .3s ease;position:relative;z-index:1001}
 .modal{background:var(--bg);border-top:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:92vh;overflow-y:auto;padding:18px 18px 30px;animation:slideUp .3s ease;position:relative}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;z-index:10}
@@ -621,7 +623,7 @@ body.edit-mode .act-add{display:flex}
 }
 
 /* day-head NO es sticky para evitar tapar info del itinerario al hacer scroll */
-.day-head{position:relative !important;top:auto !important;z-index:5 !important}
+.day-head{position:relative;top:auto;z-index:1}
 
 /* el primer día dentro del region-group NO debe tener border-top extra
    (esto eliminaba el "espacio vacío" antes del primer día) */
@@ -6537,6 +6539,7 @@ setupSearch('searchItinerary','clearItinerary',(q)=>{
     </div>
   `;
   resultsBox.querySelectorAll('.search-result').forEach(el=>{
+    if(el.closest('.modal') || el.closest('.guide-content')) return;
     el.addEventListener('click',()=>{
       // limpiar búsqueda y volver al itinerario con foco
       document.getElementById('searchItinerary').value = '';
