@@ -4737,9 +4737,10 @@ async function loadWeatherAll(){
         activeWeather[dayId] = w;
         const ic = weatherIcon(w.code, w.rain);
         box.querySelector('.weather-icon').textContent = ic;
-        box.querySelector('.weather-temp').textContent = `${w.tmax}° / ${w.tmin}° · ${w.rain>0 ? (+w.rain).toFixed(0)+'mm lluvia' : 'sin lluvia'}`;
-        box.querySelector('.weather-desc').textContent = w.city;
-        box.querySelector('.weather-source').innerHTML = w.sourceLabel || w.source;
+        box.querySelector('.weather-temp').textContent = `${w.tmax}° / ${w.tmin}°`;
+        box.querySelector('.weather-desc').textContent = `${w.city} · ${w.rain>0 ? (+w.rain).toFixed(0)+'mm lluvia' : 'sin lluvia'}`;
+        const sourceRaw = (w.sourceLabel || w.source || '').replace(/<br\s*\/?>/gi,' · ');
+        box.querySelector('.weather-source').textContent = sourceRaw;
         if(box && w.isReal === false) box.classList.add('weather-estimated');
         else if(box) box.classList.remove('weather-estimated');
         if(chip) chip.textContent = `${ic} ${w.tmax}°/${w.tmin}°`;
@@ -4751,7 +4752,7 @@ async function loadWeatherAll(){
       if(wh){
         activeWeather[dayId] = wh;
         box.querySelector('.weather-temp').textContent = `${wh.tmax}° / ${wh.tmin}°`;
-        box.querySelector('.weather-desc').textContent = wh.city;
+        box.querySelector('.weather-desc').textContent = `${wh.city} · ${wh.rain>0 ? (+wh.rain).toFixed(0)+'mm lluvia' : 'sin lluvia'}`;
         box.querySelector('.weather-source').textContent = wh.sourceLabel || wh.source;
         if(box) box.classList.add('weather-estimated');
         if(chip) chip.textContent = `🌤️ ${wh.tmax}°/${wh.tmin}°`;
@@ -5819,6 +5820,11 @@ function computePlanEstimate(){
 }
 function mapKindToCategory(act){
   if(act.budgetCategory) return act.budgetCategory;
+  if(act.kind === 'transit') return 'transport';
+  if(act.kind === 'meal') return 'food';
+  if(act.kind === 'logistic'){
+    const t = (act.title||'').toLowerCase();
+    if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
   const t = (act.title||'').toLowerCase();
   const transportHint = /ferry|river cruise|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
   const transportHint = /ferry|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
@@ -5841,6 +5847,7 @@ function mapKindToCategory(act){
     return 'other';
   }
   if(act.kind === 'anchor'){
+    const t = (act.title||'').toLowerCase();
     if(t.includes('check-in') || t.includes('check in') || t.includes('hotel') || t.includes('hostel') || t.includes('apartment')) return 'lodging';
     if(t.includes('takkyubin')) return 'transport';
     return 'other';
