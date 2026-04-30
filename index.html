@@ -6725,6 +6725,7 @@ function registerSW(){
     console.log('SW no funciona con file://');
     return;
   }
+  navigator.serviceWorker.register('sw.js?v=13').then((reg)=>{
   navigator.serviceWorker.register('sw.js?v=12').then((reg)=>{
     const el = document.getElementById('cdOffline');
     if(el) el.style.display = 'inline-flex';
