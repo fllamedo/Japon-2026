@@ -4090,6 +4090,7 @@ function renderDayCard(day){
   const el = document.createElement('section');
   el.className = 'day' + (isToday?' is-today':'');
   el.setAttribute('data-day', day.id);
+  el.setAttribute('data-city', day.city || '');
   el.setAttribute('data-search', normalizeSearch(`${day.title} ${day.city} ${day.activities.filter(a=>a.kind!=='transit').map(a=>a.title).join(' ')}`));
 
   el.innerHTML = `
@@ -6792,9 +6793,10 @@ setTimeout(registerSW, 3000);
 
     const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
     const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
+    const dayCity = current.closest('.day')?.dataset?.city || '';
 
     num.textContent = dayNum;
-    title.textContent = dayTitle;
+    title.textContent = dayCity ? `${dayCity} · ${dayTitle}` : dayTitle;
     bar.classList.add('on');
   }
 
