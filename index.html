@@ -448,6 +448,7 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-budget-item-main strong{color:var(--text);font-size:12px}
 .exp-budget-item-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
 .exp-budget-item-meta{display:block;font-size:10px;color:var(--text-muted);font-weight:500;margin-top:1px}
+.exp-budget-move{margin-top:4px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:10.5px;padding:2px 4px;border-radius:5px;max-width:160px}
 
 /* Weather estimado */
 .weather-estimated{position:relative}
@@ -666,12 +667,23 @@ body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
   overflow:hidden;
   text-overflow:ellipsis;
 }
+.current-day-sticky .cds-city{
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:.6px;
+  color:var(--accent-soft);
+  text-transform:uppercase;
+  opacity:.9;
+}
 </style>
 </head>
 <body>
 <div id="currentDaySticky" class="current-day-sticky">
   <div class="cds-num" id="currentDayNum">--</div>
-  <div class="cds-title" id="currentDayTitle">Día actual</div>
+  <div>
+    <div class="cds-city" id="currentDayCity">Región</div>
+    <div class="cds-title" id="currentDayTitle">Día actual</div>
+  </div>
 </div>
 <!-- ═══ LOGIN OVERLAY ═══ -->
 <div class="login-overlay" id="loginOverlay">
@@ -1184,7 +1196,7 @@ const DAYS_DATA = {
     {id:'d5-a3',time:'07:05',title:'⏳ Buffer Tobu-Asakusa',mapName:'Tobu Asakusa Station',kind:'free',badge:'Buffer',anchor:false,durationMin:25,priceYen:0,desc:'Tobu-Asakusa terminal privada, ~5 min a pie. Carteles "Tobu Railway".'},
     {id:'d5-t2b',kind:'transit',from:'Tobu-Asakusa',to:'Tobu-Nikko',durationMin:120,priceYen:5600,walkMin:0,mode:'🚃 Tobu Spacia X — salida 07:30 · ⚠️ Reservar 1 mes antes',mapLink:'https://www.google.com/maps/dir/Tobu+Asakusa+Station/Tobu+Nikko+Station',note:'¥2.740 surcharge + ¥2.860 base i/v pp. Cubre TAMBIÉN la vuelta.'},
     {id:'d5-t3',kind:'transit',from:'Tobu-Nikko',to:'Shinkyo Bridge',durationMin:10,priceYen:0,walkMin:15,mode:'🚌 World Heritage Loop o 🚶 15 min',mapLink:'https://www.google.com/maps/dir/Tobu+Nikko+Station/Shinkyo+Bridge+Nikko'},
-    {id:'d5-a5',time:'09:45',title:'🌉 Puente Shinkyo',mapName:'Shinkyo Bridge Nikko',kind:'recommended',badge:'Entrada',anchor:false,durationMin:15,priceYen:300,crowd:'🟢',desc:'Entrada simbólica al área UNESCO. Cierra 15:30.',guide:'shinkyo'},
+    {id:'d5-a5',time:'09:45',title:'🌉 Puente Shinkyo',mapName:'Shinkyo Bridge Nikko',kind:'recommended',badge:'Entrada',anchor:false,durationMin:15,priceYen:0,crowd:'🟢',desc:'Verlo desde afuera es gratis. Cruce opcional pago (~¥300 pp). Cierra 15:30.',guide:'shinkyo'},
     {id:'d5-t4',kind:'transit',from:'Shinkyo',to:'Rinno-ji',durationMin:6,priceYen:0,walkMin:6,mode:'🚶 6 min',mapLink:'https://www.google.com/maps/dir/Shinkyo+Bridge+Nikko/Rinnoji+Temple+Nikko'},
     {id:'d5-a6',time:'10:00',title:'⛩️ Rinno-ji + Sanbutsudo',mapName:'Rinnoji Temple Nikko',kind:'imperdible',badge:'UNESCO',anchor:false,durationMin:40,priceYen:400,desc:'3 Budas dorados de 7.5m. 8:00-16:00.',guide:'rinnoji'},
     {id:'d5-t5',kind:'transit',from:'Rinno-ji',to:'Tōshō-gū',durationMin:6,priceYen:0,walkMin:6,mode:'🚶 6 min',mapLink:'https://www.google.com/maps/dir/Rinnoji+Temple+Nikko/Toshogu+Shrine+Nikko'},
@@ -1711,7 +1723,7 @@ DAYS_DATA[2] = {
     {id:'d2-t5',kind:'transit',from:'Akihabara',to:'Gyukatsu Ichinisan',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 dentro zona'},
     {id:'d2-a6',time:'12:15',title:'🥩 Gyukatsu Ichinisan · Almuerzo',mapName:'Gyukatsu Ichinisan Akihabara',kind:'meal',badge:'Comida',anchor:false,durationMin:45,priceYen:1800,crowd:'🔴 Llegar 12:00 exacto',desc:'Carne rebozada que terminás de cocinar vos en piedra caliente. 11:00-22:00.'},
     {id:'d2-a7',time:'13:15',title:'⏳ Tiempo libre Akihabara',mapName:'Akihabara Station Tokyo',kind:'free',badge:'Libre',anchor:false,durationMin:135,priceYen:0,desc:'Super Potato retro, Yodobashi, Mandarake, Museo Nacional...',freeTime:true,suggestions:'d2-libre'},
-    {id:'d2-a8',time:'15:30',title:'🦉 Owl Cafe (opcional)',mapName:'Owl Cafe Akihabara',kind:'recommended',badge:'Opcional',anchor:false,durationMin:45,priceYen:1800,crowd:'🟡 Reservar online',desc:'Café con búhos. Reservar online para garantizar lugar.'},
+    {id:'d2-a8',time:'15:30',title:'🦉 Owl Cafe (opcional)',mapName:'Owl Cafe Akihabara',kind:'meal',badge:'Opcional',anchor:false,durationMin:45,priceYen:1800,crowd:'🟡 Reservar online',desc:'Café con búhos. Reservar online para garantizar lugar.'},
     {id:'d2-a9',time:'16:20',title:'⏳ Tiempo libre',mapName:'Akihabara',kind:'free',badge:'Libre',anchor:false,durationMin:180,priceYen:0,desc:'Compras o vuelta al depto.',freeTime:true,suggestions:'d2-tarde'},
     {id:'d2-t6',kind:'transit',from:'Akihabara',to:'Shinjuku',durationMin:25,priceYen:200,walkMin:5,mode:'🚃 Yamanote Line',mapLink:'https://www.google.com/maps/dir/Akihabara+Station/Shinjuku+Station'},
     {id:'d2-a10',time:'19:30',title:'🍽️ Cena libre Shinjuku',mapName:'Shinjuku',kind:'meal',badge:'Libre',anchor:false,durationMin:90,priceYen:2500,desc:'Oreryu Shio Ramen, Yakiniku Jiro, o lo que tengan ganas.',freeTime:true,suggestions:'d2-cena'},
@@ -2033,7 +2045,7 @@ DAYS_DATA[10] = {
     {id:'d10-a8',time:'12:25',title:'🍽️ Almuerzo libre camino a Kiyomizu',mapName:'Higashiyama Kyoto',kind:'meal',badge:'Libre',anchor:false,durationMin:45,priceYen:1500,crowd:'🟡',desc:'Zona Gojo/Higashiyama.',freeTime:true,suggestions:'d10-almuerzo'},
     {id:'d10-a9',time:'13:15',title:'⛩️ Kiyomizu-dera + Sannenzaka',mapName:'Kiyomizu-dera Kyoto',kind:'imperdible',badge:'UNESCO',anchor:false,durationMin:150,priceYen:500,crowd:'🚨 Dom tarde saturado',desc:'Templo budista con plataforma de madera de 13m. UNESCO. 6:00-18:00. Calles empedradas Ninenzaka/Sannenzaka.',guide:'kiyomizu'},
     {id:'d10-t7',kind:'transit',from:'Kiyomizu',to:'Higashiyama',durationMin:5,priceYen:0,walkMin:5,mode:'🚶 5 min'},
-    {id:'d10-a10',time:'16:00',title:'⏳ Café/merienda Higashiyama',mapName:'Higashiyama Kyoto',kind:'free',badge:'Libre',anchor:false,durationMin:45,priceYen:1000,desc:'Matcha soft serve, cerámica Kiyomizu-yaki.',freeTime:true,suggestions:'d10-merienda'},
+    {id:'d10-a10',time:'16:00',title:'⏳ Café/merienda Higashiyama',mapName:'Higashiyama Kyoto',kind:'meal',badge:'Libre',anchor:false,durationMin:45,priceYen:1000,desc:'Matcha soft serve, cerámica Kiyomizu-yaki.',freeTime:true,suggestions:'d10-merienda'},
     {id:'d10-t8',kind:'transit',from:'Higashiyama',to:'Gion',durationMin:20,priceYen:0,walkMin:20,mode:'🚶 20 min bajando',mapLink:'https://www.google.com/maps/dir/Kiyomizudera/Hanamikoji+Street+Gion'},
     {id:'d10-a11',time:'16:45',title:'🏮 Gion + Hanamikoji · atardecer',mapName:'Hanamikoji Street Gion Kyoto',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:75,priceYen:0,crowd:'🔴 Dom tarde fotógrafos',desc:'Barrio de geishas. Maiko a veces 17:00-19:00. Hanami-koji al atardecer es 💎.',guide:'gion'},
     {id:'d10-t9',kind:'transit',from:'Gion',to:'Travelodge',durationMin:10,priceYen:0,walkMin:10,mode:'🚶 10 min'},
@@ -2210,7 +2222,7 @@ DAYS_DATA[16] = {
   luggage:'AM: carry-on + mochilas · 12:20 a coin lockers Asakusa',
   clothing:'Cómoda. Día con shinkansen + caminata Kappabashi. Camiseta + capa fina. Si va a llover, paraguas (tsuyu).',
   activities:[
-    {id:'d16-a1',time:'07:00',title:'☕ Desayuno + check-out MYSTAYS',mapName:'MYSTAYS Hiroshima Peace Park',kind:'logistic',badge:'Salida',anchor:false,durationMin:25,priceYen:500,desc:'Hasta 11:00 ✅. Salir 7:25 para tomar shinkansen 8:10.'},
+    {id:'d16-a1',time:'07:00',title:'☕ Desayuno + check-out MYSTAYS',mapName:'MYSTAYS Hiroshima Peace Park',kind:'logistic',badge:'Salida',anchor:false,durationMin:25,priceYen:500,budgetCategory:'food',desc:'Hasta 11:00 ✅. Salir 7:25 para tomar shinkansen 8:10.'},
     {id:'d16-a2',time:'07:25',title:'🏨 Check-out MYSTAYS',mapName:'MYSTAYS Hiroshima Peace Park',kind:'logistic',badge:'Salida',anchor:false,durationMin:5,priceYen:0,desc:''},
     {id:'d16-t1',kind:'transit',from:'MYSTAYS',to:'Hiroshima Station',durationMin:15,priceYen:200,walkMin:3,mode:'🚃 Tranvía línea 2 o 6 ~15 min',mapLink:'https://www.google.com/maps/dir/MYSTAYS+Hiroshima+Peace+Park/Hiroshima+Station'},
     {id:'d16-a3',time:'07:45',title:'🚄 Hiroshima Station · comprar bento',mapName:'Hiroshima Station',kind:'meal',badge:'Buffer',anchor:false,durationMin:20,priceYen:1500,crowd:'🟢',desc:'20 min buffer. Bento para shinkansen.'},
@@ -3952,6 +3964,12 @@ let activeWeather = {};
 }
   
 function renderAll(){
+  try{
+    removeDuplicatedTransferStops();
+  }catch(err){
+    console.warn('[renderAll] cleanup transfer duplicados falló:', err);
+  }
+  removeDuplicatedTransferStops();
   normalizeRegions();
   
   const container = document.getElementById('daysContainer');
@@ -3961,6 +3979,42 @@ const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
 
 function getRegionName(day){
   return day.region || day.city || '?';
+}
+
+function removeDuplicatedTransferStops(){
+  const removed = [];
+  Object.values(DAYS_DATA).forEach(day=>{
+    if(!Array.isArray(day.activities) || !day.activities.length) return;
+    const keep = [];
+    for(let i=0;i<day.activities.length;i++){
+      const act = day.activities[i];
+      const title = (act.title||'').toLowerCase();
+      const looksTransferStop = (act.kind === 'anchor' || act.kind === 'logistic') &&
+        /traslado|ir a haneda|(?:hacia )?haneda|aeropuerto/.test(title);
+      if(!looksTransferStop){
+        keep.push(act);
+        continue;
+      }
+      const prev = day.activities[i-1];
+      const next = day.activities[i+1];
+      const nearTransit = [prev,next].some(x=>{
+        if(!x || x.kind !== 'transit') return false;
+        const txt = `${x.from||''} ${x.to||''} ${x.mode||''}`.toLowerCase();
+        const samePrice = (act.priceYen||0) === 0 || (act.priceYen||0) === (x.priceYen||0);
+        const similarDuration = !act.durationMin || !x.durationMin || Math.abs((act.durationMin||0)-(x.durationMin||0)) <= 15;
+        return /haneda|airport|aeropuerto/.test(txt) && samePrice && similarDuration;
+      });
+      if(nearTransit){
+        removed.push(`Día ${day.id}: ${act.title}`);
+        continue;
+      }
+      keep.push(act);
+    }
+    day.activities = keep;
+  });
+  if(removed.length){
+    console.log('[itinerary] Traslados duplicados removidos:', removed);
+  }
 }
 
 const regionDays = {};
@@ -4000,8 +4054,12 @@ for(const id of ids){
       container.appendChild(currentRegionGroup);
       lastRegion = region;
     }
-    if(currentRegionGroup) currentRegionGroup.appendChild(renderDayCard(day));
-    else container.appendChild(renderDayCard(day));
+    try{
+      if(currentRegionGroup) currentRegionGroup.appendChild(renderDayCard(day));
+      else container.appendChild(renderDayCard(day));
+    }catch(err){
+      console.warn('[renderAll] fallo al renderizar día', day?.id, err);
+    }
   }
   openIds.forEach(id=>{
     const d = container.querySelector(`.day[data-day="${id}"]`);
@@ -4454,6 +4512,13 @@ function insertActivityAfter(dayId, afterId){
       </select>
     </div>
     <div class="field"><label>Descripción</label><textarea id="ins-desc" rows="2"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Precio pp (¥)</label><input type="number" id="ins-price" value="0" min="0"></div>
+      <div class="field"><label>Badge</label><input type="text" id="ins-badge" placeholder="Ej: Opcional"></div>
+    </div>
+    <div class="field"><label>Concurrencia</label><input type="text" id="ins-crowd" placeholder="Ej: 🔴 Muy concurrido"></div>
+    <div class="field-toggle"><input type="checkbox" id="ins-anchor"><label for="ins-anchor">⚓ Es ancla (hora fija)</label></div>
+    <div class="field-toggle"><input type="checkbox" id="ins-free"><label for="ins-free">⏳ Tiempo libre con sugerencias</label></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" data-role="cancel">Cancelar</button>
       <button class="btn btn-primary" data-role="insert">Insertar</button>
@@ -4472,8 +4537,10 @@ function insertActivityAfter(dayId, afterId){
       time: /^\d{1,2}:\d{2}$/.test(time) ? time : suggestedTime,
       title, mapName: document.getElementById('ins-mapname').value.trim(),
       kind: document.getElementById('ins-kind').value,
-      badge:'', anchor:false, freeTime:false,
-      durationMin: dur, priceYen:0, crowd:'',
+      badge: document.getElementById('ins-badge').value.trim(),
+      anchor: document.getElementById('ins-anchor').checked,
+      freeTime: document.getElementById('ins-free').checked,
+      durationMin: dur, priceYen:parseInt(document.getElementById('ins-price').value)||0, crowd:document.getElementById('ins-crowd').value.trim(),
       desc: document.getElementById('ins-desc').value.trim()
     };
     // Tránsito automático tras la nueva actividad (editable después)
@@ -5521,6 +5588,7 @@ function renderExpenses(){
           ${EXP_CATEGORIES.map(cat=>{
             const v = planEstimate.byCat[cat.id] || 0;
             if(!v) return '';
+            const detail = (planEstimate.detailByCat[cat.id] || []).slice().sort((a,b)=>b.finalPrice-a.finalPrice);
             const detail = planEstimate.detailByCat[cat.id] || [];
             return `<details class="exp-budget-catdetail">
               <summary class="exp-budget-catrow">
@@ -5530,6 +5598,11 @@ function renderExpenses(){
               <div class="exp-budget-item-list">
                 ${detail.map(d=>`<div class="exp-budget-item-row">
                   <div class="exp-budget-item-main">Día ${d.dayId} · ${escapeHtml(d.dayTitle || '')}<br><strong>${escapeHtml(d.title)}</strong></div>
+                  <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span>
+                    <select class="exp-budget-move" data-day="${d.dayId}" data-act="${d.actId}">
+                      ${EXP_CATEGORIES.map(opt=>`<option value="${opt.id}" ${opt.id===cat.id?'selected':''}>${opt.icon} ${opt.label}</option>`).join('')}
+                    </select>
+                  </div>
                   <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span></div>
                 </div>`).join('')}
               </div>
@@ -5699,6 +5772,19 @@ function renderExpenses(){
   
   document.getElementById('exp-export-pdf').addEventListener('click',exportExpensesPDF);
   document.getElementById('exp-export-csv').addEventListener('click',exportExpensesCSV);
+  list.querySelectorAll('.exp-budget-move').forEach(sel=>{
+    sel.addEventListener('change',()=>{
+      const dayId = sel.dataset.day;
+      const actId = sel.dataset.act;
+      const d = DAYS_DATA[dayId];
+      const act = d?.activities?.find(a=>a.id===actId);
+      if(!act) return;
+      act.budgetCategory = sel.value;
+      saveState();
+      renderExpenses();
+      showToast('Categoría actualizada');
+    });
+  });
 }
 
 /* === Calcular estimado del plan desde itinerario === */
@@ -5728,6 +5814,8 @@ function computePlanEstimate(){
         title: a.title || a.from || 'Actividad',
         basePrice: price,
         multiplier: isTotal ? 1 : 2,
+        finalPrice,
+        actId: a.id
         finalPrice
       });
     });
@@ -5741,6 +5829,18 @@ function mapKindToCategory(act){
   if(act.kind === 'logistic'){
     const t = (act.title||'').toLowerCase();
     if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
+  const t = (act.title||'').toLowerCase();
+  const transportHint = /ferry|river cruise|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
+  const transportHint = /ferry|traslado|shinkansen|spacia|keikyu|jr |line|bus|tren|train|aeropuerto|airport|haneda|miyajimaguchi|uji → kyoto/.test(`${t} ${(act.from||'').toLowerCase()} ${(act.to||'').toLowerCase()} ${(act.mode||'').toLowerCase()}`);
+  const foodHint = /desayuno|almuerzo|merienda|café|cafe|coffee|dinner|cena|brunch|snack|onigiri|ramen|sushi/.test(t);
+  if(foodHint) return 'food';
+  if(transportHint) return 'transport';
+  if(act.kind === 'transit') return 'transport';
+  if(act.kind === 'meal') return 'food';
+  if(act.kind === 'logistic'){
+    if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
+    if(t.includes('takkyubin') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
+    if(t.includes('locker') || t.includes('coin locker')) return 'other';
     if(t.includes('takkyubin') || t.includes('lockers') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
     return 'other';
   }
@@ -6645,6 +6745,7 @@ function registerSW(){
     console.log('SW no funciona con file://');
     return;
   }
+  navigator.serviceWorker.register('sw.js?v=13').then((reg)=>{
   navigator.serviceWorker.register('sw.js?v=12').then((reg)=>{
     const el = document.getElementById('cdOffline');
     if(el) el.style.display = 'inline-flex';
@@ -6673,8 +6774,9 @@ setTimeout(registerSW, 3000);
   function updateCurrentDaySticky(){
     const bar = document.getElementById('currentDaySticky');
     const num = document.getElementById('currentDayNum');
+    const city = document.getElementById('currentDayCity');
     const title = document.getElementById('currentDayTitle');
-    if(!bar || !num || !title) return;
+    if(!bar || !num || !title || !city) return;
 
     const itineraryView = document.getElementById('view-itinerary');
     const itineraryActive = itineraryView?.classList.contains('active') && document.body.classList.contains('view-itinerary-active');
@@ -6683,6 +6785,7 @@ setTimeout(registerSW, 3000);
       return;
     }
 
+    const heads = Array.from(itineraryView.querySelectorAll('.region-group:not(.collapsed) .day-head'));
     const heads = Array.from(itineraryView.querySelectorAll('.day-head'));
     if(!heads.length){
       bar.classList.remove('on');
@@ -6695,6 +6798,8 @@ setTimeout(registerSW, 3000);
 
     for(const h of heads){
       const rect = h.getBoundingClientRect();
+      // Mostrar la barra cuando el top del día cruza la línea sticky (más preciso en móvil).
+      if(rect.top <= triggerY + 2) current = h;
       // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
       if(rect.bottom <= triggerY) current = h;
       else break;
@@ -6707,8 +6812,12 @@ setTimeout(registerSW, 3000);
 
     const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
     const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
+    const dayId = current.closest('.day')?.dataset?.day;
+    const dayObj = dayId ? DAYS_DATA[dayId] : null;
+    const dayRegion = dayObj?.region || dayObj?.city || '—';
 
     num.textContent = dayNum;
+    city.textContent = dayRegion;
     title.textContent = dayTitle;
     bar.classList.add('on');
   }
