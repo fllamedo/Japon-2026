@@ -141,7 +141,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .weather-main{flex:1;min-width:0}
 .weather-temp{font-weight:700;color:var(--text);font-size:14px}
 .weather-desc{color:var(--text-muted);font-size:11.5px;margin-top:1px}
-.weather-source{font-size:10px;color:var(--text-muted);text-align:right;opacity:.7;line-height:1.3}
+.weather-source{font-size:10px;color:var(--text-muted);text-align:right;opacity:.7;line-height:1.3;flex:0 0 auto;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ═══ TIMELINE rediseñado COMPACTO ═══ */
 .timeline{padding:2px 0 0;position:relative}
@@ -223,8 +223,15 @@ body.edit-mode .insert-divider{display:block}
 .df-stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:200;animation:fadeIn .2s ease}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:1200;animation:fadeIn .2s ease}
 .modal-overlay.on{display:flex}
+body.modal-open .current-day-sticky,
+body.modal-open .tabs,
+body.modal-open #view-itinerary .search-wrap,
+body.modal-open #view-itinerary .city-segment{
+  visibility:hidden;
+}
+
 .modal{background:var(--bg);border-top:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:92vh;overflow-y:auto;padding:18px 18px 30px;animation:slideUp .3s ease;position:relative}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;z-index:10}
@@ -432,11 +439,20 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-budget-detail summary{font-size:12px;color:var(--accent-soft);cursor:pointer;padding:4px 0;font-weight:600}
 .exp-budget-categories{padding-top:8px;display:flex;flex-direction:column;gap:5px}
 .exp-budget-catrow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 6px;background:var(--surface-2);border-radius:5px}
+.exp-budget-catdetail{background:var(--surface);border:1px solid var(--border-soft);border-radius:7px}
+.exp-budget-catdetail summary{list-style:none;cursor:pointer}
+.exp-budget-catdetail summary::-webkit-details-marker{display:none}
+.exp-budget-item-list{padding:2px 8px 8px;display:flex;flex-direction:column;gap:6px}
+.exp-budget-item-row{display:flex;justify-content:space-between;gap:10px;background:var(--surface-2);border-radius:6px;padding:7px 8px}
+.exp-budget-item-main{font-size:11.5px;color:var(--text-dim);line-height:1.35}
+.exp-budget-item-main strong{color:var(--text);font-size:12px}
+.exp-budget-item-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
+.exp-budget-item-meta{display:block;font-size:10px;color:var(--text-muted);font-weight:500;margin-top:1px}
 
 /* Weather estimado */
 .weather-estimated{position:relative}
 .weather-estimated::after{content:'estimación';position:absolute;top:6px;right:6px;background:rgba(241,196,15,.15);color:#f5c443;font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-display)}
-.weather-source{font-size:10.5px;color:var(--text-muted);margin-top:4px}
+.weather-strip.weather-estimated .weather-source{font-size:10px}
 
 /* FAB */
 .fab{position:fixed;bottom:18px;right:18px;width:52px;height:52px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(217,119,87,.4);z-index:100;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;transition:transform .15s}
@@ -571,7 +587,7 @@ body.edit-mode .act-add{display:flex}
   z-index:300 !important;
 }
 
-.search-wrap{
+#view-itinerary .search-wrap{
   position:sticky !important;
   top:var(--tabs-h, 43px) !important;
   z-index:290 !important;
@@ -580,12 +596,20 @@ body.edit-mode .act-add{display:flex}
   margin:0 !important;
 }
 
+#view-guides .search-wrap,
+#view-phrases .search-wrap{
+  position:static !important;
+  top:auto !important;
+  z-index:auto !important;
+  padding:8px 14px 2px !important;
+}
+
 .search-box input{
   padding:7px 30px 7px 32px !important;
   font-size:13px !important;
 }
 
-.city-segment{
+#view-itinerary .city-segment{
   position:sticky !important;
   top:var(--sticky-h, 90px) !important;
   z-index:280 !important;
@@ -607,7 +631,7 @@ body.edit-mode .act-add{display:flex}
 
 .current-day-sticky{
   position:sticky;
-  top:126px;
+  top:var(--sticky-h, 126px);
   z-index:500;
   display:none;
   align-items:center;
@@ -619,6 +643,8 @@ body.edit-mode .act-add{display:flex}
   box-shadow:0 2px 8px rgba(0,0,0,.25);
   font-family:var(--font-body);
 }
+
+body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 
 .current-day-sticky.on{
   display:flex;
@@ -3897,10 +3923,14 @@ function showModal(html){
   modalContent.innerHTML = html;
   modal.classList.add('on');
   document.body.style.overflow='hidden';
+  document.body.classList.add('modal-open');
+  const stickyBar = document.getElementById('currentDaySticky');
+  if(stickyBar) stickyBar.classList.remove('on');
 }
 function closeModal(){
   modal.classList.remove('on');
   document.body.style.overflow='';
+  document.body.classList.remove('modal-open');
   stopTTS();
 }
 document.getElementById('modalClose').addEventListener('click', closeModal);
@@ -3921,6 +3951,7 @@ let activeWeather = {};
 }
   
 function renderAll(){
+  removeDuplicatedTransferStops();
   normalizeRegions();
   
   const container = document.getElementById('daysContainer');
@@ -3930,6 +3961,40 @@ const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
 
 function getRegionName(day){
   return day.region || day.city || '?';
+}
+
+function removeDuplicatedTransferStops(){
+  const removed = [];
+  Object.values(DAYS_DATA).forEach(day=>{
+    if(!Array.isArray(day.activities) || !day.activities.length) return;
+    const keep = [];
+    for(let i=0;i<day.activities.length;i++){
+      const act = day.activities[i];
+      const title = (act.title||'').toLowerCase();
+      const looksTransferStop = (act.kind === 'anchor' || act.kind === 'logistic') &&
+        /traslado|ir a haneda|aeropuerto/.test(title);
+      if(!looksTransferStop){
+        keep.push(act);
+        continue;
+      }
+      const prev = day.activities[i-1];
+      const next = day.activities[i+1];
+      const nearTransit = [prev,next].some(x=>{
+        if(!x || x.kind !== 'transit') return false;
+        const txt = `${x.from||''} ${x.to||''} ${x.mode||''}`.toLowerCase();
+        return /haneda|airport|aeropuerto/.test(txt);
+      });
+      if(nearTransit){
+        removed.push(`Día ${day.id}: ${act.title}`);
+        continue;
+      }
+      keep.push(act);
+    }
+    day.activities = keep;
+  });
+  if(removed.length){
+    console.log('[itinerary] Traslados duplicados removidos:', removed);
+  }
 }
 
 const regionDays = {};
@@ -5486,10 +5551,19 @@ function renderExpenses(){
           ${EXP_CATEGORIES.map(cat=>{
             const v = planEstimate.byCat[cat.id] || 0;
             if(!v) return '';
-            return `<div class="exp-budget-catrow">
-              <span>${cat.icon} ${cat.label}</span>
-              <span>${fmtCurrency(v,'JPY')}</span>
-            </div>`;
+            const detail = planEstimate.detailByCat[cat.id] || [];
+            return `<details class="exp-budget-catdetail">
+              <summary class="exp-budget-catrow">
+                <span>${cat.icon} ${cat.label}</span>
+                <span>${fmtCurrency(v,'JPY')}</span>
+              </summary>
+              <div class="exp-budget-item-list">
+                ${detail.map(d=>`<div class="exp-budget-item-row">
+                  <div class="exp-budget-item-main">Día ${d.dayId} · ${escapeHtml(d.dayTitle || '')}<br><strong>${escapeHtml(d.title)}</strong></div>
+                  <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span></div>
+                </div>`).join('')}
+              </div>
+            </details>`;
           }).filter(Boolean).join('') || '<div class="muted" style="padding:6px 0;font-size:12px">Sin actividades con precio en el itinerario.</div>'}
         </div>
       </details>
@@ -5659,8 +5733,9 @@ function renderExpenses(){
 
 /* === Calcular estimado del plan desde itinerario === */
 function computePlanEstimate(){
-  const out = { total: 0, byCat: {} };
+  const out = { total: 0, byCat: {}, detailByCat: {} };
   EXP_CATEGORIES.forEach(c=>{ out.byCat[c.id] = 0; });
+  EXP_CATEGORIES.forEach(c=>{ out.detailByCat[c.id] = []; });
   Object.values(DAYS_DATA).forEach(day=>{
     if(!day.activities) return;
     day.activities.forEach(a=>{
@@ -5677,16 +5752,25 @@ function computePlanEstimate(){
       out.total += finalPrice;
       const cat = mapKindToCategory(a);
       out.byCat[cat] = (out.byCat[cat]||0) + finalPrice;
+      out.detailByCat[cat].push({
+        dayId: day.id,
+        dayTitle: day.title || '',
+        title: a.title || a.from || 'Actividad',
+        basePrice: price,
+        multiplier: isTotal ? 1 : 2,
+        finalPrice
+      });
     });
   });
   return out;
 }
 function mapKindToCategory(act){
+  if(act.budgetCategory) return act.budgetCategory;
   if(act.kind === 'transit') return 'transport';
   if(act.kind === 'meal') return 'food';
   if(act.kind === 'logistic'){
     const t = (act.title||'').toLowerCase();
-    if(t.includes('check') || t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment')) return 'lodging';
+    if(t.includes('hotel') || t.includes('hostel') || t.includes('depto') || t.includes('travelodge') || t.includes('mystays') || t.includes('daffitto') || t.includes('apartment') || t.includes('alojamiento')) return 'lodging';
     if(t.includes('takkyubin') || t.includes('lockers') || t.includes('shinkansen') || t.includes('bus') || t.includes('tren') || t.includes('vuelo') || t.includes('aero')) return 'transport';
     return 'other';
   }
@@ -5698,7 +5782,8 @@ function mapKindToCategory(act){
   }
   if(act.kind === 'anchor'){
     const t = (act.title||'').toLowerCase();
-    if(t.includes('check') || t.includes('takkyubin')) return 'lodging';
+    if(t.includes('check-in') || t.includes('check in') || t.includes('hotel') || t.includes('hostel') || t.includes('apartment')) return 'lodging';
+    if(t.includes('takkyubin')) return 'transport';
     return 'other';
   }
   return 'other';
@@ -6262,15 +6347,27 @@ document.querySelectorAll('.tab').forEach(tab=>{
     tab.classList.add('active');
     const v = tab.dataset.view;
     document.getElementById('view-'+v).classList.add('active');
+    syncViewStateClass();
     if(v==='packing') renderPacking();
     if(v==='expenses') renderExpenses();
     if(v==='guides') renderGuidesTab();
     if(v==='phrases') renderPhrases();
     if(v==='food') renderFood();
     if(v==='notes') renderNotes();
-    window.scrollTo({top:0, behavior:'instant'});
+    if(v!=='itinerary'){
+      const stickyBar = document.getElementById('currentDaySticky');
+      if(stickyBar) stickyBar.classList.remove('on');
+    }
+    window.scrollTo({top:0, behavior:'auto'});
   });
 });
+
+function syncViewStateClass(){
+  const activeView = document.querySelector('.tab.active')?.dataset.view;
+  document.body.classList.toggle('view-itinerary-active', activeView==='itinerary');
+}
+
+syncViewStateClass();
 
 /* ═══ SEARCH BARS ═══ */
 function setupSearch(inputId, clearId, callback){
@@ -6578,9 +6675,20 @@ function registerSW(){
     console.log('SW no funciona con file://');
     return;
   }
-  navigator.serviceWorker.register('sw.js').then((reg)=>{
+  navigator.serviceWorker.register('sw.js?v=12').then((reg)=>{
     const el = document.getElementById('cdOffline');
     if(el) el.style.display = 'inline-flex';
+    reg.update().catch(()=>{});
+    reg.addEventListener('updatefound', ()=>{
+      const nw = reg.installing;
+      if(!nw) return;
+      nw.addEventListener('statechange', ()=>{
+        if(nw.state === 'installed' && navigator.serviceWorker.controller){
+          showToast('✅ Nueva versión disponible · recargando…');
+          setTimeout(()=>location.reload(), 700);
+        }
+      });
+    });
   }).catch(err=>{
     console.log('SW falló:', err.message);
   });
@@ -6598,27 +6706,34 @@ setTimeout(registerSW, 3000);
     const title = document.getElementById('currentDayTitle');
     if(!bar || !num || !title) return;
 
-    const heads = Array.from(document.querySelectorAll('.day-head'));
-    if(!heads.length) return;
+    const itineraryView = document.getElementById('view-itinerary');
+    const itineraryActive = itineraryView?.classList.contains('active') && document.body.classList.contains('view-itinerary-active');
+    if(!itineraryActive){
+      bar.classList.remove('on');
+      return;
+    }
+
+    const heads = Array.from(itineraryView.querySelectorAll('.day-head'));
+    if(!heads.length){
+      bar.classList.remove('on');
+      return;
+    }
 
     let current = null;
-const triggerY = 126;
+    const stickyTop = getComputedStyle(document.documentElement).getPropertyValue('--sticky-h').trim();
+    const triggerY = Number.parseInt(stickyTop, 10) || 126;
 
-for(const h of heads){
-  const rect = h.getBoundingClientRect();
+    for(const h of heads){
+      const rect = h.getBoundingClientRect();
+      // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
+      if(rect.bottom <= triggerY) current = h;
+      else break;
+    }
 
-  // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
-  if(rect.bottom <= triggerY){
-    current = h;
-  }else{
-    break;
-  }
-}
-
-if(!current){
-  bar.classList.remove('on');
-  return;
-}
+    if(!current){
+      bar.classList.remove('on');
+      return;
+    }
 
     const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
     const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
