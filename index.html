@@ -611,9 +611,9 @@ body.edit-mode .act-add{display:flex}
 }
 
 #view-itinerary .city-segment{
-  position:sticky !important;
-  top:calc(var(--sticky-h, 90px) + 72px) !important;
-  z-index:280 !important;
+  position:relative !important;
+  top:auto !important;
+  z-index:20 !important;
   background:var(--bg) !important;
   padding:8px 18px !important;
   margin:0 !important;
@@ -6793,6 +6793,13 @@ setTimeout(registerSW, 3000);
 
     const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
     const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
+    const regionGroup = current.closest('.region-group');
+    const regionLabel = regionGroup?.previousElementSibling?.classList?.contains('city-segment')
+      ? regionGroup.previousElementSibling.querySelector('span:nth-child(2)')?.textContent?.trim()
+      : '';
+
+    num.textContent = dayNum;
+    title.textContent = regionLabel ? `${regionLabel} · ${dayTitle}` : dayTitle;
     const dayCity = current.closest('.day')?.dataset?.city || '';
 
     num.textContent = dayNum;
