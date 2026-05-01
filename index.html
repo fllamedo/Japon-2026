@@ -4237,7 +4237,7 @@ function renderActivity(act, day, conflicts){
   const crowdStr = act.crowd ? `<span>${escapeHtml(act.crowd)}</span>` : '';
   const mapsURL = act.mapName ? buildMapsURL(act.mapName) : null;
   const titleHtml = mapsURL ? `<a class="act-title-link" href="${mapsURL}" target="_blank" rel="noopener">${escapeHtml(act.title)}</a>` : escapeHtml(act.title);
-  const guideBtn = act.guide ? `<button class="mini-btn has-guide" data-role="open-guide" data-guide="${escapeHtml(act.guide)}">📖 Guía</button>` : '';
+  const guideBtn = act.guide ? `<button class="mini-btn has-guide" data-role="open-guide" data-guide="${escapeHtml(act.guide)}" data-act-id="${escapeHtml(act.id)}">📖 Guía</button>` : '';
   const sugBtn = act.freeTime ? `<button class="mini-btn primary" data-role="open-sug" data-sug="${escapeHtml(act.suggestions||'')}" data-act="${escapeHtml(act.id)}" data-day="${day.id}">💡 Sugerencias</button>` : '';
   const editBtn = `<button class="mini-btn edit-only" data-role="edit-act" data-id="${escapeHtml(act.id)}">✏️ Editar</button>`;
   const delBtn = `<button class="mini-btn edit-only" data-role="del-act" data-id="${escapeHtml(act.id)}" style="color:var(--bad);border-color:rgba(224,107,94,.3)">🗑️</button>`;
@@ -4254,7 +4254,10 @@ function renderActivity(act, day, conflicts){
   `;
   el.querySelector('[data-role="edit-time"]')?.addEventListener('click',()=>openEditActivity(act.id, day.id));
   el.querySelector('[data-role="edit-act"]')?.addEventListener('click',()=>openEditActivity(act.id, day.id));
-  el.querySelector('[data-role="open-guide"]')?.addEventListener('click',()=>openGuide(act.guide));
+  el.querySelector('[data-role="open-guide"]')?.addEventListener('click',(e)=>{
+    const guideId = e.currentTarget.dataset.guide;
+    openGuide(guideId);
+  });
   el.querySelector('[data-role="open-sug"]')?.addEventListener('click',(e)=>{
     const b = e.currentTarget;
     openSuggestions(b.dataset.sug, parseInt(b.dataset.day), b.dataset.act);
@@ -4972,9 +4975,22 @@ function changeTTSRate(newRate){
 
 /* ═══ GUIDES ═══ */
 function openGuide(guideId){
-  const g = GUIDES[guideId];
+  let guideIdFix = guideId;
+  if(!GUIDES[guideIdFix]){
+    const possible = [
+      guideId.replace(/^tokyo[-_]/, ''),
+      guideId.replace(/^(torre[-_])?tokyo[-_]?/, 'torre-tokio').replace(/^tokyo[-_]?tower$/, 'torre-tokio'),
+      guideId.replace(/^tokyo[-_]?skytree$/, 'skytree'),
+    ];
+    for(const p of possible){
+      if(GUIDES[p]){ guideIdFix = p; break; }
+    }
+  }
+  console.log('openGuide:', guideId, '->', guideIdFix);
+  const g = GUIDES[guideIdFix];
   if(!g){
-    showModal(`<h3>Guía en preparación</h3><div class="modal-sub">"${escapeHtml(guideId)}" estará en versión final.</div>`);
+    const allGuides = Object.keys(GUIDES).join(', ');
+    showModal(`<h3>Guía en preparación</h3><div class="modal-sub">"${escapeHtml(guideId)}" no encontrada. Disponibles: ${allGuides}</div>`);
     return;
   }
   const spanishVoices = getSpanishVoices();
