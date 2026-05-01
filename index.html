@@ -6794,11 +6794,19 @@ setTimeout(registerSW, 3000);
     bar.classList.add('on');
   }
 
-  window.addEventListener('scroll', updateCurrentDaySticky, {passive:true});
+  let stickyRAF = null;
+  function scheduleStickyUpdate(){
+    if(stickyRAF) return;
+    stickyRAF = requestAnimationFrame(()=>{
+      stickyRAF = null;
+      updateCurrentDaySticky();
+    });
+  }
+  window.addEventListener('scroll', scheduleStickyUpdate, {passive:true});
   document.addEventListener('click', (e)=>{
     if(e.target.closest('.city-segment')) setTimeout(updateCurrentDaySticky, 0);
   });
-  window.addEventListener('resize', updateCurrentDaySticky);
+  window.addEventListener('resize', scheduleStickyUpdate);
   document.addEventListener('DOMContentLoaded', updateCurrentDaySticky);
   setTimeout(updateCurrentDaySticky, 500);
 })();
