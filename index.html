@@ -400,8 +400,7 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .form-stack input[type="text"],.form-stack input[type="number"],.form-stack select{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:7px;font-size:14px;font-family:var(--font-body)}
 .form-stack input:focus,.form-stack select:focus{outline:none;border-color:var(--accent)}
 .form-helper{font-size:11.5px;color:var(--text-muted);font-style:italic}
-.btn-danger{background:rgba(224,107,94,.12);color:var(--bad);border:1px solid rgba(224,107,94,.3)}
-.btn-danger:hover{background:rgba(224,107,94,.2)}
+/* (.btn-danger duplicado removido — ya definido arriba en la sección modal) */
 
 /* === Deudas por moneda === */
 .exp-debt-row{display:flex;gap:12px;padding:12px;background:var(--surface-2);border-radius:8px;margin-bottom:8px;border:1px solid var(--border-soft)}
@@ -2294,7 +2293,7 @@ DAYS_DATA[17] = {
     {id:'d17-t3',kind:'transit',from:'Senso-ji',to:'Nakamise',durationMin:3,priceYen:0,walkMin:3,mode:'🚶 dentro zona'},
     {id:'d17-a4',time:'08:55',title:'🛍️ Nakamise-dori (apertura 9:00)',mapName:'Nakamise Shopping Street Asakusa',kind:'recommended',badge:'Compras',anchor:false,durationMin:35,priceYen:0,crowd:'🟢 Al abrir',desc:'Calle de souvenirs. Tiendas abren ~9:00. Después de las 10:00 será 🚨.'},
     {id:'d17-t4',kind:'transit',from:'Nakamise',to:'Skytree',durationMin:25,priceYen:0,walkMin:25,mode:'🚶 ~25 min cruzando Sumida — vistas parque y río',mapLink:'https://www.google.com/maps/dir/Nakamise+Shopping+Street+Asakusa/Tokyo+Skytree'},
-    {id:'d17-a5',time:'09:55',title:'🗼 Tokyo Skytree',mapName:'Tokyo Skytree',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:3100,crowd:'🟡 Con reserva online sin fila',desc:'Torre más alta de Japón (634m). Abrió 9:00 dom (lun-sáb 10:00). ⚠️ Comprar ticket online con slot.',guide:'tokyo-skytree'},
+    {id:'d17-a5',time:'09:55',title:'🗼 Tokyo Skytree',mapName:'Tokyo Skytree',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:3100,crowd:'🟡 Con reserva online sin fila',desc:'Torre más alta de Japón (634m). Abrió 9:00 dom (lun-sáb 10:00). ⚠️ Comprar ticket online con slot.',guide:'skytree'},
     {id:'d17-a6',time:'11:25',title:'🛍️ Tokyo Solamachi',mapName:'Tokyo Solamachi Mall',kind:'recommended',badge:'Compras',anchor:false,durationMin:30,priceYen:0,crowd:'🟡',desc:'Mall conectado al Skytree. Pokémon Center, Studio Ghibli, regalos.',guide:'solamachi'},
     {id:'d17-t5',kind:'transit',from:'Oshiage',to:'Tsukiji',durationMin:20,priceYen:280,walkMin:5,mode:'🚇 Asakusa Line directo',mapLink:'https://www.google.com/maps/dir/Oshiage+Station/Tsukiji+Station'},
     {id:'d17-a7',time:'12:15',title:'🐟 Tsukiji Outer Market + almuerzo',mapName:'Tsukiji Outer Market',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:60,priceYen:2500,crowd:'🔴 Dom mediodía concurrido',desc:'⚠️ Mayoría de puestos cierran 13:30. Sushi/donburi ¥1.500-2.500. Uni ¥800-1.500. Ir directo a puestos con fila (señal de calidad).',guide:'tsukiji'},
@@ -2303,7 +2302,7 @@ DAYS_DATA[17] = {
     {id:'d17-a9',time:'13:40',title:'⏳ Espera turno teamLab',mapName:'teamLab Planets TOKYO',kind:'free',badge:'Buffer',anchor:false,durationMin:80,priceYen:500,desc:'Café cerca + lockers + preparación pies descalzos. Pantalón remangable.'},
     {id:'d17-a10',time:'15:00',title:'🎨 teamLab Planets TOKYO',mapName:'teamLab Planets TOKYO DMM',kind:'anchor',badge:'Ancla · Reserva',anchor:true,durationMin:120,priceYen:3800,crowd:'🔴 Con reserva sin espera',desc:'⚠️ Turno reservado 15:00. Reserva online obligatoria 1-2 meses antes. Museo digital sumergible.',guide:'teamlab'},
     {id:'d17-t7',kind:'transit',from:'teamLab',to:'Torre Tokio',durationMin:25,priceYen:290,walkMin:10,mode:'🚃 Yurikamome → Shiodome + 🚶10',mapLink:'https://www.google.com/maps/dir/teamLab+Planets+TOKYO/Tokyo+Tower'},
-    {id:'d17-a11',time:'17:25',title:'🗼 Torre de Tokio · Atardecer',mapName:'Tokyo Tower',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:1200,crowd:'🟡',desc:'Atardecer ~18:55. Main Deck ¥1.200 pp.',guide:'tokyo-tower'},
+    {id:'d17-a11',time:'17:25',title:'🗼 Torre de Tokio · Atardecer',mapName:'Tokyo Tower',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:1200,crowd:'🟡',desc:'Atardecer ~18:55. Main Deck ¥1.200 pp.',guide:'torre-tokio'},
     {id:'d17-a12',time:'18:55',title:'🌆 Atardecer desde Main Deck',mapName:'Tokyo Tower Main Deck',kind:'imperdible',badge:'Atardecer',anchor:false,durationMin:30,priceYen:0,desc:'Vista del atardecer sobre Tokio.'},
     {id:'d17-t8',kind:'transit',from:'Torre',to:'Zona cena',durationMin:25,priceYen:300,walkMin:5,mode:'🚇 según zona'},
     {id:'d17-a13',time:'19:30',title:'🍣 Última cena Japón (omakase)',mapName:'Tokyo',kind:'meal',badge:'Última cena',anchor:false,durationMin:120,priceYen:8000,desc:'Omakase recomendado. Roppongi/Akasaka, Ginza, Shibuya, o cerca Oshiage.',freeTime:true,suggestions:'d17-cena'},
@@ -3371,6 +3370,30 @@ GUIDES['skytree'] = {
   ]
 };
 
+GUIDES['solamachi'] = {
+  title:'Tokyo Solamachi',
+  subtitle:'El mall del Skytree',
+  summary:`Centro comercial de 7 pisos conectado a la base del Tokyo Skytree. Más de 300 tiendas, restaurantes con vista a la torre, acuario, planetario, Pokémon Center y Studio Ghibli Store. Inaugurado en 2012 junto con el Skytree.`,
+  full:`<p><strong>Tokyo Solamachi</strong> (東京ソラマチ) significa "la ciudad del cielo" — un juego de palabras con "sora" (cielo) y "machi" (ciudad). Está a los pies del Tokyo Skytree y forma parte del complejo Tokyo Skytree Town, inaugurado el 22 de mayo de 2012.</p>
+<h4>Los pisos</h4>
+<p><strong>Piso 1-2:</strong> Comercios y marcas japonesas. <strong>Piso 3-5:</strong> Restaurantes y cafés con vista. <strong>Piso 6-7:</strong> Entretenimiento (acuario, planetario).</p>
+<h4>Tiendas imperdibles</h4>
+<p><strong>Pokémon Center Skytree Town</strong> — uno de los más grandes de Tokio, con exclusivos del Skytree. <strong>Donguri Kyowakoku</strong> — la tienda oficial de Studio Ghibli con Totoro, No-Face, Mononoke. <strong>Kiddy Land</strong> — juguetes japoneses, Sanrio, Rilakkuma. <strong>Disney Store</strong> con merchandising exclusivo.</p>
+<h4>Restaurantes con vista</h4>
+<p>Los pisos 30-31 del Skytree tienen restaurantes gastronómicos, pero Solamachi tiene opciones más económicas con vista parcial a la torre. Sushi, ramen, udon, cadenas japonesas populares.</p>
+<h4>Sumida Aquarium</h4>
+<p>Acuario moderno ubicado en pisos 5-6. Pingüinos, peces tropicales, medusas iluminadas. ¥2.500. Diseño contemporáneo sin barreras tradicionales.</p>
+<h4>Konica Minolta Planetarium</h4>
+<p>Uno de los planetarios más avanzados de Japón. Proyecciones en 360° con efectos aromáticos. ¥1.500. Buen plan si llueve o si quieren algo único.</p>
+<div class="curiosity"><strong>💡 Tax-free:</strong> Casi todas las tiendas grandes lo aceptan desde ¥5.000 en compras. Pasaporte imprescindible. Zona tax-free unificada en algunos locales para sumar tickets.</div>`,
+  curiosities:[
+    'El nombre "Solamachi" fue elegido por votación popular en 2011.',
+    'Tiene uno de los Starbucks más concurridos de Tokio por su cercanía al Skytree.',
+    'La fachada exterior incorpora motivos tradicionales del edo (arte urbano antiguo).',
+    'En Año Nuevo hay fila de 2-3 horas para entrar — evitar esas fechas.'
+  ]
+};
+
 GUIDES['tsukiji'] = {
   title:'Tsukiji Outer Market',
   subtitle:'El mercado de los chefs',
@@ -3663,11 +3686,6 @@ Object.assign(SUGGESTIONS, {
     {icon:'🥩',title:'Hankyu Umeda restaurantes',desc:'Pisos 9-13 con cientos de opciones.',prio:2},
     {icon:'🍜',title:'Ramen Yokocho',desc:'Callejones de ramen cerca.',prio:3}
   ]},
-  'd14-tarde':{title:'Tarde Hiroshima',items:[
-    {icon:'🗼',title:'Orizuru Tower',desc:'¥1.700 mirador sobre el Domo. 10:00-18:00.',prio:1},
-    {icon:'🌳',title:'Parque Paz iluminado de noche',desc:'Atmósfera contemplativa.',prio:2},
-    {icon:'🚲',title:'Bici río Ōta',desc:'~¥500/hr.',prio:3}
-  ]},
   'd16-almuerzo':{title:'Almuerzo Asakusa',items:[
     {icon:'🍤',title:'Tempura Daikokuya',desc:'Tempura tradicional famoso.',prio:1},
     {icon:'🍜',title:'Soba/Udon',desc:'Múltiples opciones cerca de Sensō-ji.',prio:2},
@@ -3694,11 +3712,6 @@ Object.assign(SUGGESTIONS, {
     {icon:'🍣',title:'Sushi en Solamachi',desc:'Buenas opciones casual.',prio:1},
     {icon:'🍜',title:'Ramen Solamachi',desc:'Cadenas conocidas en mall.',prio:2},
     {icon:'🍱',title:'Tempura Asakusa',desc:'Histórico, antes de irse.',prio:3}
-  ]},
-  'd18-compras':{title:'Últimas compras tax-free',items:[
-    {icon:'💊',title:'Drugstore (farmacia)',desc:'Salonpas, eye drops, medicinas. Don Quijote o farmacia.',prio:1},
-    {icon:'🍵',title:'Té matcha premium',desc:'Solamachi tiene buenas marcas.',prio:2},
-    {icon:'🍫',title:'Dulces japoneses',desc:'Royce, Tokyo Banana, KitKat raros.',prio:3}
   ]},
   'd14-libre':{title:'Tarde libre Hiroshima',items:[
     {icon:'🗼',title:'Orizuru Tower',desc:'¥1.700 mirador 50m sobre el Domo. 10:00-18:00.',prio:1},
@@ -3973,15 +3986,6 @@ let activeWeather = {};
     if(DAYS_DATA[id]) DAYS_DATA[id].region = 'Tokio 2';
   });
 }
-  
-function renderAll(){
-  removeDuplicatedTransferStops();
-  normalizeRegions();
-  
-  const container = document.getElementById('daysContainer');
-  const openIds = new Set([...document.querySelectorAll('.day-head.open')].map(h=>h.closest('.day').dataset.day));
-  container.innerHTML = '';
-const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
 
 function getRegionName(day){
   return day.region || day.city || '?';
@@ -4021,21 +4025,30 @@ function removeDuplicatedTransferStops(){
   }
 }
 
-const regionDays = {};
-ids.forEach(id=>{
-  const r = getRegionName(DAYS_DATA[id]);
-  (regionDays[r] = regionDays[r] || []).push(id);
-});
+function renderAll(){
+  removeDuplicatedTransferStops();
+  normalizeRegions();
 
-if(!state._collapsedRegions) state._collapsedRegions = {};
+  const container = document.getElementById('daysContainer');
+  const openIds = new Set([...document.querySelectorAll('.day-head.open')].map(h=>h.closest('.day').dataset.day));
+  container.innerHTML = '';
+  const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
 
-let lastRegion = null;
-let currentRegionGroup = null; // div contenedor de los days de la región actual
+  const regionDays = {};
+  ids.forEach(id=>{
+    const r = getRegionName(DAYS_DATA[id]);
+    (regionDays[r] = regionDays[r] || []).push(id);
+  });
 
-for(const id of ids){
-  const day = DAYS_DATA[id];
-  const region = getRegionName(day);
-  if(region !== lastRegion){
+  if(!state._collapsedRegions) state._collapsedRegions = {};
+
+  let lastRegion = null;
+  let currentRegionGroup = null; // div contenedor de los days de la región actual
+
+  for(const id of ids){
+    const day = DAYS_DATA[id];
+    const region = getRegionName(day);
+    if(region !== lastRegion){
       const rdays = regionDays[region];
       const seg = document.createElement('button');
       seg.className = 'city-segment';
@@ -6547,32 +6560,7 @@ function computeStickyOffsets(){
   // search-wrap también usa --tabs-h
 }
 
-/* ═══ DETECTAR DAY-HEAD STUCK ═══ */
-function setupStuckDetector(){
-  // Para cada day-head detectar cuando está pegado al top usando scroll listener
-  let ticking = false;
-  function check(){
-    const heads = document.querySelectorAll('.day-head.open');
-    heads.forEach(h=>{
-      const rect = h.getBoundingClientRect();
-      const stickyTop = parseInt(h.style.top || '146');
-      // Si el top del head está exactamente en su sticky position → stuck
-      if(Math.abs(rect.top - stickyTop) < 2){
-        h.classList.add('is-stuck');
-      } else {
-        h.classList.remove('is-stuck');
-      }
-    });
-    ticking = false;
-  }
-  window.addEventListener('scroll', ()=>{
-    if(!ticking){
-      requestAnimationFrame(check);
-      ticking = true;
-    }
-  }, {passive:true});
-  check();
-}
+/* ═══ (setupStuckDetector removido 01/5: era código muerto - day-head ya no es sticky) ═══ */
 
 /* ═══ PRESENCE + EDITED-BY ═══ */
 function renderPresence(){
@@ -6673,7 +6661,6 @@ renderWeatherCarousel();
 
 // Calcular sticky offsets después del primer paint
 setTimeout(computeStickyOffsets, 100);
-setTimeout(setupStuckDetector, 200);
 window.addEventListener('resize', computeStickyOffsets);
 
 // Cargar clima asíncrono
@@ -7488,13 +7475,10 @@ body{
     if(!ticking){
       requestAnimationFrame(()=>{
         if(heroEl){
-          const offset = Math.min(lastY * 0.25, 80);
-          const opacity = Math.max(0.4, 1 - lastY/300);
-          heroEl.style.setProperty('--parallax-y', `-${offset}px`);
-          const before = heroEl.querySelector(':scope');
-          // Move pseudo via CSS variable
-          heroEl.style.transform = `translateY(${-offset*0.4}px)`;
-          heroEl.style.opacity = opacity;
+          // Parallax muy suave: máximo 20px de movimiento, sin tocar opacity
+          // (antes bajaba hasta 0.4 y hacía que el hero desapareciera al scroll)
+          const offset = Math.min(lastY * 0.08, 20);
+          heroEl.style.transform = `translateY(${-offset}px)`;
         }
         ticking = false;
       });
