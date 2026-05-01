@@ -4975,18 +4975,10 @@ function changeTTSRate(newRate){
 
 /* ═══ GUIDES ═══ */
 function openGuide(guideId){
-  let guideIdFix = guideId;
-  if(!GUIDES[guideIdFix]){
-    const possible = [
-      guideId.replace(/^tokyo[-_]/, ''),
-      guideId.replace(/^(torre[-_])?tokyo[-_]?/, 'torre-tokio').replace(/^tokyo[-_]?tower$/, 'torre-tokio'),
-      guideId.replace(/^tokyo[-_]?skytree$/, 'skytree'),
-    ];
-    for(const p of possible){
-      if(GUIDES[p]){ guideIdFix = p; break; }
-    }
-  }
-  console.log('openGuide:', guideId, '->', guideIdFix);
+  console.log('Input guideId:', guideId);
+  const fixMap = {'tokyo-tower':'torre-tokio','tokyo-skytree':'skytree'};
+  let guideIdFix = fixMap[guideId] || guideId;
+  console.log('Fixed ID:', guideIdFix, '| Exact match test:', GUIDES[guideIdFix] ? 'YES' : 'NO');
   const g = GUIDES[guideIdFix];
   if(!g){
     const allGuides = Object.keys(GUIDES).join(', ');
