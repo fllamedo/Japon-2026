@@ -126,6 +126,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .day-meta-box .meta-icon{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--surface-2);font-size:13px;line-height:1;flex-shrink:0}
 .day-meta-box .meta-content{min-width:0;display:flex;flex-direction:column;gap:1px}
 .day-meta-box .meta-value{color:var(--text-dim);font-size:12.5px;line-height:1.35;overflow-wrap:anywhere}
+.clothing-advice{display:flex;flex-direction:column;gap:5px}
+.clothing-advice-main{color:var(--text);font-weight:700}
+.clothing-advice-list{display:flex;flex-wrap:wrap;gap:4px}
+.clothing-advice-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(217,119,87,.08);border:1px solid rgba(217,119,87,.16);border-radius:6px;padding:3px 6px;color:var(--text-dim);font-size:11.5px;line-height:1.2}
+.clothing-advice-note{color:var(--text-muted);font-size:11.5px;line-height:1.3}
 .weather-alert{background:rgba(232,185,85,.1);border-left:3px solid var(--warn);padding:8px 11px;border-radius:0 8px 8px 0;font-size:12.5px;margin-top:8px;color:var(--text)}
 
 .day-notes{margin:12px 4px 0;display:flex;flex-direction:column;gap:8px}
@@ -4033,6 +4038,71 @@ function computeDayTotals(day){
   };
 }
 
+function analyzeDayForClothing(day){
+  const totals = computeDayTotals(day);
+  const activityText = normalizeSearch([
+    day.title, day.city, day.region, day.hotel, day.luggage,
+    ...(day.activities || []).map(a=>[a.title,a.desc,a.from,a.to,a.mode,a.note,a.badge].filter(Boolean).join(' '))
+  ].filter(Boolean).join(' '));
+  const has = (pattern)=>pattern.test(activityText);
+  return {
+    totals,
+    highWalk: totals.steps >= 14000 || totals.km >= 10,
+    veryHighWalk: totals.steps >= 18000 || totals.km >= 13,
+    temples: has(/templo|temple|santuario|shrine|jinja|todaiji|toshogu|fushimi|sensoji|kiyomizu|kinkaku|itsukushima|daishoin|pagoda/),
+    photos: has(/foto|fotos|selfie|mirador|skytree|torii|glico|godzilla|teamlab|chureito|cruce|shibuya|dotonbori|miyajima|kawaguchiko/),
+    luggage: has(/valija|valijas|equipaje|mudanza|check-out|checkout|locker|lockers|takkyubin|todo/),
+    water: has(/ferry|river|cruise|muelle|lago|lake|isla|miyajima|chuzenji|kegon|barco/),
+    outdoors: has(/parque|park|jardin|jardín|mercado|market|calle|paseo|isla|lago|templo|santuario|shrine|torii|cascada/),
+    shopping: has(/shopping|compras|tienda|uniqlo|gu |hondori|shinsaibashi|kappabashi|don quijote|parco|daiso/),
+    formal: has(/memorial|paz|peace|museo|museum|sobria|sobrio/)
+  };
+}
+
+function buildClothingAdvice(day, weather){
+  const info = analyzeDayForClothing(day);
+  const chips = [];
+  let main = 'Capas livianas y zapatillas cómodas';
+
+  if(weather){
+    const range = Number.isFinite(weather.tmax) && Number.isFinite(weather.tmin) ? `${weather.tmin}°-${weather.tmax}°` : '';
+    if(weather.tmax >= 28) main = `Muy liviano y respirable (${range})`;
+    else if(weather.tmax >= 24) main = `Liviano, respirable y con capa fina (${range})`;
+    else if(weather.tmin <= 10) main = `Abrigo por capas y cortaviento (${range})`;
+    else if(weather.tmin <= 15) main = `Capas: remera + camisa/buzo fino (${range})`;
+    else if(range) main = `Cómodo por capas (${range})`;
+
+    if(weather.rain > 5) chips.push('🌧️ Piloto o campera impermeable + paraguas');
+    else if(weather.rain > 0.5) chips.push('🌦️ Paraguas compacto a mano');
+    if(weather.tmax >= 28) chips.push('💧 Hidratación y tela de secado rápido');
+    if(weather.tmax - weather.tmin >= 13) chips.push('🌡️ Capa fácil de guardar');
+  }
+
+  if(info.veryHighWalk) chips.push('👟 Zapatillas ya usadas; nada nuevo');
+  else if(info.highWalk) chips.push('👟 Ropa cómoda para caminar bastante');
+  if(info.temples) chips.push('🧦 Medias prolijas; calzado fácil de sacar');
+  if(info.photos) chips.push('📸 Muda/camisa linda compacta para fotos');
+  if(info.luggage) chips.push('🧳 Outfit práctico para mover valijas');
+  if(info.water) chips.push('🌬️ Capa corta viento para ferry/zonas abiertas');
+  if(info.formal) chips.push('🎗️ Tono sobrio para memorial/museo');
+  if(info.shopping && !info.luggage) chips.push('🛍️ Dejar espacio liviano en mochila');
+  if(!weather && info.outdoors) chips.push('☀️ Gorra/protector si sale sol');
+
+  const uniqueChips = [...new Set(chips)].slice(0, 5);
+  const source = weather?.isReal ? 'pronóstico real' : weather ? 'estimación climática' : 'itinerario';
+  const manual = day.clothing ? `<div class="clothing-advice-note"><strong>Nota fija:</strong> ${day.clothing}</div>` : '';
+  return `
+    <span class="clothing-advice-main">${escapeHtml(main)} <span style="color:var(--text-muted);font-weight:600">· ${source}</span></span>
+    ${uniqueChips.length ? `<span class="clothing-advice-list">${uniqueChips.map(t=>`<span class="clothing-advice-chip">${escapeHtml(t)}</span>`).join('')}</span>` : ''}
+    ${manual}
+  `;
+}
+
+function updateClothingAdvice(container, day, weather){
+  const target = container?.querySelector('[data-role="clothing-advice"]');
+  if(target) target.innerHTML = buildClothingAdvice(day, weather);
+}
+
 /* ═══ TOAST ═══ */
 function showToast(msg){
   const t = document.getElementById('toast');
@@ -4188,6 +4258,8 @@ function renderDayCard(day){
   const dayName = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][dateObj.getDay()];
   const dayFormat = `${dayName} ${dateObj.getDate()}/${dateObj.getMonth()+1}`;
   const isToday = day.date === todayLocalISO();
+  const clothingWeather = activeWeather[day.id] || fetchHist(detectCity(day), day.date);
+  const clothingAdviceHtml = buildClothingAdvice(day, clothingWeather);
 
   const el = document.createElement('section');
   el.className = 'day' + (isToday?' is-today':'');
@@ -4215,7 +4287,7 @@ function renderDayCard(day){
         <div class="meta-row"><span class="meta-icon">🏨</span><div class="meta-content"><strong>Hotel</strong><span class="meta-value">${escapeHtml(day.hotel||'—')}</span></div></div>
         ${day.hotelNote?`<div class="meta-row"><span class="meta-icon">ℹ</span><div class="meta-content"><strong>Nota hotel</strong><span class="meta-value">${escapeHtml(day.hotelNote)}</span></div></div>`:''}
         <div class="meta-row"><span class="meta-icon">📦</span><div class="meta-content"><strong>Equipaje</strong><span class="meta-value">${escapeHtml(day.luggage||'—')}</span></div></div>
-        ${day.clothing?`<div class="meta-row"><span class="meta-icon">👕</span><div class="meta-content"><strong>Ropa</strong><span class="meta-value">${day.clothing}</span></div></div>`:''}
+        <div class="meta-row meta-row-clothing"><span class="meta-icon">👕</span><div class="meta-content"><strong>Ropa sugerida</strong><span class="meta-value clothing-advice" data-role="clothing-advice">${clothingAdviceHtml}</span></div></div>
         <div class="weather-alert" data-role="weather-alert" style="display:none"></div>
       </div>
       <div class="anchor-alert" data-role="anchor-alert"><span>⚠️</span><div><strong>Conflicto:</strong> <span data-role="anchor-msg"></span></div></div>
@@ -4468,7 +4540,7 @@ function openEditDayTitle(dayId){
     <div class="field"><label>Hotel</label><input type="text" id="dh" value="${escapeHtml(d.hotel||'')}"></div>
     <div class="field"><label>Nota hotel</label><input type="text" id="dhn" value="${escapeHtml(d.hotelNote||'')}"></div>
     <div class="field"><label>Equipaje</label><input type="text" id="dl" value="${escapeHtml(d.luggage||'')}"></div>
-    <div class="field"><label>Sugerencia ropa</label><textarea id="dcl" rows="3">${escapeHtml(d.clothing||'')}</textarea></div>
+    <div class="field"><label>Nota ropa manual</label><textarea id="dcl" rows="3">${escapeHtml(d.clothing||'')}</textarea></div>
     <div class="field"><label>Nivel</label>
       <select id="dlv">
         <option value="green" ${d.level==='green'?'selected':''}>🟢 Suave</option>
@@ -4882,16 +4954,20 @@ async function loadWeatherAll(){
         if(chip) chip.textContent = `${ic} ${w.tmax}°/${w.tmin}°`;
         const alert = weatherAlert(w);
         if(alert && alertEl){ alertEl.style.display='block'; alertEl.innerHTML = alert; }
+        updateClothingAdvice(daySec, day, w);
       }
     }catch(e){
-      const wh = fetchHist(detectCity(day), day.date);
+      const city = detectCity(day);
+      const wh = fetchHist(city, day.date);
       if(wh){
+        wh.city = city;
         activeWeather[dayId] = wh;
         box.querySelector('.weather-temp').textContent = `${wh.tmax}° / ${wh.tmin}°`;
         box.querySelector('.weather-desc').textContent = wh.city;
         box.querySelector('.weather-source').textContent = wh.sourceLabel || wh.source;
         if(box) box.classList.add('weather-estimated');
         if(chip) chip.textContent = `🌤️ ${wh.tmax}°/${wh.tmin}°`;
+        updateClothingAdvice(daySec, day, wh);
       } else {
         box.querySelector('.weather-desc').textContent = 'Clima no disponible';
       }
@@ -7791,6 +7867,17 @@ body{
 .day-meta-box .meta-value{
   font-size:11.5px;
   line-height:1.25;
+}
+.clothing-advice{
+  gap:4px;
+}
+.clothing-advice-chip{
+  padding:2px 5px;
+  font-size:10.8px;
+  border-radius:5px;
+}
+.clothing-advice-note{
+  font-size:10.8px;
 }
 .act.is-current{
   border-color:rgba(110,192,138,.55);
