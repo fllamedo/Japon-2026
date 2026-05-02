@@ -144,6 +144,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .weather-desc{color:var(--text-muted);font-size:11.5px;margin-top:1px}
 .weather-source{font-size:10px;color:var(--text-muted);text-align:right;opacity:.7;line-height:1.3;flex:0 0 auto;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
+/* RESUMEN COMPACTO DEL DIA */
+.day-rail{margin:0 4px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:1px 0 3px;mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 18px),transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 18px),transparent 100%)}
+.day-rail::-webkit-scrollbar{display:none}
+.day-rail-chip{flex:0 0 auto;max-width:172px;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border-soft);color:var(--text-dim);border-radius:7px;padding:5px 8px;font-family:var(--font-body);font-size:11px;line-height:1.1;cursor:pointer;transition:background .16s,border-color .16s,transform .16s}
+.day-rail-chip:active{transform:scale(.97)}
+.day-rail-chip:hover,.day-rail-chip:focus-visible{background:var(--surface-2);border-color:rgba(217,119,87,.35);outline:none;color:var(--text)}
+.day-rail-time{font-weight:800;color:var(--accent-soft);font-variant-numeric:tabular-nums}
+.day-rail-icon{font-size:12px;line-height:1}
+.day-rail-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim);min-width:0}
+.day-rail-chip[data-kind="anchor"]{border-color:rgba(232,185,85,.32);background:rgba(232,185,85,.06)}
+.day-rail-chip[data-kind="anchor"] .day-rail-time{color:var(--warn)}
+
 /* ═══ TIMELINE rediseñado COMPACTO ═══ */
 .timeline{padding:2px 0 0;position:relative}
 .timeline::before{content:'';position:absolute;left:20px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,rgba(217,119,87,.25) 0%,rgba(106,169,224,.18) 50%,rgba(217,119,87,.25) 100%);border-radius:2px}
@@ -183,11 +195,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 
 /* meta inline en una sola línea compacta */
 .act-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--text-muted);margin:2px 0 4px 51px;font-variant-numeric:tabular-nums}
-.act-meta span{display:inline-flex;align-items:center;gap:3px}
+.act-meta span{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.025);border:1px solid var(--border-soft);border-radius:5px;padding:1px 5px}
 .act-meta .m-dur{color:var(--text-dim)}
 .act-meta .m-price{color:var(--good)}
-.act-desc{font-size:12px;color:var(--text-dim);line-height:1.45;margin:2px 0 0 51px}
+.act-desc{font-size:12px;color:var(--text-dim);line-height:1.45;margin:5px 0 0 51px;padding-left:8px;border-left:2px solid rgba(255,255,255,.045)}
 .act-actions{display:flex;gap:5px;margin:6px 0 0 51px;flex-wrap:wrap}
+.act-actions:empty{display:none}
 .mini-btn{background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:5px;cursor:pointer;font-family:var(--font-body);transition:all .15s;display:inline-flex;align-items:center;gap:3px;text-decoration:none}
 .mini-btn:hover{color:var(--accent);border-color:var(--accent)}
 .mini-btn.has-guide{color:var(--accent-soft);border-color:rgba(217,119,87,.3)}
@@ -724,7 +737,7 @@ body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 console.log('[FB] Module script empezando a ejecutar');
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, browserLocalPersistence, indexedDBLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, enableIndexedDbPersistence, updateDoc, collection } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 console.log('[FB] Imports OK');
@@ -741,6 +754,7 @@ const firebaseConfig = {
 const ALLOWED_EMAILS = ['facundollamedo79@gmail.com', 'martinabonti@gmail.com'];
 const TRIP_DOC = ['trips', 'japon-2026'];
 const PRESENCE_COL = ['trips', 'japon-2026', 'presence'];
+const LOCAL_STORAGE_KEY = 'japon2026_v4';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -748,19 +762,26 @@ const db = getFirestore(app);
 
 console.log('[FB] App inicializada, auth:', !!auth, 'db:', !!db);
 
-// Forzar persistencia local (evita perder sesión entre redirects)
-setPersistence(auth, browserLocalPersistence).then(()=>{
-  console.log('[FB] Persistencia local OK');
-}).catch(err=>{
-  console.error('[FB] Error setPersistence:', err);
-});
+// Forzar persistencia local antes de hidratar Auth. Safari es más sensible a esta carrera.
+const authPersistenceReady = (async ()=>{
+  for(const persistence of [browserLocalPersistence, indexedDBLocalPersistence]){
+    try{
+      await setPersistence(auth, persistence);
+      console.log('[FB] Persistencia local OK:', persistence.type || 'local');
+      return true;
+    }catch(err){
+      console.warn('[FB] Persistencia falló:', persistence.type || 'local', err?.code || err?.message);
+    }
+  }
+  return false;
+})();
 
 enableIndexedDbPersistence(db).catch(err=>{
   console.log('[FB] Persistence Firestore:', err.code);
 });
 
 window.fb = { app, auth, db, doc, setDoc, getDoc, onSnapshot, serverTimestamp, updateDoc, signOut };
-window.fbState = { user: null, allowed: false, ready: false, lastWriteTs: 0, syncStatus: 'offline', presence: {}, isApplyingRemote: false };
+window.fbState = { user: null, allowed: false, ready: false, lastWriteTs: 0, syncStatus: 'offline', presence: {}, isApplyingRemote: false, offlineReadMode: false };
 
 function setLoginStatus(msg, isError){
   const el = document.getElementById('loginStatus');
@@ -776,6 +797,22 @@ function setSyncStatus(s){
     pill.className = 'sync-pill ' + s;
     pill.textContent = s === 'online' ? 'Sync' : s === 'syncing' ? 'Guardando…' : 'Offline';
   }
+}
+
+function hasLocalTripBackup(){
+  try{
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if(!raw) return false;
+    const cached = JSON.parse(raw);
+    return !!(cached && (cached.days || cached.state));
+  }catch(_){
+    return false;
+  }
+}
+
+function setLoginOverlay(hidden){
+  const overlay = document.getElementById('loginOverlay');
+  if(overlay) overlay.classList.toggle('hide', !!hidden);
 }
 
 // Esperar al DOM antes de bindear botones
@@ -797,8 +834,8 @@ whenReady(()=>{
   btn.addEventListener('click', async ()=>{
     console.log('[FB] Click login');
     setLoginStatus('Abriendo Google…');
+    await authPersistenceReady;
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
     try{
       // INTENTO 1: Popup (más confiable en browsers con storage partitioning)
       const result = await signInWithPopup(auth, provider);
@@ -842,6 +879,7 @@ window.addEventListener('unhandledrejection', (event)=>{
 });
 
 // Procesar redirect result al cargar
+authPersistenceReady.finally(()=>{
 console.log('[FB] Llamando getRedirectResult…');
 setLoginStatus('Verificando sesión…');
 
@@ -873,11 +911,19 @@ console.log('[FB] Registrando onAuthStateChanged…');
 onAuthStateChanged(auth, async (user)=>{
   console.log('[FB] onAuthStateChanged disparado. user:', user?.email || 'null');
   if(!user){
-    const overlay = document.getElementById('loginOverlay');
-    if(overlay) overlay.classList.remove('hide');
-    setLoginStatus('');
     window.fbState.user = null;
     window.fbState.allowed = false;
+    if(!navigator.onLine && hasLocalTripBackup()){
+      window.fbState.offlineReadMode = true;
+      setSyncStatus('offline');
+      setLoginOverlay(true);
+      if(typeof window.afterLogin === 'function') window.afterLogin();
+      console.log('[FB] Sin sesión, usando copia local offline');
+      return;
+    }
+    window.fbState.offlineReadMode = false;
+    setLoginOverlay(false);
+    setLoginStatus('');
     return;
   }
   const userEmail = (user.email || '').toLowerCase().trim();
@@ -903,6 +949,7 @@ onAuthStateChanged(auth, async (user)=>{
   await bootstrapFromFirestore();
   setupRemoteListeners();
   setupPresence();
+});
 });
 
 async function bootstrapFromFirestore(){
@@ -4145,6 +4192,7 @@ function renderDayCard(day){
         <div class="weather-main"><div class="weather-temp">—</div><div class="weather-desc">Cargando clima...</div></div>
         <div class="weather-source">Open-Meteo<br>+ histórico</div>
       </div>
+      <div class="day-rail" data-role="day-rail" aria-label="Resumen compacto del día"></div>
       <div class="timeline" data-role="timeline"></div>
       <div class="act-add"><button data-role="add-activity">+ Agregar actividad al final</button></div>
       <div class="day-notes" data-role="notes"></div>
@@ -4184,6 +4232,7 @@ function renderDayContent(day, container){
   const {conflicts} = recomputeSchedule(day);
   const totals = computeDayTotals(day);
   const tl = container.querySelector('[data-role="timeline"]');
+  renderDayRail(day, container);
   tl.innerHTML = '';
   for(let i=0; i<day.activities.length; i++){
     const it = day.activities[i];
@@ -4232,6 +4281,40 @@ function renderDayContent(day, container){
     chip.textContent = '👣 ' + (totals.steps>1000 ? (totals.steps/1000).toFixed(1)+'k' : totals.steps) + kmTxt;
     chip.className = 'chip ' + (totals.steps<10000?'chip-steps-low':totals.steps<18000?'chip-steps-mid':'chip-steps-hi');
   }
+}
+
+function activityKindIcon(kind){
+  return {anchor:'◆', imperdible:'★', recommended:'＋', meal:'🍽', logistic:'↗', free:'○'}[kind] || '•';
+}
+
+function renderDayRail(day, container){
+  const rail = container.querySelector('[data-role="day-rail"]');
+  if(!rail) return;
+  const items = (day.activities || []).filter(a=>a.kind !== 'transit');
+  if(!items.length){
+    rail.innerHTML = '';
+    rail.style.display = 'none';
+    return;
+  }
+  rail.style.display = 'flex';
+  rail.innerHTML = items.map(act=>{
+    const time = act._computedTime || act.time || '--:--';
+    return `<button class="day-rail-chip" type="button" data-act="${escapeHtml(act.id)}" data-kind="${escapeHtml(act.kind || '')}" title="${escapeHtml(time + ' · ' + act.title)}">
+      <span class="day-rail-time">${escapeHtml(time)}</span>
+      <span class="day-rail-icon">${activityKindIcon(act.kind)}</span>
+      <span class="day-rail-title">${escapeHtml(act.title)}</span>
+    </button>`;
+  }).join('');
+  rail.querySelectorAll('.day-rail-chip').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const target = Array.from(container.querySelectorAll('.act')).find(el=>el.dataset.id === btn.dataset.act);
+      if(!target) return;
+      target.scrollIntoView({ behavior:'smooth', block:'center' });
+      target.classList.remove('search-flash');
+      void target.offsetWidth;
+      target.classList.add('search-flash');
+    });
+  });
 }
 
 function renderActivity(act, day, conflicts){
@@ -6786,7 +6869,7 @@ function registerSW(){
     console.log('SW no funciona con file://');
     return;
   }
-  navigator.serviceWorker.register('sw.js?v=12').then((reg)=>{
+  navigator.serviceWorker.register('sw.js?v=13').then((reg)=>{
     const el = document.getElementById('cdOffline');
     if(el) el.style.display = 'inline-flex';
     reg.update().catch(()=>{});
