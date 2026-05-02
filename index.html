@@ -184,7 +184,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .act-time{font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:700;color:var(--accent-soft);flex-shrink:0;min-width:42px;padding-top:1px;cursor:pointer;user-select:none}
 .act-time.is-anchor{color:var(--warn)}
 .act-time.is-anchor::after{content:' ⚓';font-size:9px}
-.act-time.conflict{color:var(--bad);animation:pulse 1s ease infinite}
+.act-time.conflict{color:var(--bad)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .act-title{font-size:13.5px;font-weight:600;line-height:1.3;flex:1;color:var(--text);word-wrap:break-word}
 .act-title-link{color:var(--text);text-decoration:none;border-bottom:1px dashed rgba(217,119,87,.3)}
@@ -480,7 +480,7 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .fab{position:fixed;bottom:18px;right:18px;width:52px;height:52px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(217,119,87,.4);z-index:100;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;transition:transform .15s}
 .fab:hover{background:var(--accent-deep)}
 .fab.pressing{transform:scale(.9);background:var(--accent-deep)}
-.fab-ring{position:fixed;bottom:0;right:0;width:100vw;height:100vh;pointer-events:none;z-index:99;display:none}
+.fab-ring{position:fixed;bottom:0;right:0;width:100vw;height:100vh;pointer-events:none;z-index:900;display:none}
 .fab-ring.on{display:block}
 .fab-ring .fab-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);animation:fadeIn .2s ease;pointer-events:auto}
 .fab-days{position:absolute;bottom:80px;right:18px;background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.6);max-height:70vh;overflow-y:auto;width:260px;pointer-events:auto;animation:fabPop .3s cubic-bezier(.34,1.56,.64,1)}
@@ -598,8 +598,11 @@ body.edit-mode .act-add{display:flex}
 .sync-pill.online{background:rgba(74,222,128,.15);color:#4ade80}
 .sync-pill.offline{background:rgba(251,146,60,.15);color:#fb923c}
 .sync-pill.syncing{background:rgba(217,119,87,.15);color:var(--accent)}
-.sync-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;animation:syncPulse 2s ease-in-out infinite}
+.sync-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
 @keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.fab-ring{z-index:900 !important}
+.fab-days{max-height:calc(100vh - var(--sticky-h, 126px) - 112px);overscroll-behavior:contain}
+.act-time.conflict{animation:none !important;background:rgba(224,107,94,.12);border:1px solid rgba(224,107,94,.28);border-radius:5px;padding:2px 5px;margin-left:-5px}
   /* FIX LIMPIO v2 (29/4): jerarquía sticky sin gaps ni superposiciones
      Usa --sticky-h calculado en JS para evitar números mágicos.
      Orden de capas: tabs (top) > search > city-segment > day-head > content */
@@ -3913,6 +3916,10 @@ function todayLocalISO(){
   const tz = d.getTimezoneOffset()*60000;
   return new Date(d.getTime()-tz).toISOString().slice(0,10);
 }
+function nowLocalMinutes(){
+  const d = new Date();
+  return d.getHours()*60 + d.getMinutes();
+}
 function diffDaysFromToday(targetISO){
   const today = todayLocalISO();
   const a = new Date(today+'T00:00:00');
@@ -4237,12 +4244,13 @@ function renderDayCard(day){
 function renderDayContent(day, container){
   const {conflicts} = recomputeSchedule(day);
   const totals = computeDayTotals(day);
+  const currentActivityId = getCurrentActivityId(day);
   const tl = container.querySelector('[data-role="timeline"]');
-  renderDayRail(day, container);
+  renderDayRail(day, container, currentActivityId);
   tl.innerHTML = '';
   for(let i=0; i<day.activities.length; i++){
     const it = day.activities[i];
-    tl.appendChild(it.kind==='transit' ? renderTransit(it, day) : renderActivity(it, day, conflicts));
+    tl.appendChild(it.kind==='transit' ? renderTransit(it, day) : renderActivity(it, day, conflicts, currentActivityId));
     if(i < day.activities.length - 1){
       const div = document.createElement('div');
       div.className = 'insert-divider';
@@ -4293,7 +4301,7 @@ function activityKindIcon(kind){
   return {anchor:'◆', imperdible:'★', recommended:'＋', meal:'🍽', logistic:'↗', free:'○'}[kind] || '•';
 }
 
-function renderDayRail(day, container){
+function renderDayRail(day, container, currentActivityId){
   const rail = container.querySelector('[data-role="day-rail"]');
   if(!rail) return;
   const items = (day.activities || []).filter(a=>a.kind !== 'transit');
@@ -4305,7 +4313,7 @@ function renderDayRail(day, container){
   rail.style.display = 'flex';
   rail.innerHTML = items.map(act=>{
     const time = act._computedTime || act.time || '--:--';
-    return `<button class="day-rail-chip" type="button" data-act="${escapeHtml(act.id)}" data-kind="${escapeHtml(act.kind || '')}" title="${escapeHtml(time + ' · ' + act.title)}">
+    return `<button class="day-rail-chip ${act.id===currentActivityId?'is-current':''}" type="button" data-act="${escapeHtml(act.id)}" data-kind="${escapeHtml(act.kind || '')}" title="${escapeHtml(time + ' · ' + act.title)}">
       <span class="day-rail-time">${escapeHtml(time)}</span>
       <span class="day-rail-icon">${activityKindIcon(act.kind)}</span>
       <span class="day-rail-title">${escapeHtml(act.title)}</span>
@@ -4323,9 +4331,9 @@ function renderDayRail(day, container){
   });
 }
 
-function renderActivity(act, day, conflicts){
+function renderActivity(act, day, conflicts, currentActivityId){
   const el = document.createElement('div');
-  el.className = 'act';
+  el.className = 'act' + (act.id === currentActivityId ? ' is-current' : '');
   el.setAttribute('data-kind', act.kind);
   el.setAttribute('data-id', act.id);
   el.setAttribute('data-search', normalizeSearch(act.title));
@@ -6854,6 +6862,12 @@ window.addEventListener('resize', computeStickyOffsets);
 // Cargar clima asíncrono
 setTimeout(loadWeatherAll, 400);
 
+// Mantener actualizado el resaltado de actividad actual sin intervención manual.
+setInterval(()=>{
+  const itinerary = document.getElementById('view-itinerary');
+  if(itinerary && itinerary.classList.contains('active')) renderAll();
+}, 60000);
+
 // SW — limpiar registros viejos primero, registrar después de auth
 async function cleanOldServiceWorkers(){
   if(!('serviceWorker' in navigator)) return;
@@ -7552,6 +7566,27 @@ body{
   background: linear-gradient(180deg, rgba(26,30,39,0.95), rgba(15,17,21,0.98));
   border-bottom: 1px solid rgba(255,255,255,0.035);
 }
+
+function getCurrentActivityId(day){
+  if(!day || day.date !== todayLocalISO()) return null;
+  const nowMin = nowLocalMinutes();
+  const acts = (day.activities || []).filter(a=>a.kind !== 'transit');
+  for(let i=0; i<acts.length; i++){
+    const act = acts[i];
+    const start = parseTime(act._computedTime || act.time);
+    if(start == null) continue;
+    let end = start + (act.durationMin || 30);
+    for(let j=i+1; j<acts.length; j++){
+      const nextStart = parseTime(acts[j]._computedTime || acts[j].time);
+      if(nextStart != null){
+        end = Math.max(start + 1, Math.min(end, nextStart));
+        break;
+      }
+    }
+    if(nowMin >= start && nowMin < end) return act.id;
+  }
+  return null;
+}
 .day-head.open{
   background: linear-gradient(180deg, rgba(35,40,52,0.96), rgba(26,30,39,0.96));
   border-bottom-color: rgba(217,119,87,0.16);
@@ -7699,6 +7734,80 @@ body{
   .day-meta-box .meta-row{grid-template-columns:22px 1fr;padding:7px}
   .day-rail-chip{max-width:148px}
   .act-meta,.act-desc,.act-actions{margin-left:49px}
+}
+
+/* ═══ Follow-up mobile fixes ═══ */
+.day-head{
+  transition:background-color .14s ease,border-color .14s ease !important;
+}
+.day-head:active{
+  transform:none !important;
+}
+.day-body{
+  transition:grid-template-rows .22s ease,opacity .16s ease !important;
+}
+.day-body.open{
+  animation:none !important;
+}
+.ripple{
+  display:none !important;
+}
+.day-meta-box{
+  gap:4px;
+  padding:6px;
+  margin-bottom:9px;
+}
+.day-meta-box .meta-row{
+  grid-template-columns:18px 1fr;
+  gap:6px;
+  padding:5px 7px;
+  border-radius:6px;
+}
+.day-meta-box .meta-icon{
+  width:18px;
+  height:18px;
+  border-radius:5px;
+  font-size:11px;
+}
+.day-meta-box strong{
+  font-size:9px;
+  letter-spacing:.45px;
+}
+.day-meta-box .meta-value{
+  font-size:11.5px;
+  line-height:1.25;
+}
+.act.is-current{
+  border-color:rgba(110,192,138,.55);
+  background:linear-gradient(180deg, rgba(26,39,32,0.98), rgba(20,30,25,0.98));
+  box-shadow:0 0 0 1px rgba(110,192,138,.1),0 6px 18px rgba(0,0,0,.18);
+}
+.act.is-current::after{
+  content:'Ahora';
+  position:absolute;
+  top:8px;
+  right:8px;
+  background:rgba(110,192,138,.14);
+  color:var(--good);
+  border:1px solid rgba(110,192,138,.32);
+  border-radius:99px;
+  padding:2px 7px;
+  font-size:9px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.day-rail-chip.is-current{
+  border-color:rgba(110,192,138,.55);
+  background:rgba(110,192,138,.09);
+  color:var(--text);
+}
+.day-rail-chip.is-current .day-rail-time{
+  color:var(--good);
+}
+.day.is-today::before{
+  animation:none !important;
+  opacity:1;
 }
 </style>
 
