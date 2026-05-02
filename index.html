@@ -449,6 +449,10 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .exp-budget-item-main strong{color:var(--text);font-size:12px}
 .exp-budget-item-val{font-size:12px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap}
 .exp-budget-item-meta{display:block;font-size:10px;color:var(--text-muted);font-weight:500;margin-top:1px}
+.exp-budget-item-controls{display:flex;gap:5px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.exp-budget-item-controls select{min-width:132px;flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:11.5px;padding:5px 7px;border-radius:6px;font-family:var(--font-body)}
+.exp-budget-move{width:28px;height:28px;border-radius:6px;border:1px solid var(--border-soft);background:var(--surface-2);color:var(--text-dim);font-size:12px;cursor:pointer}
+.exp-budget-move:disabled{opacity:.35;cursor:default}
 
 /* Weather estimado */
 .weather-estimated{position:relative}
@@ -668,6 +672,7 @@ body.edit-mode .act-add{display:flex}
   padding:15px 18px;
   border-bottom:1px solid var(--border-soft);
   font-family:var(--font-body);
+  cursor:pointer;
 }
 
 body:not(.view-itinerary-active) .current-city-sticky,
@@ -698,7 +703,7 @@ body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 </head>
 <body>
 <div id="currentCitySticky" class="current-city-sticky">Ciudad actual</div>
-<div id="currentDaySticky" class="current-day-sticky">
+<div id="currentDaySticky" class="current-day-sticky" role="button" tabindex="0" aria-label="Ir al día actual fijado">
   <div class="cds-num" id="currentDayNum">--</div>
   <div class="cds-title" id="currentDayTitle">Día actual</div>
 </div>
@@ -5610,8 +5615,17 @@ function renderExpenses(){
                 <span>${fmtCurrency(v,'JPY')}</span>
               </summary>
               <div class="exp-budget-item-list">
-                ${detail.map(d=>`<div class="exp-budget-item-row">
-                  <div class="exp-budget-item-main">Día ${d.dayId} · ${escapeHtml(d.dayTitle || '')}<br><strong>${escapeHtml(d.title)}</strong></div>
+                ${detail.map((d,idx)=>`<div class="exp-budget-item-row">
+                  <div class="exp-budget-item-main">Día ${d.dayId} · ${escapeHtml(d.dayTitle || '')}<br><strong>${escapeHtml(d.title)}</strong>
+                    <div class="exp-budget-item-controls">
+                      <select data-budget-cat="${escapeHtml(d.actId)}" data-day="${d.dayId}">
+                        <option value="auto" ${findBudgetActivity(d.dayId,d.actId)?.budgetCategory?'':'selected'}>Auto</option>
+                        ${EXP_CATEGORIES.map(c=>`<option value="${c.id}" ${findBudgetActivity(d.dayId,d.actId)?.budgetCategory===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
+                      </select>
+                      <button class="exp-budget-move" data-budget-move="-1" data-act="${escapeHtml(d.actId)}" data-day="${d.dayId}" ${idx===0?'disabled':''}>↑</button>
+                      <button class="exp-budget-move" data-budget-move="1" data-act="${escapeHtml(d.actId)}" data-day="${d.dayId}" ${idx===detail.length-1?'disabled':''}>↓</button>
+                    </div>
+                  </div>
                   <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span></div>
                 </div>`).join('')}
               </div>
@@ -5746,6 +5760,12 @@ function renderExpenses(){
   document.getElementById('exp-filter-type').addEventListener('change',(e)=>{ state._expFilter.type = e.target.value; renderExpenses(); });
   document.getElementById('exp-filter-cat').addEventListener('change',(e)=>{ state._expFilter.cat = e.target.value; renderExpenses(); });
   document.getElementById('exp-filter-day').addEventListener('change',(e)=>{ state._expFilter.day = e.target.value; renderExpenses(); });
+  list.querySelectorAll('[data-budget-cat]').forEach(sel=>{
+    sel.addEventListener('change',()=>setBudgetCategory(sel.dataset.day, sel.dataset.budgetCat, sel.value));
+  });
+  list.querySelectorAll('[data-budget-move]').forEach(btn=>{
+    btn.addEventListener('click',()=>moveBudgetEstimateItem(btn.dataset.day, btn.dataset.act, parseInt(btn.dataset.budgetMove,10)));
+  });
   
   document.getElementById('exp-fx-fetch').addEventListener('click', async ()=>{
     showToast('Buscando tasas online...');
@@ -5788,11 +5808,13 @@ function computePlanEstimate(){
   const out = { total: 0, byCat: {}, detailByCat: {} };
   EXP_CATEGORIES.forEach(c=>{ out.byCat[c.id] = 0; });
   EXP_CATEGORIES.forEach(c=>{ out.detailByCat[c.id] = []; });
+  let sequence = 0;
   Object.values(DAYS_DATA).forEach(day=>{
     if(!day.activities) return;
     day.activities.forEach(a=>{
       const price = a.priceYen || 0;
       if(!price) return;
+      sequence += 1;
       // ⭐ FIX 29/4: Distinguir precios "total" (no multiplicar por 2) de precios "pp" (por persona)
       // Override explícito: a.pricePer = 'total' o 'pp'
       // Default por keyword: takkyubin/locker/lodging = total (precio único o ya por valija/habitación)
@@ -5806,13 +5828,22 @@ function computePlanEstimate(){
       out.byCat[cat] = (out.byCat[cat]||0) + finalPrice;
       out.detailByCat[cat].push({
         dayId: day.id,
+        actId: a.id,
         dayTitle: day.title || '',
         title: a.title || a.from || 'Actividad',
         basePrice: price,
         multiplier: isTotal ? 1 : 2,
-        finalPrice
+        finalPrice,
+        budgetOrder: Number.isFinite(a.budgetOrder) ? a.budgetOrder : null,
+        sequence
       });
     });
+  });
+  Object.keys(out.detailByCat).forEach(cat=>{
+    out.detailByCat[cat].sort((a,b)=>
+      ((a.budgetOrder ?? a.sequence) - (b.budgetOrder ?? b.sequence)) ||
+      (a.sequence - b.sequence)
+    );
   });
   return out;
 }
@@ -5839,6 +5870,52 @@ function mapKindToCategory(act){
     return 'other';
   }
   return 'other';
+}
+
+function findBudgetActivity(dayId, actId){
+  return DAYS_DATA[dayId]?.activities?.find(a=>a.id===actId);
+}
+
+function setBudgetCategory(dayId, actId, category){
+  const act = findBudgetActivity(dayId, actId);
+  if(!act) return;
+  if(category === 'auto') delete act.budgetCategory;
+  else act.budgetCategory = category;
+  const targetCat = mapKindToCategory(act);
+  const detail = computePlanEstimate().detailByCat[targetCat] || [];
+  const maxOrder = detail.reduce((max, d)=>Math.max(max, d.budgetOrder ?? d.sequence), 0);
+  act.budgetOrder = maxOrder + 10;
+  if(typeof window.markEdited === 'function') window.markEdited(act);
+  saveState();
+  renderExpenses();
+  showToast('Categoría del estimado actualizada');
+}
+
+function moveBudgetEstimateItem(dayId, actId, direction){
+  const act = findBudgetActivity(dayId, actId);
+  if(!act) return;
+  const cat = mapKindToCategory(act);
+  const detail = computePlanEstimate().detailByCat[cat] || [];
+  const idx = detail.findIndex(d=>String(d.dayId)===String(dayId) && d.actId===actId);
+  const swap = detail[idx + direction];
+  if(idx < 0 || !swap) return;
+
+  detail.forEach((d,i)=>{
+    const item = findBudgetActivity(d.dayId, d.actId);
+    if(item && !Number.isFinite(item.budgetOrder)) item.budgetOrder = (i + 1) * 10;
+  });
+
+  const other = findBudgetActivity(swap.dayId, swap.actId);
+  if(!other) return;
+  const order = act.budgetOrder;
+  act.budgetOrder = other.budgetOrder;
+  other.budgetOrder = order;
+  if(typeof window.markEdited === 'function'){
+    window.markEdited(act);
+    window.markEdited(other);
+  }
+  saveState();
+  renderExpenses();
 }
 
 function openExpenseModal(expenseId){
@@ -6288,7 +6365,14 @@ function scrollToDay(id){
       head.classList.add('open');
       body.classList.add('open');
     }
-    setTimeout(()=>sec.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+    setTimeout(()=>{
+      const stickyTop = Number.parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sticky-h'), 10) || 0;
+      const cityH = document.getElementById('currentCitySticky')?.offsetHeight || 0;
+      const dayH = document.getElementById('currentDaySticky')?.offsetHeight || 0;
+      const offset = stickyTop + cityH + dayH + 8;
+      const top = sec.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({top:Math.max(0, top), behavior:'smooth'});
+    }, 100);
   }, 50);
 }
 
@@ -6744,6 +6828,7 @@ setTimeout(registerSW, 3000);
     if(!itineraryActive){
       bar.classList.remove('on');
       cityBar.classList.remove('on');
+      delete bar.dataset.day;
       document.documentElement.style.setProperty('--current-city-h', '0px');
       return;
     }
@@ -6775,6 +6860,7 @@ setTimeout(registerSW, 3000);
     const heads = getScrollableDayHeads(itineraryView);
     if(!heads.length){
       bar.classList.remove('on');
+      delete bar.dataset.day;
       return;
     }
 
@@ -6788,15 +6874,25 @@ setTimeout(registerSW, 3000);
 
     if(!current){
       bar.classList.remove('on');
+      delete bar.dataset.day;
       return;
     }
 
     const dayNum = current.querySelector('.day-num')?.textContent?.trim() || '';
     const dayTitle = current.querySelector('.day-title')?.textContent?.trim() || '';
+    const dayId = current.closest('.day')?.dataset?.day || '';
 
     num.textContent = dayNum;
     title.textContent = dayTitle;
+    bar.dataset.day = dayId;
     bar.classList.add('on');
+  }
+
+  function goToStickyDay(){
+    const bar = document.getElementById('currentDaySticky');
+    const dayId = bar?.dataset?.day;
+    if(!dayId) return;
+    if(typeof scrollToDay === 'function') scrollToDay(dayId);
   }
 
   let stickyRAF = null;
@@ -6810,6 +6906,13 @@ setTimeout(registerSW, 3000);
   window.addEventListener('scroll', scheduleStickyUpdate, {passive:true});
   document.addEventListener('click', (e)=>{
     if(e.target.closest('.city-segment')) setTimeout(updateCurrentDaySticky, 0);
+  });
+  document.getElementById('currentDaySticky')?.addEventListener('click', goToStickyDay);
+  document.getElementById('currentDaySticky')?.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      goToStickyDay();
+    }
   });
   window.addEventListener('resize', scheduleStickyUpdate);
   document.addEventListener('DOMContentLoaded', updateCurrentDaySticky);
