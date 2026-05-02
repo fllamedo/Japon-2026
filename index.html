@@ -6763,6 +6763,7 @@ setTimeout(registerSW, 3000);
       cityBar.classList.remove('on');
     }
 
+    const dayTriggerY = triggerY + (cityBar.offsetHeight || 34);
     const heads = getScrollableDayHeads(itineraryView);
     if(!heads.length){
       bar.classList.remove('on');
@@ -6773,11 +6774,7 @@ setTimeout(registerSW, 3000);
     for(const h of heads){
       const rect = h.getBoundingClientRect();
       if(rect.height <= 0) continue;
-      if(rect.bottom <= triggerY + 34) current = h;
-      // Ignorar headers no visibles (por colapsado, filtro o display none)
-      if(rect.height <= 0) continue;
-      // Solo mostrar la barra cuando el título real del día ya salió hacia arriba.
-      if(rect.bottom <= triggerY) current = h;
+      if(rect.bottom <= dayTriggerY) current = h;
       else break;
     }
 
@@ -6792,13 +6789,10 @@ setTimeout(registerSW, 3000);
     const regionLabel = regionGroup?.previousElementSibling?.classList?.contains('city-segment')
       ? regionGroup.previousElementSibling.querySelector('span:nth-child(2)')?.textContent?.trim()
       : '';
-
-    num.textContent = dayNum;
-    title.textContent = regionLabel ? `${regionLabel} · ${dayTitle}` : dayTitle;
     const dayCity = current.closest('.day')?.dataset?.city || '';
 
     num.textContent = dayNum;
-    title.textContent = dayCity ? `${dayCity} · ${dayTitle}` : dayTitle;
+    title.textContent = regionLabel || dayCity ? `${regionLabel || dayCity} · ${dayTitle}` : dayTitle;
     bar.classList.add('on');
   }
 
