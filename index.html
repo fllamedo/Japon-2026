@@ -7748,6 +7748,22 @@ body{
 .day-body.open{
   animation:none !important;
 }
+.day-body:not(.open){
+  display:none !important;
+  height:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+.day-head:not(.open){
+  padding-top:10px !important;
+  padding-bottom:10px !important;
+}
+.day-head:not(.open) .day-title{
+  margin-bottom:2px;
+}
+.day-head:not(.open) .day-chips{
+  margin-top:4px;
+}
 .ripple{
   display:none !important;
 }
