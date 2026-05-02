@@ -21,6 +21,7 @@
   --font-display:'Noto Serif JP',Georgia,serif;
   --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   --sticky-h:0px;
+  --current-city-h:34px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -637,18 +638,19 @@ body.edit-mode .act-add{display:flex}
   z-index:510;
   display:none;
   align-items:center;
-  gap:8px;
-  background:var(--bg-soft);
-  color:var(--accent-soft);
-  padding:6px 18px;
+  gap:10px;
+  background:linear-gradient(180deg, rgba(31,28,24,0.5), rgba(21,19,15,0.3));
+  color:var(--accent);
+  padding:13px 18px;
   border-bottom:1px solid var(--border-soft);
   font-size:12px;
   font-weight:700;
-  letter-spacing:1.1px;
+  letter-spacing:2.5px;
   text-transform:uppercase;
+  font-family:var(--font-display);
 }
 
-.current-city-sticky::before{content:"📍";font-size:11px;opacity:.85}
+.current-city-sticky::before{content:none}
 
 .current-city-sticky.on{display:flex}
 
@@ -656,16 +658,15 @@ body.edit-mode .act-add{display:flex}
   position:fixed;
   left:0;
   right:0;
-  top:calc(var(--sticky-h, 126px) + 34px);
+  top:calc(var(--sticky-h, 126px) + var(--current-city-h, 34px));
   z-index:500;
   display:none;
   align-items:center;
-  gap:10px;
-  background:var(--surface);
+  gap:13px;
+  background:var(--bg);
   color:var(--text);
-  padding:8px 18px;
+  padding:15px 18px;
   border-bottom:1px solid var(--border-soft);
-  box-shadow:0 2px 8px rgba(0,0,0,.25);
   font-family:var(--font-body);
 }
 
@@ -679,14 +680,15 @@ body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 .current-day-sticky .cds-num{
   font-family:var(--font-display);
   color:var(--accent);
-  font-size:20px;
-  font-weight:800;
-  min-width:34px;
+  font-size:22px;
+  font-weight:700;
+  line-height:1;
+  min-width:40px;
 }
 
 .current-day-sticky .cds-title{
-  font-size:13.5px;
-  font-weight:700;
+  font-size:14.5px;
+  font-weight:600;
   line-height:1.25;
   white-space:nowrap;
   overflow:hidden;
@@ -6744,6 +6746,7 @@ setTimeout(registerSW, 3000);
     if(!itineraryActive){
       bar.classList.remove('on');
       cityBar.classList.remove('on');
+      document.documentElement.style.setProperty('--current-city-h', '0px');
       return;
     }
 
@@ -6757,7 +6760,8 @@ setTimeout(registerSW, 3000);
       if(!group || !group.classList || !group.classList.contains('region-group')) continue;
       if(group.classList.contains('collapsed')) continue;
       const rect = seg.getBoundingClientRect();
-      if(rect.bottom <= triggerY + 34) currentCity = seg;
+      if(rect.height <= 0) continue;
+      if(rect.top <= triggerY) currentCity = seg;
       else break;
     }
     if(currentCity){
@@ -6767,7 +6771,9 @@ setTimeout(registerSW, 3000);
       cityBar.classList.remove('on');
     }
 
-    const dayTriggerY = triggerY + (cityBar.offsetHeight || 34);
+    const cityBarHeight = cityBar.classList.contains('on') ? (cityBar.offsetHeight || 0) : 0;
+    document.documentElement.style.setProperty('--current-city-h', cityBarHeight + 'px');
+    const dayTriggerY = triggerY + cityBarHeight;
     const heads = getScrollableDayHeads(itineraryView);
     if(!heads.length){
       bar.classList.remove('on');
@@ -6778,7 +6784,7 @@ setTimeout(registerSW, 3000);
     for(const h of heads){
       const rect = h.getBoundingClientRect();
       if(rect.height <= 0) continue;
-      if(rect.bottom <= dayTriggerY) current = h;
+      if(rect.top <= dayTriggerY) current = h;
       else break;
     }
 
