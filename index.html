@@ -5447,6 +5447,7 @@ function renderExpenses(){
   const list = document.getElementById('expensesList');
   if(!state.expenses) state.expenses = [];
   ensureFxRates();
+  const budgetEditMode = document.body.classList.contains('edit-mode');
   
   // Filtros activos
   if(!state._expFilter) state._expFilter = { type:'all', cat:'all', day:'all' };
@@ -5617,14 +5618,14 @@ function renderExpenses(){
               <div class="exp-budget-item-list">
                 ${detail.map((d,idx)=>`<div class="exp-budget-item-row">
                   <div class="exp-budget-item-main">Día ${d.dayId} · ${escapeHtml(d.dayTitle || '')}<br><strong>${escapeHtml(d.title)}</strong>
-                    <div class="exp-budget-item-controls">
+                    ${budgetEditMode ? `<div class="exp-budget-item-controls">
                       <select data-budget-cat="${escapeHtml(d.actId)}" data-day="${d.dayId}">
                         <option value="auto" ${findBudgetActivity(d.dayId,d.actId)?.budgetCategory?'':'selected'}>Auto</option>
                         ${EXP_CATEGORIES.map(c=>`<option value="${c.id}" ${findBudgetActivity(d.dayId,d.actId)?.budgetCategory===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
                       </select>
                       <button class="exp-budget-move" data-budget-move="-1" data-act="${escapeHtml(d.actId)}" data-day="${d.dayId}" ${idx===0?'disabled':''}>↑</button>
                       <button class="exp-budget-move" data-budget-move="1" data-act="${escapeHtml(d.actId)}" data-day="${d.dayId}" ${idx===detail.length-1?'disabled':''}>↓</button>
-                    </div>
+                    </div>` : ''}
                   </div>
                   <div class="exp-budget-item-val">${fmtCurrency(d.finalPrice,'JPY')}<span class="exp-budget-item-meta">(${fmtCurrency(d.basePrice,'JPY')} × ${d.multiplier})</span></div>
                 </div>`).join('')}
@@ -6472,6 +6473,8 @@ document.getElementById('btnEditMode').addEventListener('click',(e)=>{
   document.body.classList.toggle('edit-mode');
   e.target.classList.toggle('on');
   const on = document.body.classList.contains('edit-mode');
+  const expView = document.getElementById('view-expenses');
+  if(expView && expView.classList.contains('active')) renderExpenses();
   showToast(on ? 'Modo edición ON' : 'Modo edición OFF');
 });
 
