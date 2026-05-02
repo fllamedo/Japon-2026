@@ -889,15 +889,15 @@ onAuthStateChanged(auth, async (user)=>{
   window.fbState.allowed = true;
   setLoginStatus('✓ Bienvenido, ' + (user.displayName || user.email).split(' ')[0]);
 
-  await bootstrapFromFirestore();
-  setupRemoteListeners();
-  setupPresence();
-
   setTimeout(()=>{
     const overlay = document.getElementById('loginOverlay');
     if(overlay) overlay.classList.add('hide');
     if(typeof window.afterLogin === 'function') window.afterLogin();
-  }, 300);
+  }, 150);
+
+  await bootstrapFromFirestore();
+  setupRemoteListeners();
+  setupPresence();
 });
 
 async function bootstrapFromFirestore(){
@@ -6647,8 +6647,6 @@ setInterval(()=>{
 
 window.afterLogin = function(){
   renderPresence();
-  // Re-render por si vino state remoto
-  if(typeof renderAll === 'function') renderAll();
 };
 
 /* ═══ INIT ═══ */
