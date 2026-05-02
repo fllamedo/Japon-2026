@@ -3920,6 +3920,26 @@ function nowLocalMinutes(){
   const d = new Date();
   return d.getHours()*60 + d.getMinutes();
 }
+function getCurrentActivityId(day){
+  if(!day || day.date !== todayLocalISO()) return null;
+  const nowMin = nowLocalMinutes();
+  const acts = (day.activities || []).filter(a=>a.kind !== 'transit');
+  for(let i=0; i<acts.length; i++){
+    const act = acts[i];
+    const start = parseTime(act._computedTime || act.time);
+    if(start == null) continue;
+    let end = start + (act.durationMin || 30);
+    for(let j=i+1; j<acts.length; j++){
+      const nextStart = parseTime(acts[j]._computedTime || acts[j].time);
+      if(nextStart != null){
+        end = Math.max(start + 1, Math.min(end, nextStart));
+        break;
+      }
+    }
+    if(nowMin >= start && nowMin < end) return act.id;
+  }
+  return null;
+}
 function diffDaysFromToday(targetISO){
   const today = todayLocalISO();
   const a = new Date(today+'T00:00:00');
@@ -6889,7 +6909,7 @@ function registerSW(){
     console.log('SW no funciona con file://');
     return;
   }
-  navigator.serviceWorker.register('sw.js?v=13').then((reg)=>{
+  navigator.serviceWorker.register('sw.js?v=14').then((reg)=>{
     const el = document.getElementById('cdOffline');
     if(el) el.style.display = 'inline-flex';
     reg.update().catch(()=>{});
@@ -7565,27 +7585,6 @@ body{
 .day-head{
   background: linear-gradient(180deg, rgba(26,30,39,0.95), rgba(15,17,21,0.98));
   border-bottom: 1px solid rgba(255,255,255,0.035);
-}
-
-function getCurrentActivityId(day){
-  if(!day || day.date !== todayLocalISO()) return null;
-  const nowMin = nowLocalMinutes();
-  const acts = (day.activities || []).filter(a=>a.kind !== 'transit');
-  for(let i=0; i<acts.length; i++){
-    const act = acts[i];
-    const start = parseTime(act._computedTime || act.time);
-    if(start == null) continue;
-    let end = start + (act.durationMin || 30);
-    for(let j=i+1; j<acts.length; j++){
-      const nextStart = parseTime(acts[j]._computedTime || acts[j].time);
-      if(nextStart != null){
-        end = Math.max(start + 1, Math.min(end, nextStart));
-        break;
-      }
-    }
-    if(nowMin >= start && nowMin < end) return act.id;
-  }
-  return null;
 }
 .day-head.open{
   background: linear-gradient(180deg, rgba(35,40,52,0.96), rgba(26,30,39,0.96));
