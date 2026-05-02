@@ -225,6 +225,7 @@ body.edit-mode .insert-divider{display:block}
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:1200;animation:fadeIn .2s ease}
 .modal-overlay.on{display:flex}
+body.modal-open .current-city-sticky,
 body.modal-open .current-day-sticky,
 body.modal-open .tabs,
 body.modal-open #view-itinerary .search-wrap,
@@ -399,8 +400,7 @@ body.edit-mode .checklist-item .li-del{display:inline}
 .form-stack input[type="text"],.form-stack input[type="number"],.form-stack select{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:7px;font-size:14px;font-family:var(--font-body)}
 .form-stack input:focus,.form-stack select:focus{outline:none;border-color:var(--accent)}
 .form-helper{font-size:11.5px;color:var(--text-muted);font-style:italic}
-.btn-danger{background:rgba(224,107,94,.12);color:var(--bad);border:1px solid rgba(224,107,94,.3)}
-.btn-danger:hover{background:rgba(224,107,94,.2)}
+/* (.btn-danger duplicado removido — ya definido arriba en la sección modal) */
 
 /* === Deudas por moneda === */
 .exp-debt-row{display:flex;gap:12px;padding:12px;background:var(--surface-2);border-radius:8px;margin-bottom:8px;border:1px solid var(--border-soft)}
@@ -629,6 +629,27 @@ body.edit-mode .act-add{display:flex}
 .city-segment + .region-group{margin-top:0 !important}
 .city-segment{margin-bottom:0 !important;border-bottom:1px solid var(--border-soft) !important}
 
+.current-city-sticky{
+  position:sticky;
+  top:var(--sticky-h, 126px);
+  z-index:510;
+  display:none;
+  align-items:center;
+  gap:8px;
+  background:var(--bg-soft);
+  color:var(--accent-soft);
+  padding:6px 18px;
+  border-bottom:1px solid var(--border-soft);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+}
+
+.current-city-sticky::before{content:"📍";font-size:11px;opacity:.85}
+
+.current-city-sticky.on{display:flex}
+
 .current-day-sticky{
   position:sticky;
   top:calc(var(--sticky-h, 126px) + 34px);
@@ -644,6 +665,7 @@ body.edit-mode .act-add{display:flex}
   font-family:var(--font-body);
 }
 
+body:not(.view-itinerary-active) .current-city-sticky,
 body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 
 .current-day-sticky.on{
@@ -669,6 +691,7 @@ body:not(.view-itinerary-active) .current-day-sticky{display:none !important}
 </style>
 </head>
 <body>
+<div id="currentCitySticky" class="current-city-sticky">Ciudad actual</div>
 <div id="currentDaySticky" class="current-day-sticky">
   <div class="cds-num" id="currentDayNum">--</div>
   <div class="cds-title" id="currentDayTitle">Día actual</div>
@@ -2270,7 +2293,7 @@ DAYS_DATA[17] = {
     {id:'d17-t3',kind:'transit',from:'Senso-ji',to:'Nakamise',durationMin:3,priceYen:0,walkMin:3,mode:'🚶 dentro zona'},
     {id:'d17-a4',time:'08:55',title:'🛍️ Nakamise-dori (apertura 9:00)',mapName:'Nakamise Shopping Street Asakusa',kind:'recommended',badge:'Compras',anchor:false,durationMin:35,priceYen:0,crowd:'🟢 Al abrir',desc:'Calle de souvenirs. Tiendas abren ~9:00. Después de las 10:00 será 🚨.'},
     {id:'d17-t4',kind:'transit',from:'Nakamise',to:'Skytree',durationMin:25,priceYen:0,walkMin:25,mode:'🚶 ~25 min cruzando Sumida — vistas parque y río',mapLink:'https://www.google.com/maps/dir/Nakamise+Shopping+Street+Asakusa/Tokyo+Skytree'},
-    {id:'d17-a5',time:'09:55',title:'🗼 Tokyo Skytree',mapName:'Tokyo Skytree',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:3100,crowd:'🟡 Con reserva online sin fila',desc:'Torre más alta de Japón (634m). Abrió 9:00 dom (lun-sáb 10:00). ⚠️ Comprar ticket online con slot.',guide:'tokyo-skytree'},
+    {id:'d17-a5',time:'09:55',title:'🗼 Tokyo Skytree',mapName:'Tokyo Skytree',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:3100,crowd:'🟡 Con reserva online sin fila',desc:'Torre más alta de Japón (634m). Abrió 9:00 dom (lun-sáb 10:00). ⚠️ Comprar ticket online con slot.',guide:'skytree'},
     {id:'d17-a6',time:'11:25',title:'🛍️ Tokyo Solamachi',mapName:'Tokyo Solamachi Mall',kind:'recommended',badge:'Compras',anchor:false,durationMin:30,priceYen:0,crowd:'🟡',desc:'Mall conectado al Skytree. Pokémon Center, Studio Ghibli, regalos.',guide:'solamachi'},
     {id:'d17-t5',kind:'transit',from:'Oshiage',to:'Tsukiji',durationMin:20,priceYen:280,walkMin:5,mode:'🚇 Asakusa Line directo',mapLink:'https://www.google.com/maps/dir/Oshiage+Station/Tsukiji+Station'},
     {id:'d17-a7',time:'12:15',title:'🐟 Tsukiji Outer Market + almuerzo',mapName:'Tsukiji Outer Market',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:60,priceYen:2500,crowd:'🔴 Dom mediodía concurrido',desc:'⚠️ Mayoría de puestos cierran 13:30. Sushi/donburi ¥1.500-2.500. Uni ¥800-1.500. Ir directo a puestos con fila (señal de calidad).',guide:'tsukiji'},
@@ -2279,7 +2302,7 @@ DAYS_DATA[17] = {
     {id:'d17-a9',time:'13:40',title:'⏳ Espera turno teamLab',mapName:'teamLab Planets TOKYO',kind:'free',badge:'Buffer',anchor:false,durationMin:80,priceYen:500,desc:'Café cerca + lockers + preparación pies descalzos. Pantalón remangable.'},
     {id:'d17-a10',time:'15:00',title:'🎨 teamLab Planets TOKYO',mapName:'teamLab Planets TOKYO DMM',kind:'anchor',badge:'Ancla · Reserva',anchor:true,durationMin:120,priceYen:3800,crowd:'🔴 Con reserva sin espera',desc:'⚠️ Turno reservado 15:00. Reserva online obligatoria 1-2 meses antes. Museo digital sumergible.',guide:'teamlab'},
     {id:'d17-t7',kind:'transit',from:'teamLab',to:'Torre Tokio',durationMin:25,priceYen:290,walkMin:10,mode:'🚃 Yurikamome → Shiodome + 🚶10',mapLink:'https://www.google.com/maps/dir/teamLab+Planets+TOKYO/Tokyo+Tower'},
-    {id:'d17-a11',time:'17:25',title:'🗼 Torre de Tokio · Atardecer',mapName:'Tokyo Tower',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:1200,crowd:'🟡',desc:'Atardecer ~18:55. Main Deck ¥1.200 pp.',guide:'tokyo-tower'},
+    {id:'d17-a11',time:'17:25',title:'🗼 Torre de Tokio · Atardecer',mapName:'Tokyo Tower',kind:'imperdible',badge:'Imperdible',anchor:false,durationMin:90,priceYen:1200,crowd:'🟡',desc:'Atardecer ~18:55. Main Deck ¥1.200 pp.',guide:'torre-tokio'},
     {id:'d17-a12',time:'18:55',title:'🌆 Atardecer desde Main Deck',mapName:'Tokyo Tower Main Deck',kind:'imperdible',badge:'Atardecer',anchor:false,durationMin:30,priceYen:0,desc:'Vista del atardecer sobre Tokio.'},
     {id:'d17-t8',kind:'transit',from:'Torre',to:'Zona cena',durationMin:25,priceYen:300,walkMin:5,mode:'🚇 según zona'},
     {id:'d17-a13',time:'19:30',title:'🍣 Última cena Japón (omakase)',mapName:'Tokyo',kind:'meal',badge:'Última cena',anchor:false,durationMin:120,priceYen:8000,desc:'Omakase recomendado. Roppongi/Akasaka, Ginza, Shibuya, o cerca Oshiage.',freeTime:true,suggestions:'d17-cena'},
@@ -3347,6 +3370,30 @@ GUIDES['skytree'] = {
   ]
 };
 
+GUIDES['solamachi'] = {
+  title:'Tokyo Solamachi',
+  subtitle:'El mall del Skytree',
+  summary:`Centro comercial de 7 pisos conectado a la base del Tokyo Skytree. Más de 300 tiendas, restaurantes con vista a la torre, acuario, planetario, Pokémon Center y Studio Ghibli Store. Inaugurado en 2012 junto con el Skytree.`,
+  full:`<p><strong>Tokyo Solamachi</strong> (東京ソラマチ) significa "la ciudad del cielo" — un juego de palabras con "sora" (cielo) y "machi" (ciudad). Está a los pies del Tokyo Skytree y forma parte del complejo Tokyo Skytree Town, inaugurado el 22 de mayo de 2012.</p>
+<h4>Los pisos</h4>
+<p><strong>Piso 1-2:</strong> Comercios y marcas japonesas. <strong>Piso 3-5:</strong> Restaurantes y cafés con vista. <strong>Piso 6-7:</strong> Entretenimiento (acuario, planetario).</p>
+<h4>Tiendas imperdibles</h4>
+<p><strong>Pokémon Center Skytree Town</strong> — uno de los más grandes de Tokio, con exclusivos del Skytree. <strong>Donguri Kyowakoku</strong> — la tienda oficial de Studio Ghibli con Totoro, No-Face, Mononoke. <strong>Kiddy Land</strong> — juguetes japoneses, Sanrio, Rilakkuma. <strong>Disney Store</strong> con merchandising exclusivo.</p>
+<h4>Restaurantes con vista</h4>
+<p>Los pisos 30-31 del Skytree tienen restaurantes gastronómicos, pero Solamachi tiene opciones más económicas con vista parcial a la torre. Sushi, ramen, udon, cadenas japonesas populares.</p>
+<h4>Sumida Aquarium</h4>
+<p>Acuario moderno ubicado en pisos 5-6. Pingüinos, peces tropicales, medusas iluminadas. ¥2.500. Diseño contemporáneo sin barreras tradicionales.</p>
+<h4>Konica Minolta Planetarium</h4>
+<p>Uno de los planetarios más avanzados de Japón. Proyecciones en 360° con efectos aromáticos. ¥1.500. Buen plan si llueve o si quieren algo único.</p>
+<div class="curiosity"><strong>💡 Tax-free:</strong> Casi todas las tiendas grandes lo aceptan desde ¥5.000 en compras. Pasaporte imprescindible. Zona tax-free unificada en algunos locales para sumar tickets.</div>`,
+  curiosities:[
+    'El nombre "Solamachi" fue elegido por votación popular en 2011.',
+    'Tiene uno de los Starbucks más concurridos de Tokio por su cercanía al Skytree.',
+    'La fachada exterior incorpora motivos tradicionales del edo (arte urbano antiguo).',
+    'En Año Nuevo hay fila de 2-3 horas para entrar — evitar esas fechas.'
+  ]
+};
+
 GUIDES['tsukiji'] = {
   title:'Tsukiji Outer Market',
   subtitle:'El mercado de los chefs',
@@ -3639,11 +3686,6 @@ Object.assign(SUGGESTIONS, {
     {icon:'🥩',title:'Hankyu Umeda restaurantes',desc:'Pisos 9-13 con cientos de opciones.',prio:2},
     {icon:'🍜',title:'Ramen Yokocho',desc:'Callejones de ramen cerca.',prio:3}
   ]},
-  'd14-tarde':{title:'Tarde Hiroshima',items:[
-    {icon:'🗼',title:'Orizuru Tower',desc:'¥1.700 mirador sobre el Domo. 10:00-18:00.',prio:1},
-    {icon:'🌳',title:'Parque Paz iluminado de noche',desc:'Atmósfera contemplativa.',prio:2},
-    {icon:'🚲',title:'Bici río Ōta',desc:'~¥500/hr.',prio:3}
-  ]},
   'd16-almuerzo':{title:'Almuerzo Asakusa',items:[
     {icon:'🍤',title:'Tempura Daikokuya',desc:'Tempura tradicional famoso.',prio:1},
     {icon:'🍜',title:'Soba/Udon',desc:'Múltiples opciones cerca de Sensō-ji.',prio:2},
@@ -3670,11 +3712,6 @@ Object.assign(SUGGESTIONS, {
     {icon:'🍣',title:'Sushi en Solamachi',desc:'Buenas opciones casual.',prio:1},
     {icon:'🍜',title:'Ramen Solamachi',desc:'Cadenas conocidas en mall.',prio:2},
     {icon:'🍱',title:'Tempura Asakusa',desc:'Histórico, antes de irse.',prio:3}
-  ]},
-  'd18-compras':{title:'Últimas compras tax-free',items:[
-    {icon:'💊',title:'Drugstore (farmacia)',desc:'Salonpas, eye drops, medicinas. Don Quijote o farmacia.',prio:1},
-    {icon:'🍵',title:'Té matcha premium',desc:'Solamachi tiene buenas marcas.',prio:2},
-    {icon:'🍫',title:'Dulces japoneses',desc:'Royce, Tokyo Banana, KitKat raros.',prio:3}
   ]},
   'd14-libre':{title:'Tarde libre Hiroshima',items:[
     {icon:'🗼',title:'Orizuru Tower',desc:'¥1.700 mirador 50m sobre el Domo. 10:00-18:00.',prio:1},
@@ -3949,15 +3986,6 @@ let activeWeather = {};
     if(DAYS_DATA[id]) DAYS_DATA[id].region = 'Tokio 2';
   });
 }
-  
-function renderAll(){
-  removeDuplicatedTransferStops();
-  normalizeRegions();
-  
-  const container = document.getElementById('daysContainer');
-  const openIds = new Set([...document.querySelectorAll('.day-head.open')].map(h=>h.closest('.day').dataset.day));
-  container.innerHTML = '';
-const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
 
 function getRegionName(day){
   return day.region || day.city || '?';
@@ -3997,21 +4025,30 @@ function removeDuplicatedTransferStops(){
   }
 }
 
-const regionDays = {};
-ids.forEach(id=>{
-  const r = getRegionName(DAYS_DATA[id]);
-  (regionDays[r] = regionDays[r] || []).push(id);
-});
+function renderAll(){
+  removeDuplicatedTransferStops();
+  normalizeRegions();
 
-if(!state._collapsedRegions) state._collapsedRegions = {};
+  const container = document.getElementById('daysContainer');
+  const openIds = new Set([...document.querySelectorAll('.day-head.open')].map(h=>h.closest('.day').dataset.day));
+  container.innerHTML = '';
+  const ids = Object.keys(DAYS_DATA).sort((a,b)=>parseInt(a)-parseInt(b));
 
-let lastRegion = null;
-let currentRegionGroup = null; // div contenedor de los days de la región actual
+  const regionDays = {};
+  ids.forEach(id=>{
+    const r = getRegionName(DAYS_DATA[id]);
+    (regionDays[r] = regionDays[r] || []).push(id);
+  });
 
-for(const id of ids){
-  const day = DAYS_DATA[id];
-  const region = getRegionName(day);
-  if(region !== lastRegion){
+  if(!state._collapsedRegions) state._collapsedRegions = {};
+
+  let lastRegion = null;
+  let currentRegionGroup = null; // div contenedor de los days de la región actual
+
+  for(const id of ids){
+    const day = DAYS_DATA[id];
+    const region = getRegionName(day);
+    if(region !== lastRegion){
       const rdays = regionDays[region];
       const seg = document.createElement('button');
       seg.className = 'city-segment';
@@ -4200,7 +4237,7 @@ function renderActivity(act, day, conflicts){
   const crowdStr = act.crowd ? `<span>${escapeHtml(act.crowd)}</span>` : '';
   const mapsURL = act.mapName ? buildMapsURL(act.mapName) : null;
   const titleHtml = mapsURL ? `<a class="act-title-link" href="${mapsURL}" target="_blank" rel="noopener">${escapeHtml(act.title)}</a>` : escapeHtml(act.title);
-  const guideBtn = act.guide ? `<button class="mini-btn has-guide" data-role="open-guide" data-guide="${escapeHtml(act.guide)}">📖 Guía</button>` : '';
+  const guideBtn = act.guide ? `<button class="mini-btn has-guide" data-role="open-guide" data-guide="${escapeHtml(act.guide)}" data-act-id="${escapeHtml(act.id)}">📖 Guía</button>` : '';
   const sugBtn = act.freeTime ? `<button class="mini-btn primary" data-role="open-sug" data-sug="${escapeHtml(act.suggestions||'')}" data-act="${escapeHtml(act.id)}" data-day="${day.id}">💡 Sugerencias</button>` : '';
   const editBtn = `<button class="mini-btn edit-only" data-role="edit-act" data-id="${escapeHtml(act.id)}">✏️ Editar</button>`;
   const delBtn = `<button class="mini-btn edit-only" data-role="del-act" data-id="${escapeHtml(act.id)}" style="color:var(--bad);border-color:rgba(224,107,94,.3)">🗑️</button>`;
@@ -4217,7 +4254,10 @@ function renderActivity(act, day, conflicts){
   `;
   el.querySelector('[data-role="edit-time"]')?.addEventListener('click',()=>openEditActivity(act.id, day.id));
   el.querySelector('[data-role="edit-act"]')?.addEventListener('click',()=>openEditActivity(act.id, day.id));
-  el.querySelector('[data-role="open-guide"]')?.addEventListener('click',()=>openGuide(act.guide));
+  el.querySelector('[data-role="open-guide"]')?.addEventListener('click',(e)=>{
+    const guideId = e.currentTarget.dataset.guide;
+    openGuide(guideId);
+  });
   el.querySelector('[data-role="open-sug"]')?.addEventListener('click',(e)=>{
     const b = e.currentTarget;
     openSuggestions(b.dataset.sug, parseInt(b.dataset.day), b.dataset.act);
@@ -4935,9 +4975,14 @@ function changeTTSRate(newRate){
 
 /* ═══ GUIDES ═══ */
 function openGuide(guideId){
-  const g = GUIDES[guideId];
+  console.log('Input guideId:', guideId);
+  const fixMap = {'tokyo-tower':'torre-tokio','tokyo-skytree':'skytree'};
+  let guideIdFix = fixMap[guideId] || guideId;
+  console.log('Fixed ID:', guideIdFix, '| Exact match test:', GUIDES[guideIdFix] ? 'YES' : 'NO');
+  const g = GUIDES[guideIdFix];
   if(!g){
-    showModal(`<h3>Guía en preparación</h3><div class="modal-sub">"${escapeHtml(guideId)}" estará en versión final.</div>`);
+    const allGuides = Object.keys(GUIDES).join(', ');
+    showModal(`<h3>Guía en preparación</h3><div class="modal-sub">"${escapeHtml(guideId)}" no encontrada. Disponibles: ${allGuides}</div>`);
     return;
   }
   const spanishVoices = getSpanishVoices();
@@ -6523,32 +6568,7 @@ function computeStickyOffsets(){
   // search-wrap también usa --tabs-h
 }
 
-/* ═══ DETECTAR DAY-HEAD STUCK ═══ */
-function setupStuckDetector(){
-  // Para cada day-head detectar cuando está pegado al top usando scroll listener
-  let ticking = false;
-  function check(){
-    const heads = document.querySelectorAll('.day-head.open');
-    heads.forEach(h=>{
-      const rect = h.getBoundingClientRect();
-      const stickyTop = parseInt(h.style.top || '146');
-      // Si el top del head está exactamente en su sticky position → stuck
-      if(Math.abs(rect.top - stickyTop) < 2){
-        h.classList.add('is-stuck');
-      } else {
-        h.classList.remove('is-stuck');
-      }
-    });
-    ticking = false;
-  }
-  window.addEventListener('scroll', ()=>{
-    if(!ticking){
-      requestAnimationFrame(check);
-      ticking = true;
-    }
-  }, {passive:true});
-  check();
-}
+/* ═══ (setupStuckDetector removido 01/5: era código muerto - day-head ya no es sticky) ═══ */
 
 /* ═══ PRESENCE + EDITED-BY ═══ */
 function renderPresence(){
@@ -6649,7 +6669,6 @@ renderWeatherCarousel();
 
 // Calcular sticky offsets después del primer paint
 setTimeout(computeStickyOffsets, 100);
-setTimeout(setupStuckDetector, 200);
 window.addEventListener('resize', computeStickyOffsets);
 
 // Cargar clima asíncrono
@@ -6710,21 +6729,41 @@ setTimeout(registerSW, 3000);
   }
 
   function updateCurrentDaySticky(){
+    const cityBar = document.getElementById('currentCitySticky');
     const bar = document.getElementById('currentDaySticky');
     const num = document.getElementById('currentDayNum');
     const title = document.getElementById('currentDayTitle');
-    if(!bar || !num || !title) return;
+    if(!bar || !num || !title || !cityBar) return;
 
     const itineraryView = document.getElementById('view-itinerary');
     const itineraryActive = itineraryView?.classList.contains('active') && document.body.classList.contains('view-itinerary-active');
     if(!itineraryActive){
       bar.classList.remove('on');
+      cityBar.classList.remove('on');
       return;
     }
 
     const stickyTop = getComputedStyle(document.documentElement).getPropertyValue('--sticky-h').trim();
     const triggerY = Number.parseInt(stickyTop, 10) || 126;
 
+    const citySegments = Array.from(itineraryView.querySelectorAll('.city-segment'));
+    let currentCity = null;
+    for(const seg of citySegments){
+      const group = seg.nextElementSibling;
+      if(!group || !group.classList || !group.classList.contains('region-group')) continue;
+      if(group.classList.contains('collapsed')) continue;
+      const rect = seg.getBoundingClientRect();
+      if(rect.bottom <= triggerY + 34) currentCity = seg;
+      else break;
+    }
+    if(currentCity){
+      cityBar.textContent = currentCity.querySelector('span:nth-child(2)')?.textContent?.trim() || 'Ciudad actual';
+      cityBar.classList.add('on');
+    } else {
+      cityBar.classList.remove('on');
+    }
+
+    const dayTriggerY = triggerY + (cityBar.offsetHeight || 34);
     const heads = getScrollableDayHeads(itineraryView);
     if(!heads.length){
       bar.classList.remove('on');
@@ -6735,7 +6774,7 @@ setTimeout(registerSW, 3000);
     for(const h of heads){
       const rect = h.getBoundingClientRect();
       if(rect.height <= 0) continue;
-      if(rect.bottom <= triggerY) current = h;
+      if(rect.bottom <= dayTriggerY) current = h;
       else break;
     }
 
@@ -6750,19 +6789,772 @@ setTimeout(registerSW, 3000);
     const regionLabel = regionGroup?.previousElementSibling?.classList?.contains('city-segment')
       ? regionGroup.previousElementSibling.querySelector('span:nth-child(2)')?.textContent?.trim()
       : '';
+    const dayCity = current.closest('.day')?.dataset?.city || '';
 
     num.textContent = dayNum;
-    title.textContent = regionLabel ? `${regionLabel} · ${dayTitle}` : dayTitle;
+    title.textContent = regionLabel || dayCity ? `${regionLabel || dayCity} · ${dayTitle}` : dayTitle;
     bar.classList.add('on');
   }
 
-  window.addEventListener('scroll', updateCurrentDaySticky, {passive:true});
+  let stickyRAF = null;
+  function scheduleStickyUpdate(){
+    if(stickyRAF) return;
+    stickyRAF = requestAnimationFrame(()=>{
+      stickyRAF = null;
+      updateCurrentDaySticky();
+    });
+  }
+  window.addEventListener('scroll', scheduleStickyUpdate, {passive:true});
   document.addEventListener('click', (e)=>{
     if(e.target.closest('.city-segment')) setTimeout(updateCurrentDaySticky, 0);
   });
-  window.addEventListener('resize', updateCurrentDaySticky);
+  window.addEventListener('resize', scheduleStickyUpdate);
   document.addEventListener('DOMContentLoaded', updateCurrentDaySticky);
   setTimeout(updateCurrentDaySticky, 500);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     POLISH LAYER · v5 refresh
+     CSS overrides + progressive JS enhancements.
+     No toca la lógica existente — solo refina lo visual y suma micro-animaciones.
+     ═══════════════════════════════════════════════════════════════════ -->
+<style id="polish-v5">
+/* ═══ TOKENS REFINADOS ═══ */
+:root{
+  --bg:#15130f;
+  --bg-soft:#1a1814;
+  --surface:#1f1c18;
+  --surface-2:#28241f;
+  --surface-3:#332e27;
+  --border:#3a342c;
+  --border-soft:#28241f;
+  --text:#ede4d1;
+  --text-dim:#a89c87;
+  --text-muted:#6e6453;
+  --accent:#d97757;
+  --accent-soft:#f0a984;
+  --accent-deep:#b85b3d;
+  --accent-glow:rgba(217,119,87,0.18);
+  --info:#7bb6e8;
+  --good:#7fc99c;
+  --warn:#ecc26a;
+  --bad:#e57b6f;
+  --purple:#b598dc;
+  --teal:#5cc4b8;
+  --shadow-card:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+  --shadow-soft:0 2px 8px rgba(0,0,0,.2);
+}
+
+body{
+  background:
+    radial-gradient(ellipse 80% 40% at 80% 0%, rgba(217,119,87,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 0% 100%, rgba(106,169,224,0.025) 0%, transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* ═══ HERO refinado ═══ */
+.hero{
+  padding: 26px 18px 22px;
+  background:
+    radial-gradient(ellipse 90% 60% at 85% 0%, rgba(217,119,87,0.14) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 10% 100%, rgba(106,169,224,0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #1a1814 0%, #15130f 100%);
+  border-bottom: 1px solid rgba(217,119,87,0.12);
+  overflow: hidden;
+}
+.hero::before{
+  content:'日本';
+  position:absolute;
+  right:-30px; top:-10px;
+  font-family: var(--font-display);
+  font-size:140px;
+  font-weight:700;
+  color: rgba(217,119,87,0.05);
+  line-height:1;
+  pointer-events:none;
+  z-index:0;
+  letter-spacing:-8px;
+  user-select:none;
+}
+.hero h1, .hero-top, .hero-sub, .countdown-strip, .weather-carousel{
+  position:relative;
+  z-index:1;
+}
+.hero-logo{
+  font-size: 30px;
+  letter-spacing: -0.8px;
+  background: linear-gradient(135deg, #f0a984 0%, #d97757 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-logo span{
+  -webkit-text-fill-color: var(--text-dim);
+  font-size:12px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-top:4px;
+  font-weight:500;
+}
+.hero h1{
+  font-size: 26px;
+  letter-spacing:-0.5px;
+  text-wrap: pretty;
+}
+.hero-sub{
+  font-size:13px;
+  color: var(--text-dim);
+  letter-spacing:0.2px;
+}
+.icon-btn{
+  background: rgba(40,36,31,0.6);
+  border: 1px solid rgba(58,52,44,0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all .25s cubic-bezier(.34,1.4,.64,1);
+}
+.icon-btn:active{
+  transform: scale(0.92);
+}
+.icon-btn.on{
+  background: rgba(217,119,87,0.12);
+  box-shadow: 0 0 0 3px rgba(217,119,87,0.08);
+}
+
+/* Chips countdown más refinados */
+.cd-chip{
+  background: rgba(217,119,87,0.08);
+  border:1px solid rgba(217,119,87,0.25);
+  padding: 7px 13px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.2px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all .2s ease;
+}
+.cd-chip:hover{
+  border-color: rgba(217,119,87,0.4);
+  transform: translateY(-1px);
+}
+.cd-chip strong{
+  font-variant-numeric: tabular-nums;
+  font-weight:700;
+}
+
+/* ═══ Carrusel clima — íconos SVG en lugar de emojis ═══ */
+.weather-carousel{ padding: 16px 0 4px; gap: 7px; }
+.wc-card{
+  background: rgba(31,28,24,0.7);
+  border: 1px solid rgba(58,52,44,0.7);
+  border-radius: 12px;
+  padding: 9px 11px 8px;
+  min-width: 76px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all .22s cubic-bezier(.34,1.4,.64,1);
+  cursor:pointer;
+}
+.wc-card:hover{
+  border-color: rgba(217,119,87,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+.wc-card:active{
+  transform: translateY(0) scale(0.97);
+}
+.wc-card.today{
+  background: linear-gradient(180deg, rgba(217,119,87,0.14), rgba(217,119,87,0.04));
+  border-color: rgba(217,119,87,0.5);
+  box-shadow: 0 0 0 1px rgba(217,119,87,0.15), 0 4px 14px rgba(217,119,87,0.12);
+}
+.wc-card.tomorrow{
+  border-color: rgba(217,119,87,0.28);
+  border-style: dashed;
+}
+.wc-day{
+  font-size:10px;
+  letter-spacing:0.6px;
+  color: var(--text-muted);
+}
+.wc-card.today .wc-day{
+  color: var(--accent);
+}
+.wc-icon{
+  margin: 4px 0 3px;
+  font-size: 0; /* hide emoji fallback */
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:24px;
+}
+.wc-icon svg{
+  width:24px;
+  height:24px;
+  display:block;
+}
+.wc-temp{ font-size:12px; font-weight:600; }
+.wc-city{ font-size:9.5px; opacity:0.85; }
+.wc-rain{ font-size:9px; color: var(--info); margin-top:2px; }
+
+/* ═══ TABS refinadas ═══ */
+.tabs{
+  background: rgba(21,19,15,0.85);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(58,52,44,0.6);
+}
+.tab{
+  padding: 13px 17px;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  position: relative;
+  transition: color .22s ease;
+}
+.tab::after{
+  content:'';
+  position:absolute;
+  left:50%; bottom:-1px;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+  border-radius:2px;
+  transform: translateX(-50%);
+  transition: width .3s cubic-bezier(.34,1.4,.64,1);
+}
+.tab.active{ color: var(--accent); border-bottom-color: transparent; }
+.tab.active::after{ width: 28px; }
+.tab:active{ transform: scale(0.96); }
+
+/* ═══ SEARCH refinado ═══ */
+.search-wrap{ padding: 12px 14px 8px; }
+.search-box input{
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 11px;
+  padding: 9px 32px 9px 34px;
+  font-size: 13.5px;
+  transition: all .2s ease;
+}
+.search-box input:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ═══ Section titles ═══ */
+.section-title{
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-weight: 700;
+  padding: 22px 18px 10px;
+}
+
+/* ═══ City segment refinado ═══ */
+.city-segment{
+  padding: 13px 18px;
+  background: linear-gradient(180deg, rgba(31,28,24,0.5), rgba(21,19,15,0.3));
+  border-bottom: 1px solid rgba(58,52,44,0.5);
+  font-size:12px;
+  letter-spacing:2.5px;
+  font-weight:700;
+  position:relative;
+  transition: background .2s ease;
+}
+.city-segment::before{
+  content: '';
+  position: absolute;
+  left: 18px; right: 18px; bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(217,119,87,0.18), transparent);
+}
+.city-segment:hover{
+  background: linear-gradient(180deg, rgba(217,119,87,0.08), rgba(31,28,24,0.3));
+}
+.city-segment-toggle{
+  font-size: 9px;
+  transition: transform .25s cubic-bezier(.34,1.4,.64,1);
+}
+.region-group{ transition: max-height .35s ease, opacity .25s ease; }
+
+/* ═══ DAY card — refinada ═══ */
+.day{
+  border-bottom: 1px solid rgba(58,52,44,0.4);
+  transition: background .25s ease;
+}
+.day-head{
+  padding: 15px 18px;
+  gap: 13px;
+  transition: background .2s ease, transform .15s ease;
+}
+.day-head:active{ transform: scale(0.995); }
+
+/* HOY: glow + indicador */
+.day.is-today{
+  background: linear-gradient(90deg, rgba(217,119,87,0.09) 0%, rgba(217,119,87,0.02) 35%, transparent 100%);
+  border-left: 3px solid var(--accent);
+  position: relative;
+}
+.day.is-today::before{
+  content:'';
+  position:absolute;
+  left:-3px; top:0;
+  width:3px; height:100%;
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(217,119,87,0.5);
+  animation: todayPulse 3s ease-in-out infinite;
+}
+@keyframes todayPulse{
+  0%,100%{ opacity:1; }
+  50%{ opacity:0.55; }
+}
+.day.is-today .day-num{
+  position:relative;
+}
+.day.is-today .day-num::after{
+  content:'HOY';
+  position:absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--accent);
+}
+
+/* MAÑANA: marcador suave */
+.day.is-tomorrow{
+  background: linear-gradient(90deg, rgba(217,119,87,0.04) 0%, transparent 50%);
+  border-left: 3px solid rgba(217,119,87,0.4);
+}
+.day.is-tomorrow .day-num::after{
+  content:'MAÑANA';
+  position:absolute;
+  top:-8px;
+  left:50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:1px;
+  color: var(--accent-soft);
+  background: var(--bg);
+  padding: 1px 4px;
+  border-radius:3px;
+  border:1px solid rgba(217,119,87,0.4);
+  white-space:nowrap;
+}
+.day.is-tomorrow .day-num{ position:relative; }
+
+/* Días pasados: sutil opacidad */
+.day.is-past{ opacity: 0.55; }
+.day.is-past:hover{ opacity: 0.85; }
+.day.is-past .day-num{ color: var(--text-muted); }
+
+.day-num{
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f0a984, #d97757);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.day.is-past .day-num{
+  background: none;
+  -webkit-text-fill-color: var(--text-muted);
+}
+.day-title{ font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.day-sub{ font-size: 11.5px; }
+
+.day-arrow{
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(58,52,44,0.4);
+  display:flex; align-items:center; justify-content:center;
+  font-size: 9px;
+}
+.day-head.open .day-arrow{
+  background: rgba(217,119,87,0.15);
+  color: var(--accent);
+}
+
+.day-body.open{ animation: slideDownSoft .35s cubic-bezier(.34,1.4,.64,1); }
+@keyframes slideDownSoft{
+  from{ opacity:0; transform: translateY(-8px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* Chips refinados */
+.chip{
+  font-size:10px;
+  padding: 2.5px 8px;
+  border-radius: 5px;
+  letter-spacing:0.3px;
+  transition: transform .15s ease;
+}
+
+/* ═══ Weather strip del día ═══ */
+.weather-strip{
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(31,28,24,0.6) 100%);
+  border: 1px solid rgba(58,52,44,0.7);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.weather-icon{
+  font-size: 0;
+  width: 32px; height: 32px;
+  display:flex; align-items:center; justify-content:center;
+}
+.weather-icon svg{ width: 28px; height: 28px; }
+
+/* ═══ Activities (timeline) ═══ */
+.timeline::before{
+  background: linear-gradient(180deg,
+    rgba(217,119,87,0.3) 0%,
+    rgba(106,169,224,0.2) 50%,
+    rgba(217,119,87,0.3) 100%);
+  width: 2px;
+}
+.act{
+  background: linear-gradient(135deg, var(--surface), rgba(31,28,24,0.7));
+  border-color: rgba(58,52,44,0.6);
+  border-radius: 11px;
+  padding: 11px 13px 12px;
+  transition: all .2s cubic-bezier(.34,1.4,.64,1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.act:hover{
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border-color: rgba(217,119,87,0.3);
+}
+.act:active{
+  transform: scale(0.98);
+}
+.act::before{
+  width: 13px; height: 13px;
+  border-width: 2.5px;
+  box-shadow: 0 0 0 4px var(--bg), 0 0 12px rgba(217,119,87,0.15);
+}
+.act-time{ font-size: 13px; font-weight:700; }
+.act-title{ font-size: 13.8px; line-height: 1.32; }
+
+.mini-btn{
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 10.5px;
+  transition: all .18s cubic-bezier(.34,1.4,.64,1);
+}
+.mini-btn:active{ transform: scale(0.93); }
+
+.transit-inner{
+  background: rgba(123,182,232,0.05);
+  border: 1px dashed rgba(123,182,232,0.22);
+  border-radius: 8px;
+  padding: 6px 11px;
+}
+
+/* ═══ Day footer stats ═══ */
+.day-footer{
+  background: linear-gradient(135deg, rgba(31,28,24,0.6), rgba(21,19,15,0.4));
+  border: 1px solid rgba(58,52,44,0.5);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.df-stat-val{
+  font-size: 20px;
+  background: linear-gradient(135deg, #f0a984, #d97757);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══ Modal refinado ═══ */
+.modal{
+  border-radius: 24px 24px 0 0;
+  background: linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 60%);
+  border-top: 1px solid rgba(217,119,87,0.15);
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+}
+.modal-grip{
+  background: var(--text-muted);
+  width:40px; height:4px;
+  opacity:0.5;
+}
+.modal h3{ font-size: 20px; }
+.btn{
+  border-radius: 11px;
+  font-size: 14px;
+  padding: 11px 18px;
+  transition: all .2s cubic-bezier(.34,1.4,.64,1);
+  letter-spacing: 0.2px;
+}
+.btn:active{ transform: scale(0.97); }
+.btn-primary{
+  background: linear-gradient(135deg, #d97757 0%, #b85b3d 100%);
+  box-shadow: 0 4px 12px rgba(217,119,87,0.25);
+}
+.btn-primary:hover{
+  box-shadow: 0 6px 18px rgba(217,119,87,0.35);
+}
+
+/* ═══ Stickies del día/ciudad ═══ */
+.current-day-sticky{
+  background: rgba(21,19,15,0.92) !important;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(217,119,87,0.18) !important;
+}
+
+/* Ripple effect (sumado por JS) */
+.ripple{
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(217,119,87,0.35);
+  pointer-events: none;
+  animation: rippleAnim .55s ease-out;
+}
+@keyframes rippleAnim{
+  to{ transform: scale(4); opacity: 0; }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ═══ Fade-in al primer render ═══ */
+.day{ animation: dayFadeIn .5s ease both; }
+.day:nth-child(1){ animation-delay: 0s; }
+.day:nth-child(2){ animation-delay: .04s; }
+.day:nth-child(3){ animation-delay: .08s; }
+.day:nth-child(4){ animation-delay: .12s; }
+.day:nth-child(5){ animation-delay: .16s; }
+.day:nth-child(6){ animation-delay: .2s; }
+.day:nth-child(n+7){ animation-delay: .24s; }
+@keyframes dayFadeIn{
+  from{ opacity:0; transform: translateY(6px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+.day.is-past{ animation: dayFadeIn .5s ease both; }
+</style>
+
+<script id="polish-v5-js">
+(function(){
+  'use strict';
+
+  /* ═══ 1. Íconos SVG de clima ═══ */
+  const wxSVG = {
+    sun: `<svg viewBox="0 0 24 24" fill="none" stroke="#f0a984" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" fill="rgba(240,169,132,0.18)"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>`,
+    cloud_sun: `<svg viewBox="0 0 24 24" fill="none" stroke="#d4c5af" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="2.5" fill="rgba(240,169,132,0.2)" stroke="#f0a984"/><path d="M7 3v1.5M3 8h1.5M4.2 4.2l1 1M9.5 5l-.7.7" stroke="#f0a984"/><path d="M16 18H9a4 4 0 0 1 0-8 5 5 0 0 1 9.7 1.5A3.5 3.5 0 0 1 16 18z" fill="rgba(168,156,135,0.15)"/></svg>`,
+    cloud: `<svg viewBox="0 0 24 24" fill="none" stroke="#a89c87" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18H7a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5 1.5A3.5 3.5 0 0 1 17 18z" fill="rgba(168,156,135,0.18)"/></svg>`,
+    rain_light: `<svg viewBox="0 0 24 24" fill="none" stroke="#a89c87" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14H7a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5 1.5A3.5 3.5 0 0 1 17 14z" fill="rgba(168,156,135,0.15)"/><path d="M9 18l-1 3M13 18l-1 3M17 18l-1 3" stroke="#7bb6e8" stroke-width="1.8"/></svg>`,
+    rain: `<svg viewBox="0 0 24 24" fill="none" stroke="#7bb6e8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 13H7a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5 1.5A3.5 3.5 0 0 1 17 13z" fill="rgba(123,182,232,0.18)" stroke="#7bb6e8"/><path d="M8 17l-1 4M12 17l-1 4M16 17l-1 4M10 22l-.5 1.5M14 22l-.5 1.5" stroke="#7bb6e8" stroke-width="1.8"/></svg>`,
+    storm: `<svg viewBox="0 0 24 24" fill="none" stroke="#b598dc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 13H7a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5 1.5A3.5 3.5 0 0 1 17 13z" fill="rgba(181,152,220,0.18)"/><path d="M12 14l-2 4h3l-2 5" stroke="#ecc26a" stroke-width="1.8" fill="rgba(236,194,106,0.2)"/></svg>`,
+    snow: `<svg viewBox="0 0 24 24" fill="none" stroke="#a89c87" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 13H7a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5 1.5A3.5 3.5 0 0 1 17 13z" fill="rgba(168,156,135,0.15)"/><path d="M9 18v3M9 19.5h-1.5M9 19.5h1.5M13 18v3M13 19.5h-1.5M13 19.5h1.5M17 18v3M17 19.5h-1.5M17 19.5h1.5" stroke="#cfe7ff" stroke-width="1.6"/></svg>`,
+    fog: `<svg viewBox="0 0 24 24" fill="none" stroke="#a89c87" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M3 14h14M5 18h16M3 6h12" stroke-width="1.8"/></svg>`,
+  };
+
+  function svgFor(emoji){
+    if(!emoji) return wxSVG.cloud_sun;
+    if(emoji.includes('☀️') || emoji.includes('🌞')) return wxSVG.sun;
+    if(emoji.includes('🌤')) return wxSVG.cloud_sun;
+    if(emoji.includes('⛅')) return wxSVG.cloud_sun;
+    if(emoji.includes('☁')) return wxSVG.cloud;
+    if(emoji.includes('🌦')) return wxSVG.rain_light;
+    if(emoji.includes('🌧')) return wxSVG.rain;
+    if(emoji.includes('⛈')) return wxSVG.storm;
+    if(emoji.includes('❄') || emoji.includes('🌨')) return wxSVG.snow;
+    if(emoji.includes('🌫')) return wxSVG.fog;
+    return wxSVG.cloud_sun;
+  }
+
+  function replaceWeatherIcons(){
+    // Carousel
+    document.querySelectorAll('.wc-icon').forEach(el=>{
+      const txt = el.textContent.trim();
+      if(txt && !el.querySelector('svg')){
+        el.innerHTML = svgFor(txt);
+      }
+    });
+    // Strip del día
+    document.querySelectorAll('.weather-icon').forEach(el=>{
+      const txt = el.textContent.trim();
+      if(txt && !el.querySelector('svg')){
+        el.innerHTML = svgFor(txt);
+      }
+    });
+  }
+
+  // Observar cambios para reemplazar al render
+  const wxObserver = new MutationObserver(()=>{
+    replaceWeatherIcons();
+  });
+  wxObserver.observe(document.body, { childList:true, subtree:true, characterData:true });
+
+  /* ═══ 2. Marcar día actual y siguiente ═══ */
+  function todayISO(){
+    const d = new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function tomorrowISO(){
+    const d = new Date();
+    d.setDate(d.getDate()+1);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function markTodayTomorrow(){
+    const today = todayISO();
+    const tomorrow = tomorrowISO();
+    document.querySelectorAll('.day').forEach(d=>{
+      const id = d.dataset.day;
+      if(!id || !window.DAYS_DATA || !window.DAYS_DATA[id]) return;
+      const date = window.DAYS_DATA[id].date;
+      d.classList.remove('is-tomorrow','is-past');
+      if(date === tomorrow) d.classList.add('is-tomorrow');
+      else if(date < today) d.classList.add('is-past');
+    });
+    // Marcar tomorrow en carrusel también
+    document.querySelectorAll('.wc-card').forEach(c=>{
+      const goto = c.dataset.goto;
+      if(!goto || !window.DAYS_DATA || !window.DAYS_DATA[goto]) return;
+      if(window.DAYS_DATA[goto].date === tomorrow) c.classList.add('tomorrow');
+    });
+  }
+
+  /* ═══ 3. Count-up para números (countdown) ═══ */
+  const countedEls = new WeakSet();
+  function animateCount(el, to, dur=900){
+    if(countedEls.has(el)) return;
+    countedEls.add(el);
+    const from = 0;
+    const start = performance.now();
+    function tick(now){
+      const t = Math.min(1, (now-start)/dur);
+      const eased = 1 - Math.pow(1-t, 3);
+      const val = Math.round(from + (to-from)*eased);
+      el.textContent = val;
+      if(t < 1) requestAnimationFrame(tick);
+      else el.textContent = to;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function findCountdownAndAnimate(){
+    document.querySelectorAll('.cd-chip strong').forEach(el=>{
+      const val = parseInt(el.textContent.trim(),10);
+      if(!isNaN(val) && val > 0 && val < 1000 && !countedEls.has(el)){
+        animateCount(el, val, 1100);
+      }
+    });
+    document.querySelectorAll('.df-stat-val').forEach(el=>{
+      const txt = el.textContent.trim();
+      const num = parseInt(txt.replace(/[^0-9]/g,''),10);
+      if(!isNaN(num) && num > 0 && !countedEls.has(el)){
+        const suffix = txt.replace(/[0-9.,]/g,'').trim();
+        countedEls.add(el);
+        const start = performance.now();
+        function tick(now){
+          const t = Math.min(1, (now-start)/800);
+          const eased = 1 - Math.pow(1-t, 3);
+          const v = Math.round(num*eased);
+          el.textContent = v.toLocaleString('es-AR') + (suffix?' '+suffix:'');
+          if(t<1) requestAnimationFrame(tick);
+          else el.textContent = txt;
+        }
+        requestAnimationFrame(tick);
+      }
+    });
+  }
+
+  /* ═══ 4. Parallax sutil en hero ═══ */
+  const heroEl = document.querySelector('.hero');
+  let lastY = 0, ticking = false;
+  function onScroll(){
+    lastY = window.scrollY;
+    if(!ticking){
+      requestAnimationFrame(()=>{
+        if(heroEl){
+          // Parallax muy suave: máximo 20px de movimiento, sin tocar opacity
+          // (antes bajaba hasta 0.4 y hacía que el hero desapareciera al scroll)
+          const offset = Math.min(lastY * 0.08, 20);
+          heroEl.style.transform = `translateY(${-offset}px)`;
+        }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ═══ 5. Ripple en day-head y .act ═══ */
+  function addRipple(e){
+    const target = e.currentTarget;
+    if(!target) return;
+    const rect = target.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 0.5;
+    const x = (e.clientX || (e.touches && e.touches[0]?.clientX) || rect.left + rect.width/2) - rect.left - size/2;
+    const y = (e.clientY || (e.touches && e.touches[0]?.clientY) || rect.top + rect.height/2) - rect.top - size/2;
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;`;
+    const prev = getComputedStyle(target).position;
+    if(prev === 'static') target.style.position = 'relative';
+    if(getComputedStyle(target).overflow === 'visible') target.style.overflow = 'hidden';
+    target.appendChild(ripple);
+    setTimeout(()=>ripple.remove(), 600);
+  }
+  function attachRipples(){
+    document.querySelectorAll('.day-head:not([data-ripple])').forEach(el=>{
+      el.dataset.ripple = '1';
+      el.addEventListener('pointerdown', addRipple);
+    });
+  }
+
+  /* ═══ 6. Vibration haptic-like en taps importantes ═══ */
+  function tapVibrate(){
+    if(navigator.vibrate) try{ navigator.vibrate(8); }catch(e){}
+  }
+  document.addEventListener('click', (e)=>{
+    if(e.target.closest('.tab, .day-head, .city-segment, .cd-chip, .wc-card')){
+      tapVibrate();
+    }
+  }, true);
+
+  /* ═══ 7. Init + observer for re-renders ═══ */
+  function pulseUpdates(){
+    replaceWeatherIcons();
+    markTodayTomorrow();
+    findCountdownAndAnimate();
+    attachRipples();
+  }
+
+  // Initial
+  setTimeout(pulseUpdates, 100);
+  setTimeout(pulseUpdates, 600);
+  setTimeout(pulseUpdates, 1500);
+
+  // After data renders
+  const renderObserver = new MutationObserver(()=>{
+    clearTimeout(window._polishDebounce);
+    window._polishDebounce = setTimeout(pulseUpdates, 150);
+  });
+  const cont = document.getElementById('daysContainer');
+  if(cont) renderObserver.observe(cont, { childList:true, subtree:true });
+  const wc = document.getElementById('weatherCarousel');
+  if(wc) renderObserver.observe(wc, { childList:true });
+
+  console.log('[polish v5] aplicado');
 })();
 </script>
 </body>
